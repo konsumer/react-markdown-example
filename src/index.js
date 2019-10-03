@@ -33,6 +33,7 @@ const renderers = {
       return <PieWrapper><PieChart data={yaml.safeLoad(value)} /></PieWrapper>
     }
 
+    // try to syntax-highlight, using my custom style
     return <SynHi language={language}>{value}</SynHi>
   }
 }
