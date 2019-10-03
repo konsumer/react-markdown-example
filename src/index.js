@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import ReactMarkdown from 'react-markdown'
 import JsxParser from 'react-jsx-parser'
-import PieChart from 'react-minimal-pie-chart'
+import PieChartOrig from 'react-minimal-pie-chart'
 import styled from 'styled-components'
 import yaml from 'js-yaml'
 import SynHi from './SynHi'
@@ -11,14 +11,14 @@ import SynHi from './SynHi'
 import text from './example.md'
 
 // constrain pie, so it doesn't fill page
-const PieWrapper = styled.div`
+const PieChart = styled(PieChartOrig)`
   width: 100px;
   height: 100px;
 `
 
 // these are the components you want to expose to your jsx-in-markdown:
 const components = {
-  PieChart: (props) => <PieWrapper><PieChart {...props} /></PieWrapper>
+  PieChart
 }
 
 const renderers = {
@@ -30,7 +30,7 @@ const renderers = {
 
     // render "pie" type as YAML and hand it to a pie
     if (language === 'pie') {
-      return <PieWrapper><PieChart data={yaml.safeLoad(value)} /></PieWrapper>
+      return <PieChart data={yaml.safeLoad(value)} />
     }
 
     // try to syntax-highlight, using my custom style
