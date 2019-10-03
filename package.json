@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "start": "parcel src/index.html",
-    "build": "parcel build src/index.html",
+    "build": "parcel build src/index.html --public-url ./",
     "deploy": "ghpages konsumer/react-markdown-example --path=dist",
     "predeploy": "npm run build"
   },
