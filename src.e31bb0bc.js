@@ -41606,7 +41606,489 @@ module.exports = ReactMarkdown;
 var define;
 !function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e(require("react")):"function"==typeof define&&define.amd?define("react-jsx-parser",["react"],e):"object"==typeof exports?exports["react-jsx-parser"]=e(require("react")):t["react-jsx-parser"]=e(t.react)}(this,function(t){return function(t){var e={};function i(s){if(e[s])return e[s].exports;var r=e[s]={i:s,l:!1,exports:{}};return t[s].call(r.exports,r,r.exports,i),r.l=!0,r.exports}return i.m=t,i.c=e,i.d=function(t,e,s){i.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:s})},i.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},i.t=function(t,e){if(1&e&&(t=i(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var s=Object.create(null);if(i.r(s),Object.defineProperty(s,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var r in t)i.d(s,r,function(e){return t[e]}.bind(null,r));return s},i.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return i.d(e,"a",e),e},i.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},i.p="",i(i.s=5)}([function(e,i){e.exports=t},function(t,e,i){"use strict";t.exports=i(2)(i(4))},function(t,e,i){"use strict";var s=i(3),r=/^[\da-fA-F]+$/,n=/^\d+$/;t.exports=function(t){var e=t.tokTypes,i=t.tokContexts;i.j_oTag=new t.TokContext("<tag",!1),i.j_cTag=new t.TokContext("</tag",!1),i.j_expr=new t.TokContext("<tag>...</tag>",!0,!0),e.jsxName=new t.TokenType("jsxName"),e.jsxText=new t.TokenType("jsxText",{beforeExpr:!0}),e.jsxTagStart=new t.TokenType("jsxTagStart"),e.jsxTagEnd=new t.TokenType("jsxTagEnd"),e.jsxTagStart.updateContext=function(){this.context.push(i.j_expr),this.context.push(i.j_oTag),this.exprAllowed=!1},e.jsxTagEnd.updateContext=function(t){var s=this.context.pop();s===i.j_oTag&&t===e.slash||s===i.j_cTag?(this.context.pop(),this.exprAllowed=this.curContext()===i.j_expr):this.exprAllowed=!0};var a=t.Parser.prototype;function o(t){return t?"JSXIdentifier"===t.type?t.name:"JSXNamespacedName"===t.type?t.namespace.name+":"+t.name.name:"JSXMemberExpression"===t.type?o(t.object)+"."+o(t.property):void 0:t}return a.jsx_readToken=function(){for(var i="",s=this.pos;;){this.pos>=this.input.length&&this.raise(this.start,"Unterminated JSX contents");var r=this.input.charCodeAt(this.pos);switch(r){case 60:case 123:return this.pos===this.start?60===r&&this.exprAllowed?(++this.pos,this.finishToken(e.jsxTagStart)):this.getTokenFromCode(r):(i+=this.input.slice(s,this.pos),this.finishToken(e.jsxText,i));case 38:i+=this.input.slice(s,this.pos),i+=this.jsx_readEntity(),s=this.pos;break;default:t.isNewLine(r)?(i+=this.input.slice(s,this.pos),i+=this.jsx_readNewLine(!0),s=this.pos):++this.pos}}},a.jsx_readNewLine=function(t){var e,i=this.input.charCodeAt(this.pos);return++this.pos,13===i&&10===this.input.charCodeAt(this.pos)?(++this.pos,e=t?"\n":"\r\n"):e=String.fromCharCode(i),this.options.locations&&(++this.curLine,this.lineStart=this.pos),e},a.jsx_readString=function(i){for(var s="",r=++this.pos;;){this.pos>=this.input.length&&this.raise(this.start,"Unterminated string constant");var n=this.input.charCodeAt(this.pos);if(n===i)break;38===n?(s+=this.input.slice(r,this.pos),s+=this.jsx_readEntity(),r=this.pos):t.isNewLine(n)?(s+=this.input.slice(r,this.pos),s+=this.jsx_readNewLine(!1),r=this.pos):++this.pos}return s+=this.input.slice(r,this.pos++),this.finishToken(e.string,s)},a.jsx_readEntity=function(){var t,e="",i=0,a=this.input[this.pos];"&"!==a&&this.raise(this.pos,"Entity must start with an ampersand");for(var o=++this.pos;this.pos<this.input.length&&i++<10;){if(";"===(a=this.input[this.pos++])){"#"===e[0]?"x"===e[1]?(e=e.substr(2),r.test(e)&&(t=String.fromCharCode(parseInt(e,16)))):(e=e.substr(1),n.test(e)&&(t=String.fromCharCode(parseInt(e,10)))):t=s[e];break}e+=a}return t||(this.pos=o,"&")},a.jsx_readWord=function(){var i,s=this.pos;do{i=this.input.charCodeAt(++this.pos)}while(t.isIdentifierChar(i)||45===i);return this.finishToken(e.jsxName,this.input.slice(s,this.pos))},a.jsx_parseIdentifier=function(){var t=this.startNode();return this.type===e.jsxName?t.name=this.value:this.type.keyword?t.name=this.type.keyword:this.unexpected(),this.next(),this.finishNode(t,"JSXIdentifier")},a.jsx_parseNamespacedName=function(){var t=this.start,i=this.startLoc,s=this.jsx_parseIdentifier();if(!this.options.plugins.jsx.allowNamespaces||!this.eat(e.colon))return s;var r=this.startNodeAt(t,i);return r.namespace=s,r.name=this.jsx_parseIdentifier(),this.finishNode(r,"JSXNamespacedName")},a.jsx_parseElementName=function(){if(this.type===e.jsxTagEnd)return"";var t=this.start,i=this.startLoc,s=this.jsx_parseNamespacedName();for(this.type!==e.dot||"JSXNamespacedName"!==s.type||this.options.plugins.jsx.allowNamespacedObjects||this.unexpected();this.eat(e.dot);){var r=this.startNodeAt(t,i);r.object=s,r.property=this.jsx_parseIdentifier(),s=this.finishNode(r,"JSXMemberExpression")}return s},a.jsx_parseAttributeValue=function(){switch(this.type){case e.braceL:var t=this.jsx_parseExpressionContainer();return"JSXEmptyExpression"===t.expression.type&&this.raise(t.start,"JSX attributes must only be assigned a non-empty expression"),t;case e.jsxTagStart:case e.string:return this.parseExprAtom();default:this.raise(this.start,"JSX value should be either an expression or a quoted JSX text")}},a.jsx_parseEmptyExpression=function(){var t=this.startNodeAt(this.lastTokEnd,this.lastTokEndLoc);return this.finishNodeAt(t,"JSXEmptyExpression",this.start,this.startLoc)},a.jsx_parseExpressionContainer=function(){var t=this.startNode();return this.next(),t.expression=this.type===e.braceR?this.jsx_parseEmptyExpression():this.parseExpression(),this.expect(e.braceR),this.finishNode(t,"JSXExpressionContainer")},a.jsx_parseAttribute=function(){var t=this.startNode();return this.eat(e.braceL)?(this.expect(e.ellipsis),t.argument=this.parseMaybeAssign(),this.expect(e.braceR),this.finishNode(t,"JSXSpreadAttribute")):(t.name=this.jsx_parseNamespacedName(),t.value=this.eat(e.eq)?this.jsx_parseAttributeValue():null,this.finishNode(t,"JSXAttribute"))},a.jsx_parseOpeningElementAt=function(t,i){var s=this.startNodeAt(t,i);s.attributes=[];var r=this.jsx_parseElementName();for(r&&(s.name=r);this.type!==e.slash&&this.type!==e.jsxTagEnd;)s.attributes.push(this.jsx_parseAttribute());return s.selfClosing=this.eat(e.slash),this.expect(e.jsxTagEnd),this.finishNode(s,r?"JSXOpeningElement":"JSXOpeningFragment")},a.jsx_parseClosingElementAt=function(t,i){var s=this.startNodeAt(t,i),r=this.jsx_parseElementName();return r&&(s.name=r),this.expect(e.jsxTagEnd),this.finishNode(s,r?"JSXClosingElement":"JSXClosingFragment")},a.jsx_parseElementAt=function(t,i){var s=this.startNodeAt(t,i),r=[],n=this.jsx_parseOpeningElementAt(t,i),a=null;if(!n.selfClosing){t:for(;;)switch(this.type){case e.jsxTagStart:if(t=this.start,i=this.startLoc,this.next(),this.eat(e.slash)){a=this.jsx_parseClosingElementAt(t,i);break t}r.push(this.jsx_parseElementAt(t,i));break;case e.jsxText:r.push(this.parseExprAtom());break;case e.braceL:r.push(this.jsx_parseExpressionContainer());break;default:this.unexpected()}o(a.name)!==o(n.name)&&this.raise(a.start,"Expected corresponding JSX closing tag for <"+o(n.name)+">")}return s.openingElement=n,s.closingElement=a,s.children=r,this.type===e.relational&&"<"===this.value&&this.raise(this.start,"Adjacent JSX elements must be wrapped in an enclosing tag"),this.finishNode(s,n.name?"JSXElement":"JSXFragment")},a.jsx_parseText=function(t){var e=this.parseLiteral(t);return e.type="JSXText",e},a.jsx_parseElement=function(){var t=this.start,e=this.startLoc;return this.next(),this.jsx_parseElementAt(t,e)},t.plugins.jsx=function(s,r){r&&("object"!=typeof r&&(r={}),s.options.plugins.jsx={allowNamespaces:!1!==r.allowNamespaces,allowNamespacedObjects:!!r.allowNamespacedObjects},s.extend("parseExprAtom",function(t){return function(i){return this.type===e.jsxText?this.jsx_parseText(this.value):this.type===e.jsxTagStart?this.jsx_parseElement():t.call(this,i)}}),s.extend("readToken",function(s){return function(r){var n=this.curContext();if(n===i.j_expr)return this.jsx_readToken();if(n===i.j_oTag||n===i.j_cTag){if(t.isIdentifierStart(r))return this.jsx_readWord();if(62==r)return++this.pos,this.finishToken(e.jsxTagEnd);if((34===r||39===r)&&n==i.j_oTag)return this.jsx_readString(r)}return 60===r&&this.exprAllowed&&33!==this.input.charCodeAt(this.pos+1)?(++this.pos,this.finishToken(e.jsxTagStart)):s.call(this,r)}}),s.extend("updateContext",function(t){return function(s){if(this.type==e.braceL){var r=this.curContext();r==i.j_oTag?this.context.push(i.b_expr):r==i.j_expr?this.context.push(i.b_tmpl):t.call(this,s),this.exprAllowed=!0}else{if(this.type!==e.slash||s!==e.jsxTagStart)return t.call(this,s);this.context.length-=2,this.context.push(i.j_cTag),this.exprAllowed=!1}}}))},t}},function(t,e){t.exports={quot:'"',amp:"&",apos:"'",lt:"<",gt:">",nbsp:" ",iexcl:"¡",cent:"¢",pound:"£",curren:"¤",yen:"¥",brvbar:"¦",sect:"§",uml:"¨",copy:"©",ordf:"ª",laquo:"«",not:"¬",shy:"­",reg:"®",macr:"¯",deg:"°",plusmn:"±",sup2:"²",sup3:"³",acute:"´",micro:"µ",para:"¶",middot:"·",cedil:"¸",sup1:"¹",ordm:"º",raquo:"»",frac14:"¼",frac12:"½",frac34:"¾",iquest:"¿",Agrave:"À",Aacute:"Á",Acirc:"Â",Atilde:"Ã",Auml:"Ä",Aring:"Å",AElig:"Æ",Ccedil:"Ç",Egrave:"È",Eacute:"É",Ecirc:"Ê",Euml:"Ë",Igrave:"Ì",Iacute:"Í",Icirc:"Î",Iuml:"Ï",ETH:"Ð",Ntilde:"Ñ",Ograve:"Ò",Oacute:"Ó",Ocirc:"Ô",Otilde:"Õ",Ouml:"Ö",times:"×",Oslash:"Ø",Ugrave:"Ù",Uacute:"Ú",Ucirc:"Û",Uuml:"Ü",Yacute:"Ý",THORN:"Þ",szlig:"ß",agrave:"à",aacute:"á",acirc:"â",atilde:"ã",auml:"ä",aring:"å",aelig:"æ",ccedil:"ç",egrave:"è",eacute:"é",ecirc:"ê",euml:"ë",igrave:"ì",iacute:"í",icirc:"î",iuml:"ï",eth:"ð",ntilde:"ñ",ograve:"ò",oacute:"ó",ocirc:"ô",otilde:"õ",ouml:"ö",divide:"÷",oslash:"ø",ugrave:"ù",uacute:"ú",ucirc:"û",uuml:"ü",yacute:"ý",thorn:"þ",yuml:"ÿ",OElig:"Œ",oelig:"œ",Scaron:"Š",scaron:"š",Yuml:"Ÿ",fnof:"ƒ",circ:"ˆ",tilde:"˜",Alpha:"Α",Beta:"Β",Gamma:"Γ",Delta:"Δ",Epsilon:"Ε",Zeta:"Ζ",Eta:"Η",Theta:"Θ",Iota:"Ι",Kappa:"Κ",Lambda:"Λ",Mu:"Μ",Nu:"Ν",Xi:"Ξ",Omicron:"Ο",Pi:"Π",Rho:"Ρ",Sigma:"Σ",Tau:"Τ",Upsilon:"Υ",Phi:"Φ",Chi:"Χ",Psi:"Ψ",Omega:"Ω",alpha:"α",beta:"β",gamma:"γ",delta:"δ",epsilon:"ε",zeta:"ζ",eta:"η",theta:"θ",iota:"ι",kappa:"κ",lambda:"λ",mu:"μ",nu:"ν",xi:"ξ",omicron:"ο",pi:"π",rho:"ρ",sigmaf:"ς",sigma:"σ",tau:"τ",upsilon:"υ",phi:"φ",chi:"χ",psi:"ψ",omega:"ω",thetasym:"ϑ",upsih:"ϒ",piv:"ϖ",ensp:" ",emsp:" ",thinsp:" ",zwnj:"‌",zwj:"‍",lrm:"‎",rlm:"‏",ndash:"–",mdash:"—",lsquo:"‘",rsquo:"’",sbquo:"‚",ldquo:"“",rdquo:"”",bdquo:"„",dagger:"†",Dagger:"‡",bull:"•",hellip:"…",permil:"‰",prime:"′",Prime:"″",lsaquo:"‹",rsaquo:"›",oline:"‾",frasl:"⁄",euro:"€",image:"ℑ",weierp:"℘",real:"ℜ",trade:"™",alefsym:"ℵ",larr:"←",uarr:"↑",rarr:"→",darr:"↓",harr:"↔",crarr:"↵",lArr:"⇐",uArr:"⇑",rArr:"⇒",dArr:"⇓",hArr:"⇔",forall:"∀",part:"∂",exist:"∃",empty:"∅",nabla:"∇",isin:"∈",notin:"∉",ni:"∋",prod:"∏",sum:"∑",minus:"−",lowast:"∗",radic:"√",prop:"∝",infin:"∞",ang:"∠",and:"∧",or:"∨",cap:"∩",cup:"∪",int:"∫",there4:"∴",sim:"∼",cong:"≅",asymp:"≈",ne:"≠",equiv:"≡",le:"≤",ge:"≥",sub:"⊂",sup:"⊃",nsub:"⊄",sube:"⊆",supe:"⊇",oplus:"⊕",otimes:"⊗",perp:"⊥",sdot:"⋅",lceil:"⌈",rceil:"⌉",lfloor:"⌊",rfloor:"⌋",lang:"〈",rang:"〉",loz:"◊",spades:"♠",clubs:"♣",hearts:"♥",diams:"♦"}},function(t,e,i){"use strict";i.r(e),i.d(e,"version",function(){return wt}),i.d(e,"parse",function(){return Ct}),i.d(e,"parseExpressionAt",function(){return At}),i.d(e,"tokenizer",function(){return Tt}),i.d(e,"parse_dammit",function(){return kt}),i.d(e,"LooseParser",function(){return Et}),i.d(e,"pluginsLoose",function(){return St}),i.d(e,"addLooseExports",function(){return Pt}),i.d(e,"Parser",function(){return F}),i.d(e,"plugins",function(){return M}),i.d(e,"defaultOptions",function(){return R}),i.d(e,"Position",function(){return V}),i.d(e,"SourceLocation",function(){return j}),i.d(e,"getLineInfo",function(){return O}),i.d(e,"Node",function(){return tt}),i.d(e,"TokenType",function(){return x}),i.d(e,"tokTypes",function(){return k}),i.d(e,"keywordTypes",function(){return b}),i.d(e,"TokContext",function(){return st}),i.d(e,"tokContexts",function(){return rt}),i.d(e,"isIdentifierChar",function(){return m}),i.d(e,"isIdentifierStart",function(){return f}),i.d(e,"Token",function(){return yt}),i.d(e,"isNewLine",function(){return w}),i.d(e,"lineBreak",function(){return E}),i.d(e,"lineBreakG",function(){return S}),i.d(e,"nonASCIIwhitespace",function(){return C});var s={3:"abstract boolean byte char class double enum export extends final float goto implements import int interface long native package private protected public short static super synchronized throws transient volatile",5:"class enum extends super const export import",6:"enum",strict:"implements interface let package private protected public static yield",strictBind:"eval arguments"},r="break case catch continue debugger default do else finally for function if return switch throw try var while with null true false instanceof typeof void delete new in this",n={5:r,6:r+" const class extends export import super"},a=/^in(stanceof)?$/,o="ªµºÀ-ÖØ-öø-ˁˆ-ˑˠ-ˤˬˮͰ-ʹͶͷͺ-ͽͿΆΈ-ΊΌΎ-ΡΣ-ϵϷ-ҁҊ-ԯԱ-Ֆՙՠ-ֈא-תׯ-ײؠ-يٮٯٱ-ۓەۥۦۮۯۺ-ۼۿܐܒ-ܯݍ-ޥޱߊ-ߪߴߵߺࠀ-ࠕࠚࠤࠨࡀ-ࡘࡠ-ࡪࢠ-ࢴࢶ-ࢽऄ-हऽॐक़-ॡॱ-ঀঅ-ঌএঐও-নপ-রলশ-হঽৎড়ঢ়য়-ৡৰৱৼਅ-ਊਏਐਓ-ਨਪ-ਰਲਲ਼ਵਸ਼ਸਹਖ਼-ੜਫ਼ੲ-ੴઅ-ઍએ-ઑઓ-નપ-રલળવ-હઽૐૠૡૹଅ-ଌଏଐଓ-ନପ-ରଲଳଵ-ହଽଡ଼ଢ଼ୟ-ୡୱஃஅ-ஊஎ-ஐஒ-கஙசஜஞடணதந-பம-ஹௐఅ-ఌఎ-ఐఒ-నప-హఽౘ-ౚౠౡಀಅ-ಌಎ-ಐಒ-ನಪ-ಳವ-ಹಽೞೠೡೱೲഅ-ഌഎ-ഐഒ-ഺഽൎൔ-ൖൟ-ൡൺ-ൿඅ-ඖක-නඳ-රලව-ෆก-ะาำเ-ๆກຂຄງຈຊຍດ-ທນ-ຟມ-ຣລວສຫອ-ະາຳຽເ-ໄໆໜ-ໟༀཀ-ཇཉ-ཬྈ-ྌက-ဪဿၐ-ၕၚ-ၝၡၥၦၮ-ၰၵ-ႁႎႠ-ჅჇჍა-ჺჼ-ቈቊ-ቍቐ-ቖቘቚ-ቝበ-ኈኊ-ኍነ-ኰኲ-ኵኸ-ኾዀዂ-ዅወ-ዖዘ-ጐጒ-ጕጘ-ፚᎀ-ᎏᎠ-Ᏽᏸ-ᏽᐁ-ᙬᙯ-ᙿᚁ-ᚚᚠ-ᛪᛮ-ᛸᜀ-ᜌᜎ-ᜑᜠ-ᜱᝀ-ᝑᝠ-ᝬᝮ-ᝰក-ឳៗៜᠠ-ᡸᢀ-ᢨᢪᢰ-ᣵᤀ-ᤞᥐ-ᥭᥰ-ᥴᦀ-ᦫᦰ-ᧉᨀ-ᨖᨠ-ᩔᪧᬅ-ᬳᭅ-ᭋᮃ-ᮠᮮᮯᮺ-ᯥᰀ-ᰣᱍ-ᱏᱚ-ᱽᲀ-ᲈᲐ-ᲺᲽ-Ჿᳩ-ᳬᳮ-ᳱᳵᳶᴀ-ᶿḀ-ἕἘ-Ἕἠ-ὅὈ-Ὅὐ-ὗὙὛὝὟ-ώᾀ-ᾴᾶ-ᾼιῂ-ῄῆ-ῌῐ-ΐῖ-Ίῠ-Ῥῲ-ῴῶ-ῼⁱⁿₐ-ₜℂℇℊ-ℓℕ℘-ℝℤΩℨK-ℹℼ-ℿⅅ-ⅉⅎⅠ-ↈⰀ-Ⱞⰰ-ⱞⱠ-ⳤⳫ-ⳮⳲⳳⴀ-ⴥⴧⴭⴰ-ⵧⵯⶀ-ⶖⶠ-ⶦⶨ-ⶮⶰ-ⶶⶸ-ⶾⷀ-ⷆⷈ-ⷎⷐ-ⷖⷘ-ⷞ々-〇〡-〩〱-〵〸-〼ぁ-ゖ゛-ゟァ-ヺー-ヿㄅ-ㄯㄱ-ㆎㆠ-ㆺㇰ-ㇿ㐀-䶵一-鿯ꀀ-ꒌꓐ-ꓽꔀ-ꘌꘐ-ꘟꘪꘫꙀ-ꙮꙿ-ꚝꚠ-ꛯꜗ-ꜟꜢ-ꞈꞋ-ꞹꟷ-ꠁꠃ-ꠅꠇ-ꠊꠌ-ꠢꡀ-ꡳꢂ-ꢳꣲ-ꣷꣻꣽꣾꤊ-ꤥꤰ-ꥆꥠ-ꥼꦄ-ꦲꧏꧠ-ꧤꧦ-ꧯꧺ-ꧾꨀ-ꨨꩀ-ꩂꩄ-ꩋꩠ-ꩶꩺꩾ-ꪯꪱꪵꪶꪹ-ꪽꫀꫂꫛ-ꫝꫠ-ꫪꫲ-ꫴꬁ-ꬆꬉ-ꬎꬑ-ꬖꬠ-ꬦꬨ-ꬮꬰ-ꭚꭜ-ꭥꭰ-ꯢ가-힣ힰ-ퟆퟋ-ퟻ豈-舘並-龎ﬀ-ﬆﬓ-ﬗיִײַ-ﬨשׁ-זּטּ-לּמּנּסּףּפּצּ-ﮱﯓ-ﴽﵐ-ﶏﶒ-ﷇﷰ-ﷻﹰ-ﹴﹶ-ﻼＡ-Ｚａ-ｚｦ-ﾾￂ-ￇￊ-ￏￒ-ￗￚ-ￜ",h="‌‍·̀-ͯ·҃-֑҇-ׇֽֿׁׂׅׄؐ-ًؚ-٩ٰۖ-ۜ۟-۪ۤۧۨ-ۭ۰-۹ܑܰ-݊ަ-ް߀-߉߫-߽߳ࠖ-࠙ࠛ-ࠣࠥ-ࠧࠩ-࡙࠭-࡛࣓-ࣣ࣡-ःऺ-़ा-ॏ॑-ॗॢॣ०-९ঁ-ঃ়া-ৄেৈো-্ৗৢৣ০-৯৾ਁ-ਃ਼ਾ-ੂੇੈੋ-੍ੑ੦-ੱੵઁ-ઃ઼ા-ૅે-ૉો-્ૢૣ૦-૯ૺ-૿ଁ-ଃ଼ା-ୄେୈୋ-୍ୖୗୢୣ୦-୯ஂா-ூெ-ைொ-்ௗ௦-௯ఀ-ఄా-ౄె-ైొ-్ౕౖౢౣ౦-౯ಁ-ಃ಼ಾ-ೄೆ-ೈೊ-್ೕೖೢೣ೦-೯ഀ-ഃ഻഼ാ-ൄെ-ൈൊ-്ൗൢൣ൦-൯ංඃ්ා-ුූෘ-ෟ෦-෯ෲෳัิ-ฺ็-๎๐-๙ັິ-ູົຼ່-ໍ໐-໙༘༙༠-༩༹༵༷༾༿ཱ-྄྆྇ྍ-ྗྙ-ྼ࿆ါ-ှ၀-၉ၖ-ၙၞ-ၠၢ-ၤၧ-ၭၱ-ၴႂ-ႍႏ-ႝ፝-፟፩-፱ᜒ-᜔ᜲ-᜴ᝒᝓᝲᝳ឴-៓៝០-៩᠋-᠍᠐-᠙ᢩᤠ-ᤫᤰ-᤻᥆-᥏᧐-᧚ᨗ-ᨛᩕ-ᩞ᩠-᩿᩼-᪉᪐-᪙᪰-᪽ᬀ-ᬄ᬴-᭄᭐-᭙᭫-᭳ᮀ-ᮂᮡ-ᮭ᮰-᮹᯦-᯳ᰤ-᰷᱀-᱉᱐-᱙᳐-᳔᳒-᳨᳭ᳲ-᳴᳷-᳹᷀-᷹᷻-᷿‿⁀⁔⃐-⃥⃜⃡-⃰⳯-⵿⳱ⷠ-〪ⷿ-゙゚〯꘠-꘩꙯ꙴ-꙽ꚞꚟ꛰꛱ꠂ꠆ꠋꠣ-ꠧꢀꢁꢴ-ꣅ꣐-꣙꣠-꣱ꣿ-꤉ꤦ-꤭ꥇ-꥓ꦀ-ꦃ꦳-꧀꧐-꧙ꧥ꧰-꧹ꨩ-ꨶꩃꩌꩍ꩐-꩙ꩻ-ꩽꪰꪲ-ꪴꪷꪸꪾ꪿꫁ꫫ-ꫯꫵ꫶ꯣ-ꯪ꯬꯭꯰-꯹ﬞ︀-️︠-︯︳︴﹍-﹏０-９＿",p=new RegExp("["+o+"]"),c=new RegExp("["+o+h+"]");o=h=null;var u=[0,11,2,25,2,18,2,1,2,14,3,13,35,122,70,52,268,28,4,48,48,31,14,29,6,37,11,29,3,35,5,7,2,4,43,157,19,35,5,35,5,39,9,51,157,310,10,21,11,7,153,5,3,0,2,43,2,1,4,0,3,22,11,22,10,30,66,18,2,1,11,21,11,25,71,55,7,1,65,0,16,3,2,2,2,28,43,28,4,28,36,7,2,27,28,53,11,21,11,18,14,17,111,72,56,50,14,50,14,35,477,28,11,0,9,21,190,52,76,44,33,24,27,35,30,0,12,34,4,0,13,47,15,3,22,0,2,0,36,17,2,24,85,6,2,0,2,3,2,14,2,9,8,46,39,7,3,1,3,21,2,6,2,1,2,4,4,0,19,0,13,4,159,52,19,3,54,47,21,1,2,0,185,46,42,3,37,47,21,0,60,42,86,26,230,43,117,63,32,0,257,0,11,39,8,0,22,0,12,39,3,3,20,0,35,56,264,8,2,36,18,0,50,29,113,6,2,1,2,37,22,0,26,5,2,1,2,31,15,0,328,18,270,921,103,110,18,195,2749,1070,4050,582,8634,568,8,30,114,29,19,47,17,3,32,20,6,18,689,63,129,68,12,0,67,12,65,1,31,6129,15,754,9486,286,82,395,2309,106,6,12,4,8,8,9,5991,84,2,70,2,1,3,0,3,1,3,3,2,11,2,0,2,6,2,64,2,3,3,7,2,6,2,27,2,3,2,4,2,0,4,6,2,339,3,24,2,24,2,30,2,24,2,30,2,24,2,30,2,24,2,30,2,24,2,7,4149,196,60,67,1213,3,2,26,2,1,2,0,3,0,2,9,2,3,2,0,2,0,7,0,5,0,2,0,2,0,2,2,2,1,2,0,3,0,2,0,2,0,2,0,2,0,2,1,2,0,3,3,2,6,2,3,2,3,2,0,2,9,2,16,6,2,2,4,2,16,4421,42710,42,4148,12,221,3,5761,15,7472,3104,541],l=[509,0,227,0,150,4,294,9,1368,2,2,1,6,3,41,2,5,0,166,1,574,3,9,9,525,10,176,2,54,14,32,9,16,3,46,10,54,9,7,2,37,13,2,9,6,1,45,0,13,2,49,13,9,3,4,9,83,11,7,0,161,11,6,9,7,3,56,1,2,6,3,1,3,2,10,0,11,1,3,6,4,4,193,17,10,9,5,0,82,19,13,9,214,6,3,8,28,1,83,16,16,9,82,12,9,9,84,14,5,9,243,14,166,9,280,9,41,6,2,3,9,0,10,10,47,15,406,7,2,7,17,9,57,21,2,13,123,5,4,0,2,1,2,6,2,0,9,9,49,4,2,1,2,4,9,9,330,3,19306,9,135,4,60,6,26,9,1016,45,17,3,19723,1,5319,4,4,5,9,7,3,6,31,3,149,2,1418,49,513,54,5,49,9,0,15,0,23,4,2,14,1361,6,2,16,3,6,2,1,2,4,2214,6,110,6,6,9,792487,239];function d(t,e){for(var i=65536,s=0;s<e.length;s+=2){if((i+=e[s])>t)return!1;if((i+=e[s+1])>=t)return!0}}function f(t,e){return t<65?36===t:t<91||(t<97?95===t:t<123||(t<=65535?t>=170&&p.test(String.fromCharCode(t)):!1!==e&&d(t,u)))}function m(t,e){return t<48?36===t:t<58||!(t<65)&&(t<91||(t<97?95===t:t<123||(t<=65535?t>=170&&c.test(String.fromCharCode(t)):!1!==e&&(d(t,u)||d(t,l)))))}var x=function(t,e){void 0===e&&(e={}),this.label=t,this.keyword=e.keyword,this.beforeExpr=!!e.beforeExpr,this.startsExpr=!!e.startsExpr,this.isLoop=!!e.isLoop,this.isAssign=!!e.isAssign,this.prefix=!!e.prefix,this.postfix=!!e.postfix,this.binop=e.binop||null,this.updateContext=null};function g(t,e){return new x(t,{beforeExpr:!0,binop:e})}var y={beforeExpr:!0},v={startsExpr:!0},b={};function _(t,e){return void 0===e&&(e={}),e.keyword=t,b[t]=new x(t,e)}var k={num:new x("num",v),regexp:new x("regexp",v),string:new x("string",v),name:new x("name",v),eof:new x("eof"),bracketL:new x("[",{beforeExpr:!0,startsExpr:!0}),bracketR:new x("]"),braceL:new x("{",{beforeExpr:!0,startsExpr:!0}),braceR:new x("}"),parenL:new x("(",{beforeExpr:!0,startsExpr:!0}),parenR:new x(")"),comma:new x(",",y),semi:new x(";",y),colon:new x(":",y),dot:new x("."),question:new x("?",y),arrow:new x("=>",y),template:new x("template"),invalidTemplate:new x("invalidTemplate"),ellipsis:new x("...",y),backQuote:new x("`",v),dollarBraceL:new x("${",{beforeExpr:!0,startsExpr:!0}),eq:new x("=",{beforeExpr:!0,isAssign:!0}),assign:new x("_=",{beforeExpr:!0,isAssign:!0}),incDec:new x("++/--",{prefix:!0,postfix:!0,startsExpr:!0}),prefix:new x("!/~",{beforeExpr:!0,prefix:!0,startsExpr:!0}),logicalOR:g("||",1),logicalAND:g("&&",2),bitwiseOR:g("|",3),bitwiseXOR:g("^",4),bitwiseAND:g("&",5),equality:g("==/!=/===/!==",6),relational:g("</>/<=/>=",7),bitShift:g("<</>>/>>>",8),plusMin:new x("+/-",{beforeExpr:!0,binop:9,prefix:!0,startsExpr:!0}),modulo:g("%",10),star:g("*",10),slash:g("/",10),starstar:new x("**",{beforeExpr:!0}),_break:_("break"),_case:_("case",y),_catch:_("catch"),_continue:_("continue"),_debugger:_("debugger"),_default:_("default",y),_do:_("do",{isLoop:!0,beforeExpr:!0}),_else:_("else",y),_finally:_("finally"),_for:_("for",{isLoop:!0}),_function:_("function",v),_if:_("if"),_return:_("return",y),_switch:_("switch"),_throw:_("throw",y),_try:_("try"),_var:_("var"),_const:_("const"),_while:_("while",{isLoop:!0}),_with:_("with"),_new:_("new",{beforeExpr:!0,startsExpr:!0}),_this:_("this",v),_super:_("super",v),_class:_("class",v),_extends:_("extends",y),_export:_("export"),_import:_("import"),_null:_("null",v),_true:_("true",v),_false:_("false",v),_in:_("in",{beforeExpr:!0,binop:7}),_instanceof:_("instanceof",{beforeExpr:!0,binop:7}),_typeof:_("typeof",{beforeExpr:!0,prefix:!0,startsExpr:!0}),_void:_("void",{beforeExpr:!0,prefix:!0,startsExpr:!0}),_delete:_("delete",{beforeExpr:!0,prefix:!0,startsExpr:!0})},E=/\r\n?|\n|\u2028|\u2029/,S=new RegExp(E.source,"g");function w(t,e){return 10===t||13===t||!e&&(8232===t||8233===t)}var C=/[\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff]/,A=/(?:\s|\/\/.*|\/\*[^]*?\*\/)*/g,T=Object.prototype,P=T.hasOwnProperty,N=T.toString;function I(t,e){return P.call(t,e)}var L=Array.isArray||function(t){return"[object Array]"===N.call(t)},V=function(t,e){this.line=t,this.column=e};V.prototype.offset=function(t){return new V(this.line,this.column+t)};var j=function(t,e,i){this.start=e,this.end=i,null!==t.sourceFile&&(this.source=t.sourceFile)};function O(t,e){for(var i=1,s=0;;){S.lastIndex=s;var r=S.exec(t);if(!(r&&r.index<e))return new V(i,e-s);++i,s=r.index+r[0].length}}var R={ecmaVersion:7,sourceType:"script",onInsertedSemicolon:null,onTrailingComma:null,allowReserved:null,allowReturnOutsideFunction:!1,allowImportExportEverywhere:!1,allowAwaitOutsideFunction:!1,allowHashBang:!1,locations:!1,onToken:null,onComment:null,ranges:!1,program:null,sourceFile:null,directSourceFile:null,preserveParens:!1,plugins:{}};function D(t){var e={};for(var i in R)e[i]=t&&I(t,i)?t[i]:R[i];if(e.ecmaVersion>=2015&&(e.ecmaVersion-=2009),null==e.allowReserved&&(e.allowReserved=e.ecmaVersion<5),L(e.onToken)){var s=e.onToken;e.onToken=function(t){return s.push(t)}}return L(e.onComment)&&(e.onComment=function(t,e){return function(i,s,r,n,a,o){var h={type:i?"Block":"Line",value:s,start:r,end:n};t.locations&&(h.loc=new j(this,a,o)),t.ranges&&(h.range=[r,n]),e.push(h)}}(e,e.onComment)),e}var M={};function B(t){return new RegExp("^(?:"+t.replace(/ /g,"|")+")$")}var F=function(t,e,i){this.options=t=D(t),this.sourceFile=t.sourceFile,this.keywords=B(n[t.ecmaVersion>=6?6:5]);var r="";if(!t.allowReserved){for(var a=t.ecmaVersion;!(r=s[a]);a--);"module"===t.sourceType&&(r+=" await")}this.reservedWords=B(r);var o=(r?r+" ":"")+s.strict;this.reservedWordsStrict=B(o),this.reservedWordsStrictBind=B(o+" "+s.strictBind),this.input=String(e),this.containsEsc=!1,this.loadPlugins(t.plugins),i?(this.pos=i,this.lineStart=this.input.lastIndexOf("\n",i-1)+1,this.curLine=this.input.slice(0,this.lineStart).split(E).length):(this.pos=this.lineStart=0,this.curLine=1),this.type=k.eof,this.value=null,this.start=this.end=this.pos,this.startLoc=this.endLoc=this.curPosition(),this.lastTokEndLoc=this.lastTokStartLoc=null,this.lastTokStart=this.lastTokEnd=this.pos,this.context=this.initialContext(),this.exprAllowed=!0,this.inModule="module"===t.sourceType,this.strict=this.inModule||this.strictDirective(this.pos),this.potentialArrowAt=-1,this.inFunction=this.inGenerator=this.inAsync=!1,this.yieldPos=this.awaitPos=0,this.labels=[],0===this.pos&&t.allowHashBang&&"#!"===this.input.slice(0,2)&&this.skipLineComment(2),this.scopeStack=[],this.enterFunctionScope(),this.regexpState=null};F.prototype.isKeyword=function(t){return this.keywords.test(t)},F.prototype.isReservedWord=function(t){return this.reservedWords.test(t)},F.prototype.extend=function(t,e){this[t]=e(this[t])},F.prototype.loadPlugins=function(t){for(var e in t){var i=M[e];if(!i)throw new Error("Plugin '"+e+"' not found");i(this,t[e])}},F.prototype.parse=function(){var t=this.options.program||this.startNode();return this.nextToken(),this.parseTopLevel(t)};var U=F.prototype,q=/^(?:'((?:\\.|[^'])*?)'|"((?:\\.|[^"])*?)"|;)/;function G(){this.shorthandAssign=this.trailingComma=this.parenthesizedAssign=this.parenthesizedBind=this.doubleProto=-1}U.strictDirective=function(t){for(;;){A.lastIndex=t,t+=A.exec(this.input)[0].length;var e=q.exec(this.input.slice(t));if(!e)return!1;if("use strict"===(e[1]||e[2]))return!0;t+=e[0].length}},U.eat=function(t){return this.type===t&&(this.next(),!0)},U.isContextual=function(t){return this.type===k.name&&this.value===t&&!this.containsEsc},U.eatContextual=function(t){return!!this.isContextual(t)&&(this.next(),!0)},U.expectContextual=function(t){this.eatContextual(t)||this.unexpected()},U.canInsertSemicolon=function(){return this.type===k.eof||this.type===k.braceR||E.test(this.input.slice(this.lastTokEnd,this.start))},U.insertSemicolon=function(){if(this.canInsertSemicolon())return this.options.onInsertedSemicolon&&this.options.onInsertedSemicolon(this.lastTokEnd,this.lastTokEndLoc),!0},U.semicolon=function(){this.eat(k.semi)||this.insertSemicolon()||this.unexpected()},U.afterTrailingComma=function(t,e){if(this.type===t)return this.options.onTrailingComma&&this.options.onTrailingComma(this.lastTokStart,this.lastTokStartLoc),e||this.next(),!0},U.expect=function(t){this.eat(t)||this.unexpected()},U.unexpected=function(t){this.raise(null!=t?t:this.start,"Unexpected token")},U.checkPatternErrors=function(t,e){if(t){t.trailingComma>-1&&this.raiseRecoverable(t.trailingComma,"Comma is not permitted after the rest element");var i=e?t.parenthesizedAssign:t.parenthesizedBind;i>-1&&this.raiseRecoverable(i,"Parenthesized pattern")}},U.checkExpressionErrors=function(t,e){if(!t)return!1;var i=t.shorthandAssign,s=t.doubleProto;if(!e)return i>=0||s>=0;i>=0&&this.raise(i,"Shorthand property assignments are valid only in destructuring patterns"),s>=0&&this.raiseRecoverable(s,"Redefinition of __proto__ property")},U.checkYieldAwaitInDefaultParams=function(){this.yieldPos&&(!this.awaitPos||this.yieldPos<this.awaitPos)&&this.raise(this.yieldPos,"Yield expression cannot be a default value"),this.awaitPos&&this.raise(this.awaitPos,"Await expression cannot be a default value")},U.isSimpleAssignTarget=function(t){return"ParenthesizedExpression"===t.type?this.isSimpleAssignTarget(t.expression):"Identifier"===t.type||"MemberExpression"===t.type};var X=F.prototype;X.parseTopLevel=function(t){var e={};for(t.body||(t.body=[]);this.type!==k.eof;){var i=this.parseStatement(!0,!0,e);t.body.push(i)}return this.adaptDirectivePrologue(t.body),this.next(),this.options.ecmaVersion>=6&&(t.sourceType=this.options.sourceType),this.finishNode(t,"Program")};var W={kind:"loop"},H={kind:"switch"};X.isLet=function(){if(this.options.ecmaVersion<6||!this.isContextual("let"))return!1;A.lastIndex=this.pos;var t=A.exec(this.input),e=this.pos+t[0].length,i=this.input.charCodeAt(e);if(91===i||123===i)return!0;if(f(i,!0)){for(var s=e+1;m(this.input.charCodeAt(s),!0);)++s;var r=this.input.slice(e,s);if(!a.test(r))return!0}return!1},X.isAsyncFunction=function(){if(this.options.ecmaVersion<8||!this.isContextual("async"))return!1;A.lastIndex=this.pos;var t=A.exec(this.input),e=this.pos+t[0].length;return!(E.test(this.input.slice(this.pos,e))||"function"!==this.input.slice(e,e+8)||e+8!==this.input.length&&m(this.input.charAt(e+8)))},X.parseStatement=function(t,e,i){var s,r=this.type,n=this.startNode();switch(this.isLet()&&(r=k._var,s="let"),r){case k._break:case k._continue:return this.parseBreakContinueStatement(n,r.keyword);case k._debugger:return this.parseDebuggerStatement(n);case k._do:return this.parseDoStatement(n);case k._for:return this.parseForStatement(n);case k._function:return!t&&this.options.ecmaVersion>=6&&this.unexpected(),this.parseFunctionStatement(n,!1);case k._class:return t||this.unexpected(),this.parseClass(n,!0);case k._if:return this.parseIfStatement(n);case k._return:return this.parseReturnStatement(n);case k._switch:return this.parseSwitchStatement(n);case k._throw:return this.parseThrowStatement(n);case k._try:return this.parseTryStatement(n);case k._const:case k._var:return s=s||this.value,t||"var"===s||this.unexpected(),this.parseVarStatement(n,s);case k._while:return this.parseWhileStatement(n);case k._with:return this.parseWithStatement(n);case k.braceL:return this.parseBlock();case k.semi:return this.parseEmptyStatement(n);case k._export:case k._import:return this.options.allowImportExportEverywhere||(e||this.raise(this.start,"'import' and 'export' may only appear at the top level"),this.inModule||this.raise(this.start,"'import' and 'export' may appear only with 'sourceType: module'")),r===k._import?this.parseImport(n):this.parseExport(n,i);default:if(this.isAsyncFunction())return t||this.unexpected(),this.next(),this.parseFunctionStatement(n,!0);var a=this.value,o=this.parseExpression();return r===k.name&&"Identifier"===o.type&&this.eat(k.colon)?this.parseLabeledStatement(n,a,o):this.parseExpressionStatement(n,o)}},X.parseBreakContinueStatement=function(t,e){var i="break"===e;this.next(),this.eat(k.semi)||this.insertSemicolon()?t.label=null:this.type!==k.name?this.unexpected():(t.label=this.parseIdent(),this.semicolon());for(var s=0;s<this.labels.length;++s){var r=this.labels[s];if(null==t.label||r.name===t.label.name){if(null!=r.kind&&(i||"loop"===r.kind))break;if(t.label&&i)break}}return s===this.labels.length&&this.raise(t.start,"Unsyntactic "+e),this.finishNode(t,i?"BreakStatement":"ContinueStatement")},X.parseDebuggerStatement=function(t){return this.next(),this.semicolon(),this.finishNode(t,"DebuggerStatement")},X.parseDoStatement=function(t){return this.next(),this.labels.push(W),t.body=this.parseStatement(!1),this.labels.pop(),this.expect(k._while),t.test=this.parseParenExpression(),this.options.ecmaVersion>=6?this.eat(k.semi):this.semicolon(),this.finishNode(t,"DoWhileStatement")},X.parseForStatement=function(t){this.next();var e=this.options.ecmaVersion>=9&&(this.inAsync||!this.inFunction&&this.options.allowAwaitOutsideFunction)&&this.eatContextual("await")?this.lastTokStart:-1;if(this.labels.push(W),this.enterLexicalScope(),this.expect(k.parenL),this.type===k.semi)return e>-1&&this.unexpected(e),this.parseFor(t,null);var i=this.isLet();if(this.type===k._var||this.type===k._const||i){var s=this.startNode(),r=i?"let":this.value;return this.next(),this.parseVar(s,!0,r),this.finishNode(s,"VariableDeclaration"),!(this.type===k._in||this.options.ecmaVersion>=6&&this.isContextual("of"))||1!==s.declarations.length||"var"!==r&&s.declarations[0].init?(e>-1&&this.unexpected(e),this.parseFor(t,s)):(this.options.ecmaVersion>=9&&(this.type===k._in?e>-1&&this.unexpected(e):t.await=e>-1),this.parseForIn(t,s))}var n=new G,a=this.parseExpression(!0,n);return this.type===k._in||this.options.ecmaVersion>=6&&this.isContextual("of")?(this.options.ecmaVersion>=9&&(this.type===k._in?e>-1&&this.unexpected(e):t.await=e>-1),this.toAssignable(a,!1,n),this.checkLVal(a),this.parseForIn(t,a)):(this.checkExpressionErrors(n,!0),e>-1&&this.unexpected(e),this.parseFor(t,a))},X.parseFunctionStatement=function(t,e){return this.next(),this.parseFunction(t,!0,!1,e)},X.parseIfStatement=function(t){return this.next(),t.test=this.parseParenExpression(),t.consequent=this.parseStatement(!this.strict&&this.type===k._function),t.alternate=this.eat(k._else)?this.parseStatement(!this.strict&&this.type===k._function):null,this.finishNode(t,"IfStatement")},X.parseReturnStatement=function(t){return this.inFunction||this.options.allowReturnOutsideFunction||this.raise(this.start,"'return' outside of function"),this.next(),this.eat(k.semi)||this.insertSemicolon()?t.argument=null:(t.argument=this.parseExpression(),this.semicolon()),this.finishNode(t,"ReturnStatement")},X.parseSwitchStatement=function(t){var e;this.next(),t.discriminant=this.parseParenExpression(),t.cases=[],this.expect(k.braceL),this.labels.push(H),this.enterLexicalScope();for(var i=!1;this.type!==k.braceR;)if(this.type===k._case||this.type===k._default){var s=this.type===k._case;e&&this.finishNode(e,"SwitchCase"),t.cases.push(e=this.startNode()),e.consequent=[],this.next(),s?e.test=this.parseExpression():(i&&this.raiseRecoverable(this.lastTokStart,"Multiple default clauses"),i=!0,e.test=null),this.expect(k.colon)}else e||this.unexpected(),e.consequent.push(this.parseStatement(!0));return this.exitLexicalScope(),e&&this.finishNode(e,"SwitchCase"),this.next(),this.labels.pop(),this.finishNode(t,"SwitchStatement")},X.parseThrowStatement=function(t){return this.next(),E.test(this.input.slice(this.lastTokEnd,this.start))&&this.raise(this.lastTokEnd,"Illegal newline after throw"),t.argument=this.parseExpression(),this.semicolon(),this.finishNode(t,"ThrowStatement")};var z=[];X.parseTryStatement=function(t){if(this.next(),t.block=this.parseBlock(),t.handler=null,this.type===k._catch){var e=this.startNode();this.next(),this.eat(k.parenL)?(e.param=this.parseBindingAtom(),this.enterLexicalScope(),this.checkLVal(e.param,"let"),this.expect(k.parenR)):(this.options.ecmaVersion<10&&this.unexpected(),e.param=null,this.enterLexicalScope()),e.body=this.parseBlock(!1),this.exitLexicalScope(),t.handler=this.finishNode(e,"CatchClause")}return t.finalizer=this.eat(k._finally)?this.parseBlock():null,t.handler||t.finalizer||this.raise(t.start,"Missing catch or finally clause"),this.finishNode(t,"TryStatement")},X.parseVarStatement=function(t,e){return this.next(),this.parseVar(t,!1,e),this.semicolon(),this.finishNode(t,"VariableDeclaration")},X.parseWhileStatement=function(t){return this.next(),t.test=this.parseParenExpression(),this.labels.push(W),t.body=this.parseStatement(!1),this.labels.pop(),this.finishNode(t,"WhileStatement")},X.parseWithStatement=function(t){return this.strict&&this.raise(this.start,"'with' in strict mode"),this.next(),t.object=this.parseParenExpression(),t.body=this.parseStatement(!1),this.finishNode(t,"WithStatement")},X.parseEmptyStatement=function(t){return this.next(),this.finishNode(t,"EmptyStatement")},X.parseLabeledStatement=function(t,e,i){for(var s=0,r=this.labels;s<r.length;s+=1){r[s].name===e&&this.raise(i.start,"Label '"+e+"' is already declared")}for(var n=this.type.isLoop?"loop":this.type===k._switch?"switch":null,a=this.labels.length-1;a>=0;a--){var o=this.labels[a];if(o.statementStart!==t.start)break;o.statementStart=this.start,o.kind=n}return this.labels.push({name:e,kind:n,statementStart:this.start}),t.body=this.parseStatement(!0),("ClassDeclaration"===t.body.type||"VariableDeclaration"===t.body.type&&"var"!==t.body.kind||"FunctionDeclaration"===t.body.type&&(this.strict||t.body.generator||t.body.async))&&this.raiseRecoverable(t.body.start,"Invalid labeled declaration"),this.labels.pop(),t.label=i,this.finishNode(t,"LabeledStatement")},X.parseExpressionStatement=function(t,e){return t.expression=e,this.semicolon(),this.finishNode(t,"ExpressionStatement")},X.parseBlock=function(t){void 0===t&&(t=!0);var e=this.startNode();for(e.body=[],this.expect(k.braceL),t&&this.enterLexicalScope();!this.eat(k.braceR);){var i=this.parseStatement(!0);e.body.push(i)}return t&&this.exitLexicalScope(),this.finishNode(e,"BlockStatement")},X.parseFor=function(t,e){return t.init=e,this.expect(k.semi),t.test=this.type===k.semi?null:this.parseExpression(),this.expect(k.semi),t.update=this.type===k.parenR?null:this.parseExpression(),this.expect(k.parenR),this.exitLexicalScope(),t.body=this.parseStatement(!1),this.labels.pop(),this.finishNode(t,"ForStatement")},X.parseForIn=function(t,e){var i=this.type===k._in?"ForInStatement":"ForOfStatement";return this.next(),"ForInStatement"===i&&("AssignmentPattern"===e.type||"VariableDeclaration"===e.type&&null!=e.declarations[0].init&&(this.strict||"Identifier"!==e.declarations[0].id.type))&&this.raise(e.start,"Invalid assignment in for-in loop head"),t.left=e,t.right="ForInStatement"===i?this.parseExpression():this.parseMaybeAssign(),this.expect(k.parenR),this.exitLexicalScope(),t.body=this.parseStatement(!1),this.labels.pop(),this.finishNode(t,i)},X.parseVar=function(t,e,i){for(t.declarations=[],t.kind=i;;){var s=this.startNode();if(this.parseVarId(s,i),this.eat(k.eq)?s.init=this.parseMaybeAssign(e):"const"!==i||this.type===k._in||this.options.ecmaVersion>=6&&this.isContextual("of")?"Identifier"===s.id.type||e&&(this.type===k._in||this.isContextual("of"))?s.init=null:this.raise(this.lastTokEnd,"Complex binding patterns require an initialization value"):this.unexpected(),t.declarations.push(this.finishNode(s,"VariableDeclarator")),!this.eat(k.comma))break}return t},X.parseVarId=function(t,e){t.id=this.parseBindingAtom(e),this.checkLVal(t.id,e,!1)},X.parseFunction=function(t,e,i,s){this.initFunction(t),(this.options.ecmaVersion>=9||this.options.ecmaVersion>=6&&!s)&&(t.generator=this.eat(k.star)),this.options.ecmaVersion>=8&&(t.async=!!s),e&&(t.id="nullableID"===e&&this.type!==k.name?null:this.parseIdent(),t.id&&this.checkLVal(t.id,this.inModule&&!this.inFunction?"let":"var"));var r=this.inGenerator,n=this.inAsync,a=this.yieldPos,o=this.awaitPos,h=this.inFunction;return this.inGenerator=t.generator,this.inAsync=t.async,this.yieldPos=0,this.awaitPos=0,this.inFunction=!0,this.enterFunctionScope(),e||(t.id=this.type===k.name?this.parseIdent():null),this.parseFunctionParams(t),this.parseFunctionBody(t,i),this.inGenerator=r,this.inAsync=n,this.yieldPos=a,this.awaitPos=o,this.inFunction=h,this.finishNode(t,e?"FunctionDeclaration":"FunctionExpression")},X.parseFunctionParams=function(t){this.expect(k.parenL),t.params=this.parseBindingList(k.parenR,!1,this.options.ecmaVersion>=8),this.checkYieldAwaitInDefaultParams()},X.parseClass=function(t,e){this.next(),this.parseClassId(t,e),this.parseClassSuper(t);var i=this.startNode(),s=!1;for(i.body=[],this.expect(k.braceL);!this.eat(k.braceR);){var r=this.parseClassMember(i);r&&"MethodDefinition"===r.type&&"constructor"===r.kind&&(s&&this.raise(r.start,"Duplicate constructor in the same class"),s=!0)}return t.body=this.finishNode(i,"ClassBody"),this.finishNode(t,e?"ClassDeclaration":"ClassExpression")},X.parseClassMember=function(t){var e=this;if(this.eat(k.semi))return null;var i=this.startNode(),s=function(t,s){void 0===s&&(s=!1);var r=e.start,n=e.startLoc;return!!e.eatContextual(t)&&(!(e.type===k.parenL||s&&e.canInsertSemicolon())||(i.key&&e.unexpected(),i.computed=!1,i.key=e.startNodeAt(r,n),i.key.name=t,e.finishNode(i.key,"Identifier"),!1))};i.kind="method",i.static=s("static");var r=this.eat(k.star),n=!1;r||(this.options.ecmaVersion>=8&&s("async",!0)?(n=!0,r=this.options.ecmaVersion>=9&&this.eat(k.star)):s("get")?i.kind="get":s("set")&&(i.kind="set")),i.key||this.parsePropertyName(i);var a=i.key;return i.computed||i.static||!("Identifier"===a.type&&"constructor"===a.name||"Literal"===a.type&&"constructor"===a.value)?i.static&&"Identifier"===a.type&&"prototype"===a.name&&this.raise(a.start,"Classes may not have a static property named prototype"):("method"!==i.kind&&this.raise(a.start,"Constructor can't have get/set modifier"),r&&this.raise(a.start,"Constructor can't be a generator"),n&&this.raise(a.start,"Constructor can't be an async method"),i.kind="constructor"),this.parseClassMethod(t,i,r,n),"get"===i.kind&&0!==i.value.params.length&&this.raiseRecoverable(i.value.start,"getter should have no params"),"set"===i.kind&&1!==i.value.params.length&&this.raiseRecoverable(i.value.start,"setter should have exactly one param"),"set"===i.kind&&"RestElement"===i.value.params[0].type&&this.raiseRecoverable(i.value.params[0].start,"Setter cannot use rest params"),i},X.parseClassMethod=function(t,e,i,s){e.value=this.parseMethod(i,s),t.body.push(this.finishNode(e,"MethodDefinition"))},X.parseClassId=function(t,e){t.id=this.type===k.name?this.parseIdent():!0===e?this.unexpected():null},X.parseClassSuper=function(t){t.superClass=this.eat(k._extends)?this.parseExprSubscripts():null},X.parseExport=function(t,e){if(this.next(),this.eat(k.star))return this.expectContextual("from"),this.type!==k.string&&this.unexpected(),t.source=this.parseExprAtom(),this.semicolon(),this.finishNode(t,"ExportAllDeclaration");if(this.eat(k._default)){var i;if(this.checkExport(e,"default",this.lastTokStart),this.type===k._function||(i=this.isAsyncFunction())){var s=this.startNode();this.next(),i&&this.next(),t.declaration=this.parseFunction(s,"nullableID",!1,i)}else if(this.type===k._class){var r=this.startNode();t.declaration=this.parseClass(r,"nullableID")}else t.declaration=this.parseMaybeAssign(),this.semicolon();return this.finishNode(t,"ExportDefaultDeclaration")}if(this.shouldParseExportStatement())t.declaration=this.parseStatement(!0),"VariableDeclaration"===t.declaration.type?this.checkVariableExport(e,t.declaration.declarations):this.checkExport(e,t.declaration.id.name,t.declaration.id.start),t.specifiers=[],t.source=null;else{if(t.declaration=null,t.specifiers=this.parseExportSpecifiers(e),this.eatContextual("from"))this.type!==k.string&&this.unexpected(),t.source=this.parseExprAtom();else{for(var n=0,a=t.specifiers;n<a.length;n+=1){var o=a[n];this.checkUnreserved(o.local)}t.source=null}this.semicolon()}return this.finishNode(t,"ExportNamedDeclaration")},X.checkExport=function(t,e,i){t&&(I(t,e)&&this.raiseRecoverable(i,"Duplicate export '"+e+"'"),t[e]=!0)},X.checkPatternExport=function(t,e){var i=e.type;if("Identifier"===i)this.checkExport(t,e.name,e.start);else if("ObjectPattern"===i)for(var s=0,r=e.properties;s<r.length;s+=1){var n=r[s];this.checkPatternExport(t,n)}else if("ArrayPattern"===i)for(var a=0,o=e.elements;a<o.length;a+=1){var h=o[a];h&&this.checkPatternExport(t,h)}else"Property"===i?this.checkPatternExport(t,e.value):"AssignmentPattern"===i?this.checkPatternExport(t,e.left):"RestElement"===i?this.checkPatternExport(t,e.argument):"ParenthesizedExpression"===i&&this.checkPatternExport(t,e.expression)},X.checkVariableExport=function(t,e){if(t)for(var i=0,s=e;i<s.length;i+=1){var r=s[i];this.checkPatternExport(t,r.id)}},X.shouldParseExportStatement=function(){return"var"===this.type.keyword||"const"===this.type.keyword||"class"===this.type.keyword||"function"===this.type.keyword||this.isLet()||this.isAsyncFunction()},X.parseExportSpecifiers=function(t){var e=[],i=!0;for(this.expect(k.braceL);!this.eat(k.braceR);){if(i)i=!1;else if(this.expect(k.comma),this.afterTrailingComma(k.braceR))break;var s=this.startNode();s.local=this.parseIdent(!0),s.exported=this.eatContextual("as")?this.parseIdent(!0):s.local,this.checkExport(t,s.exported.name,s.exported.start),e.push(this.finishNode(s,"ExportSpecifier"))}return e},X.parseImport=function(t){return this.next(),this.type===k.string?(t.specifiers=z,t.source=this.parseExprAtom()):(t.specifiers=this.parseImportSpecifiers(),this.expectContextual("from"),t.source=this.type===k.string?this.parseExprAtom():this.unexpected()),this.semicolon(),this.finishNode(t,"ImportDeclaration")},X.parseImportSpecifiers=function(){var t=[],e=!0;if(this.type===k.name){var i=this.startNode();if(i.local=this.parseIdent(),this.checkLVal(i.local,"let"),t.push(this.finishNode(i,"ImportDefaultSpecifier")),!this.eat(k.comma))return t}if(this.type===k.star){var s=this.startNode();return this.next(),this.expectContextual("as"),s.local=this.parseIdent(),this.checkLVal(s.local,"let"),t.push(this.finishNode(s,"ImportNamespaceSpecifier")),t}for(this.expect(k.braceL);!this.eat(k.braceR);){if(e)e=!1;else if(this.expect(k.comma),this.afterTrailingComma(k.braceR))break;var r=this.startNode();r.imported=this.parseIdent(!0),this.eatContextual("as")?r.local=this.parseIdent():(this.checkUnreserved(r.imported),r.local=r.imported),this.checkLVal(r.local,"let"),t.push(this.finishNode(r,"ImportSpecifier"))}return t},X.adaptDirectivePrologue=function(t){for(var e=0;e<t.length&&this.isDirectiveCandidate(t[e]);++e)t[e].directive=t[e].expression.raw.slice(1,-1)},X.isDirectiveCandidate=function(t){return"ExpressionStatement"===t.type&&"Literal"===t.expression.type&&"string"==typeof t.expression.value&&('"'===this.input[t.start]||"'"===this.input[t.start])};var J=F.prototype;J.toAssignable=function(t,e,i){if(this.options.ecmaVersion>=6&&t)switch(t.type){case"Identifier":this.inAsync&&"await"===t.name&&this.raise(t.start,"Can not use 'await' as identifier inside an async function");break;case"ObjectPattern":case"ArrayPattern":case"RestElement":break;case"ObjectExpression":t.type="ObjectPattern",i&&this.checkPatternErrors(i,!0);for(var s=0,r=t.properties;s<r.length;s+=1){var n=r[s];this.toAssignable(n,e),"RestElement"!==n.type||"ArrayPattern"!==n.argument.type&&"ObjectPattern"!==n.argument.type||this.raise(n.argument.start,"Unexpected token")}break;case"Property":"init"!==t.kind&&this.raise(t.key.start,"Object pattern can't contain getter or setter"),this.toAssignable(t.value,e);break;case"ArrayExpression":t.type="ArrayPattern",i&&this.checkPatternErrors(i,!0),this.toAssignableList(t.elements,e);break;case"SpreadElement":t.type="RestElement",this.toAssignable(t.argument,e),"AssignmentPattern"===t.argument.type&&this.raise(t.argument.start,"Rest elements cannot have a default value");break;case"AssignmentExpression":"="!==t.operator&&this.raise(t.left.end,"Only '=' operator can be used for specifying default value."),t.type="AssignmentPattern",delete t.operator,this.toAssignable(t.left,e);case"AssignmentPattern":break;case"ParenthesizedExpression":this.toAssignable(t.expression,e);break;case"MemberExpression":if(!e)break;default:this.raise(t.start,"Assigning to rvalue")}else i&&this.checkPatternErrors(i,!0);return t},J.toAssignableList=function(t,e){for(var i=t.length,s=0;s<i;s++){var r=t[s];r&&this.toAssignable(r,e)}if(i){var n=t[i-1];6===this.options.ecmaVersion&&e&&n&&"RestElement"===n.type&&"Identifier"!==n.argument.type&&this.unexpected(n.argument.start)}return t},J.parseSpread=function(t){var e=this.startNode();return this.next(),e.argument=this.parseMaybeAssign(!1,t),this.finishNode(e,"SpreadElement")},J.parseRestBinding=function(){var t=this.startNode();return this.next(),6===this.options.ecmaVersion&&this.type!==k.name&&this.unexpected(),t.argument=this.parseBindingAtom(),this.finishNode(t,"RestElement")},J.parseBindingAtom=function(){if(this.options.ecmaVersion>=6)switch(this.type){case k.bracketL:var t=this.startNode();return this.next(),t.elements=this.parseBindingList(k.bracketR,!0,!0),this.finishNode(t,"ArrayPattern");case k.braceL:return this.parseObj(!0)}return this.parseIdent()},J.parseBindingList=function(t,e,i){for(var s=[],r=!0;!this.eat(t);)if(r?r=!1:this.expect(k.comma),e&&this.type===k.comma)s.push(null);else{if(i&&this.afterTrailingComma(t))break;if(this.type===k.ellipsis){var n=this.parseRestBinding();this.parseBindingListItem(n),s.push(n),this.type===k.comma&&this.raise(this.start,"Comma is not permitted after the rest element"),this.expect(t);break}var a=this.parseMaybeDefault(this.start,this.startLoc);this.parseBindingListItem(a),s.push(a)}return s},J.parseBindingListItem=function(t){return t},J.parseMaybeDefault=function(t,e,i){if(i=i||this.parseBindingAtom(),this.options.ecmaVersion<6||!this.eat(k.eq))return i;var s=this.startNodeAt(t,e);return s.left=i,s.right=this.parseMaybeAssign(),this.finishNode(s,"AssignmentPattern")},J.checkLVal=function(t,e,i){switch(t.type){case"Identifier":this.strict&&this.reservedWordsStrictBind.test(t.name)&&this.raiseRecoverable(t.start,(e?"Binding ":"Assigning to ")+t.name+" in strict mode"),i&&(I(i,t.name)&&this.raiseRecoverable(t.start,"Argument name clash"),i[t.name]=!0),e&&"none"!==e&&(("var"===e&&!this.canDeclareVarName(t.name)||"var"!==e&&!this.canDeclareLexicalName(t.name))&&this.raiseRecoverable(t.start,"Identifier '"+t.name+"' has already been declared"),"var"===e?this.declareVarName(t.name):this.declareLexicalName(t.name));break;case"MemberExpression":e&&this.raiseRecoverable(t.start,"Binding member expression");break;case"ObjectPattern":for(var s=0,r=t.properties;s<r.length;s+=1){var n=r[s];this.checkLVal(n,e,i)}break;case"Property":this.checkLVal(t.value,e,i);break;case"ArrayPattern":for(var a=0,o=t.elements;a<o.length;a+=1){var h=o[a];h&&this.checkLVal(h,e,i)}break;case"AssignmentPattern":this.checkLVal(t.left,e,i);break;case"RestElement":this.checkLVal(t.argument,e,i);break;case"ParenthesizedExpression":this.checkLVal(t.expression,e,i);break;default:this.raise(t.start,(e?"Binding":"Assigning to")+" rvalue")}};var Q=F.prototype;Q.checkPropClash=function(t,e,i){if(!(this.options.ecmaVersion>=9&&"SpreadElement"===t.type||this.options.ecmaVersion>=6&&(t.computed||t.method||t.shorthand))){var s,r=t.key;switch(r.type){case"Identifier":s=r.name;break;case"Literal":s=String(r.value);break;default:return}var n=t.kind;if(this.options.ecmaVersion>=6)"__proto__"===s&&"init"===n&&(e.proto&&(i&&i.doubleProto<0?i.doubleProto=r.start:this.raiseRecoverable(r.start,"Redefinition of __proto__ property")),e.proto=!0);else{var a=e[s="$"+s];if(a)("init"===n?this.strict&&a.init||a.get||a.set:a.init||a[n])&&this.raiseRecoverable(r.start,"Redefinition of property");else a=e[s]={init:!1,get:!1,set:!1};a[n]=!0}}},Q.parseExpression=function(t,e){var i=this.start,s=this.startLoc,r=this.parseMaybeAssign(t,e);if(this.type===k.comma){var n=this.startNodeAt(i,s);for(n.expressions=[r];this.eat(k.comma);)n.expressions.push(this.parseMaybeAssign(t,e));return this.finishNode(n,"SequenceExpression")}return r},Q.parseMaybeAssign=function(t,e,i){if(this.inGenerator&&this.isContextual("yield"))return this.parseYield();var s=!1,r=-1,n=-1;e?(r=e.parenthesizedAssign,n=e.trailingComma,e.parenthesizedAssign=e.trailingComma=-1):(e=new G,s=!0);var a=this.start,o=this.startLoc;this.type!==k.parenL&&this.type!==k.name||(this.potentialArrowAt=this.start);var h=this.parseMaybeConditional(t,e);if(i&&(h=i.call(this,h,a,o)),this.type.isAssign){var p=this.startNodeAt(a,o);return p.operator=this.value,p.left=this.type===k.eq?this.toAssignable(h,!1,e):h,s||G.call(e),e.shorthandAssign=-1,this.checkLVal(h),this.next(),p.right=this.parseMaybeAssign(t),this.finishNode(p,"AssignmentExpression")}return s&&this.checkExpressionErrors(e,!0),r>-1&&(e.parenthesizedAssign=r),n>-1&&(e.trailingComma=n),h},Q.parseMaybeConditional=function(t,e){var i=this.start,s=this.startLoc,r=this.parseExprOps(t,e);if(this.checkExpressionErrors(e))return r;if(this.eat(k.question)){var n=this.startNodeAt(i,s);return n.test=r,n.consequent=this.parseMaybeAssign(),this.expect(k.colon),n.alternate=this.parseMaybeAssign(t),this.finishNode(n,"ConditionalExpression")}return r},Q.parseExprOps=function(t,e){var i=this.start,s=this.startLoc,r=this.parseMaybeUnary(e,!1);return this.checkExpressionErrors(e)?r:r.start===i&&"ArrowFunctionExpression"===r.type?r:this.parseExprOp(r,i,s,-1,t)},Q.parseExprOp=function(t,e,i,s,r){var n=this.type.binop;if(null!=n&&(!r||this.type!==k._in)&&n>s){var a=this.type===k.logicalOR||this.type===k.logicalAND,o=this.value;this.next();var h=this.start,p=this.startLoc,c=this.parseExprOp(this.parseMaybeUnary(null,!1),h,p,n,r),u=this.buildBinary(e,i,t,c,o,a);return this.parseExprOp(u,e,i,s,r)}return t},Q.buildBinary=function(t,e,i,s,r,n){var a=this.startNodeAt(t,e);return a.left=i,a.operator=r,a.right=s,this.finishNode(a,n?"LogicalExpression":"BinaryExpression")},Q.parseMaybeUnary=function(t,e){var i,s=this.start,r=this.startLoc;if(this.isContextual("await")&&(this.inAsync||!this.inFunction&&this.options.allowAwaitOutsideFunction))i=this.parseAwait(),e=!0;else if(this.type.prefix){var n=this.startNode(),a=this.type===k.incDec;n.operator=this.value,n.prefix=!0,this.next(),n.argument=this.parseMaybeUnary(null,!0),this.checkExpressionErrors(t,!0),a?this.checkLVal(n.argument):this.strict&&"delete"===n.operator&&"Identifier"===n.argument.type?this.raiseRecoverable(n.start,"Deleting local variable in strict mode"):e=!0,i=this.finishNode(n,a?"UpdateExpression":"UnaryExpression")}else{if(i=this.parseExprSubscripts(t),this.checkExpressionErrors(t))return i;for(;this.type.postfix&&!this.canInsertSemicolon();){var o=this.startNodeAt(s,r);o.operator=this.value,o.prefix=!1,o.argument=i,this.checkLVal(i),this.next(),i=this.finishNode(o,"UpdateExpression")}}return!e&&this.eat(k.starstar)?this.buildBinary(s,r,i,this.parseMaybeUnary(null,!1),"**",!1):i},Q.parseExprSubscripts=function(t){var e=this.start,i=this.startLoc,s=this.parseExprAtom(t),r="ArrowFunctionExpression"===s.type&&")"!==this.input.slice(this.lastTokStart,this.lastTokEnd);if(this.checkExpressionErrors(t)||r)return s;var n=this.parseSubscripts(s,e,i);return t&&"MemberExpression"===n.type&&(t.parenthesizedAssign>=n.start&&(t.parenthesizedAssign=-1),t.parenthesizedBind>=n.start&&(t.parenthesizedBind=-1)),n},Q.parseSubscripts=function(t,e,i,s){for(var r=this.options.ecmaVersion>=8&&"Identifier"===t.type&&"async"===t.name&&this.lastTokEnd===t.end&&!this.canInsertSemicolon()&&"async"===this.input.slice(t.start,t.end),n=void 0;;)if((n=this.eat(k.bracketL))||this.eat(k.dot)){var a=this.startNodeAt(e,i);a.object=t,a.property=n?this.parseExpression():this.parseIdent(!0),a.computed=!!n,n&&this.expect(k.bracketR),t=this.finishNode(a,"MemberExpression")}else if(!s&&this.eat(k.parenL)){var o=new G,h=this.yieldPos,p=this.awaitPos;this.yieldPos=0,this.awaitPos=0;var c=this.parseExprList(k.parenR,this.options.ecmaVersion>=8,!1,o);if(r&&!this.canInsertSemicolon()&&this.eat(k.arrow))return this.checkPatternErrors(o,!1),this.checkYieldAwaitInDefaultParams(),this.yieldPos=h,this.awaitPos=p,this.parseArrowExpression(this.startNodeAt(e,i),c,!0);this.checkExpressionErrors(o,!0),this.yieldPos=h||this.yieldPos,this.awaitPos=p||this.awaitPos;var u=this.startNodeAt(e,i);u.callee=t,u.arguments=c,t=this.finishNode(u,"CallExpression")}else{if(this.type!==k.backQuote)return t;var l=this.startNodeAt(e,i);l.tag=t,l.quasi=this.parseTemplate({isTagged:!0}),t=this.finishNode(l,"TaggedTemplateExpression")}},Q.parseExprAtom=function(t){var e,i=this.potentialArrowAt===this.start;switch(this.type){case k._super:return this.inFunction||this.raise(this.start,"'super' outside of function or class"),e=this.startNode(),this.next(),this.type!==k.dot&&this.type!==k.bracketL&&this.type!==k.parenL&&this.unexpected(),this.finishNode(e,"Super");case k._this:return e=this.startNode(),this.next(),this.finishNode(e,"ThisExpression");case k.name:var s=this.start,r=this.startLoc,n=this.containsEsc,a=this.parseIdent(this.type!==k.name);if(this.options.ecmaVersion>=8&&!n&&"async"===a.name&&!this.canInsertSemicolon()&&this.eat(k._function))return this.parseFunction(this.startNodeAt(s,r),!1,!1,!0);if(i&&!this.canInsertSemicolon()){if(this.eat(k.arrow))return this.parseArrowExpression(this.startNodeAt(s,r),[a],!1);if(this.options.ecmaVersion>=8&&"async"===a.name&&this.type===k.name&&!n)return a=this.parseIdent(),!this.canInsertSemicolon()&&this.eat(k.arrow)||this.unexpected(),this.parseArrowExpression(this.startNodeAt(s,r),[a],!0)}return a;case k.regexp:var o=this.value;return(e=this.parseLiteral(o.value)).regex={pattern:o.pattern,flags:o.flags},e;case k.num:case k.string:return this.parseLiteral(this.value);case k._null:case k._true:case k._false:return(e=this.startNode()).value=this.type===k._null?null:this.type===k._true,e.raw=this.type.keyword,this.next(),this.finishNode(e,"Literal");case k.parenL:var h=this.start,p=this.parseParenAndDistinguishExpression(i);return t&&(t.parenthesizedAssign<0&&!this.isSimpleAssignTarget(p)&&(t.parenthesizedAssign=h),t.parenthesizedBind<0&&(t.parenthesizedBind=h)),p;case k.bracketL:return e=this.startNode(),this.next(),e.elements=this.parseExprList(k.bracketR,!0,!0,t),this.finishNode(e,"ArrayExpression");case k.braceL:return this.parseObj(!1,t);case k._function:return e=this.startNode(),this.next(),this.parseFunction(e,!1);case k._class:return this.parseClass(this.startNode(),!1);case k._new:return this.parseNew();case k.backQuote:return this.parseTemplate();default:this.unexpected()}},Q.parseLiteral=function(t){var e=this.startNode();return e.value=t,e.raw=this.input.slice(this.start,this.end),this.next(),this.finishNode(e,"Literal")},Q.parseParenExpression=function(){this.expect(k.parenL);var t=this.parseExpression();return this.expect(k.parenR),t},Q.parseParenAndDistinguishExpression=function(t){var e,i=this.start,s=this.startLoc,r=this.options.ecmaVersion>=8;if(this.options.ecmaVersion>=6){this.next();var n,a=this.start,o=this.startLoc,h=[],p=!0,c=!1,u=new G,l=this.yieldPos,d=this.awaitPos;for(this.yieldPos=0,this.awaitPos=0;this.type!==k.parenR;){if(p?p=!1:this.expect(k.comma),r&&this.afterTrailingComma(k.parenR,!0)){c=!0;break}if(this.type===k.ellipsis){n=this.start,h.push(this.parseParenItem(this.parseRestBinding())),this.type===k.comma&&this.raise(this.start,"Comma is not permitted after the rest element");break}h.push(this.parseMaybeAssign(!1,u,this.parseParenItem))}var f=this.start,m=this.startLoc;if(this.expect(k.parenR),t&&!this.canInsertSemicolon()&&this.eat(k.arrow))return this.checkPatternErrors(u,!1),this.checkYieldAwaitInDefaultParams(),this.yieldPos=l,this.awaitPos=d,this.parseParenArrowList(i,s,h);h.length&&!c||this.unexpected(this.lastTokStart),n&&this.unexpected(n),this.checkExpressionErrors(u,!0),this.yieldPos=l||this.yieldPos,this.awaitPos=d||this.awaitPos,h.length>1?((e=this.startNodeAt(a,o)).expressions=h,this.finishNodeAt(e,"SequenceExpression",f,m)):e=h[0]}else e=this.parseParenExpression();if(this.options.preserveParens){var x=this.startNodeAt(i,s);return x.expression=e,this.finishNode(x,"ParenthesizedExpression")}return e},Q.parseParenItem=function(t){return t},Q.parseParenArrowList=function(t,e,i){return this.parseArrowExpression(this.startNodeAt(t,e),i)};var K=[];Q.parseNew=function(){var t=this.startNode(),e=this.parseIdent(!0);if(this.options.ecmaVersion>=6&&this.eat(k.dot)){t.meta=e;var i=this.containsEsc;return t.property=this.parseIdent(!0),("target"!==t.property.name||i)&&this.raiseRecoverable(t.property.start,"The only valid meta property for new is new.target"),this.inFunction||this.raiseRecoverable(t.start,"new.target can only be used in functions"),this.finishNode(t,"MetaProperty")}var s=this.start,r=this.startLoc;return t.callee=this.parseSubscripts(this.parseExprAtom(),s,r,!0),this.eat(k.parenL)?t.arguments=this.parseExprList(k.parenR,this.options.ecmaVersion>=8,!1):t.arguments=K,this.finishNode(t,"NewExpression")},Q.parseTemplateElement=function(t){var e=t.isTagged,i=this.startNode();return this.type===k.invalidTemplate?(e||this.raiseRecoverable(this.start,"Bad escape sequence in untagged template literal"),i.value={raw:this.value,cooked:null}):i.value={raw:this.input.slice(this.start,this.end).replace(/\r\n?/g,"\n"),cooked:this.value},this.next(),i.tail=this.type===k.backQuote,this.finishNode(i,"TemplateElement")},Q.parseTemplate=function(t){void 0===t&&(t={});var e=t.isTagged;void 0===e&&(e=!1);var i=this.startNode();this.next(),i.expressions=[];var s=this.parseTemplateElement({isTagged:e});for(i.quasis=[s];!s.tail;)this.type===k.eof&&this.raise(this.pos,"Unterminated template literal"),this.expect(k.dollarBraceL),i.expressions.push(this.parseExpression()),this.expect(k.braceR),i.quasis.push(s=this.parseTemplateElement({isTagged:e}));return this.next(),this.finishNode(i,"TemplateLiteral")},Q.isAsyncProp=function(t){return!t.computed&&"Identifier"===t.key.type&&"async"===t.key.name&&(this.type===k.name||this.type===k.num||this.type===k.string||this.type===k.bracketL||this.type.keyword||this.options.ecmaVersion>=9&&this.type===k.star)&&!E.test(this.input.slice(this.lastTokEnd,this.start))},Q.parseObj=function(t,e){var i=this.startNode(),s=!0,r={};for(i.properties=[],this.next();!this.eat(k.braceR);){if(s)s=!1;else if(this.expect(k.comma),this.afterTrailingComma(k.braceR))break;var n=this.parseProperty(t,e);t||this.checkPropClash(n,r,e),i.properties.push(n)}return this.finishNode(i,t?"ObjectPattern":"ObjectExpression")},Q.parseProperty=function(t,e){var i,s,r,n,a=this.startNode();if(this.options.ecmaVersion>=9&&this.eat(k.ellipsis))return t?(a.argument=this.parseIdent(!1),this.type===k.comma&&this.raise(this.start,"Comma is not permitted after the rest element"),this.finishNode(a,"RestElement")):(this.type===k.parenL&&e&&(e.parenthesizedAssign<0&&(e.parenthesizedAssign=this.start),e.parenthesizedBind<0&&(e.parenthesizedBind=this.start)),a.argument=this.parseMaybeAssign(!1,e),this.type===k.comma&&e&&e.trailingComma<0&&(e.trailingComma=this.start),this.finishNode(a,"SpreadElement"));this.options.ecmaVersion>=6&&(a.method=!1,a.shorthand=!1,(t||e)&&(r=this.start,n=this.startLoc),t||(i=this.eat(k.star)));var o=this.containsEsc;return this.parsePropertyName(a),!t&&!o&&this.options.ecmaVersion>=8&&!i&&this.isAsyncProp(a)?(s=!0,i=this.options.ecmaVersion>=9&&this.eat(k.star),this.parsePropertyName(a,e)):s=!1,this.parsePropertyValue(a,t,i,s,r,n,e,o),this.finishNode(a,"Property")},Q.parsePropertyValue=function(t,e,i,s,r,n,a,o){if((i||s)&&this.type===k.colon&&this.unexpected(),this.eat(k.colon))t.value=e?this.parseMaybeDefault(this.start,this.startLoc):this.parseMaybeAssign(!1,a),t.kind="init";else if(this.options.ecmaVersion>=6&&this.type===k.parenL)e&&this.unexpected(),t.kind="init",t.method=!0,t.value=this.parseMethod(i,s);else if(e||o||!(this.options.ecmaVersion>=5)||t.computed||"Identifier"!==t.key.type||"get"!==t.key.name&&"set"!==t.key.name||this.type===k.comma||this.type===k.braceR)this.options.ecmaVersion>=6&&!t.computed&&"Identifier"===t.key.type?(this.checkUnreserved(t.key),t.kind="init",e?t.value=this.parseMaybeDefault(r,n,t.key):this.type===k.eq&&a?(a.shorthandAssign<0&&(a.shorthandAssign=this.start),t.value=this.parseMaybeDefault(r,n,t.key)):t.value=t.key,t.shorthand=!0):this.unexpected();else{(i||s)&&this.unexpected(),t.kind=t.key.name,this.parsePropertyName(t),t.value=this.parseMethod(!1);var h="get"===t.kind?0:1;if(t.value.params.length!==h){var p=t.value.start;"get"===t.kind?this.raiseRecoverable(p,"getter should have no params"):this.raiseRecoverable(p,"setter should have exactly one param")}else"set"===t.kind&&"RestElement"===t.value.params[0].type&&this.raiseRecoverable(t.value.params[0].start,"Setter cannot use rest params")}},Q.parsePropertyName=function(t){if(this.options.ecmaVersion>=6){if(this.eat(k.bracketL))return t.computed=!0,t.key=this.parseMaybeAssign(),this.expect(k.bracketR),t.key;t.computed=!1}return t.key=this.type===k.num||this.type===k.string?this.parseExprAtom():this.parseIdent(!0)},Q.initFunction=function(t){t.id=null,this.options.ecmaVersion>=6&&(t.generator=!1,t.expression=!1),this.options.ecmaVersion>=8&&(t.async=!1)},Q.parseMethod=function(t,e){var i=this.startNode(),s=this.inGenerator,r=this.inAsync,n=this.yieldPos,a=this.awaitPos,o=this.inFunction;return this.initFunction(i),this.options.ecmaVersion>=6&&(i.generator=t),this.options.ecmaVersion>=8&&(i.async=!!e),this.inGenerator=i.generator,this.inAsync=i.async,this.yieldPos=0,this.awaitPos=0,this.inFunction=!0,this.enterFunctionScope(),this.expect(k.parenL),i.params=this.parseBindingList(k.parenR,!1,this.options.ecmaVersion>=8),this.checkYieldAwaitInDefaultParams(),this.parseFunctionBody(i,!1),this.inGenerator=s,this.inAsync=r,this.yieldPos=n,this.awaitPos=a,this.inFunction=o,this.finishNode(i,"FunctionExpression")},Q.parseArrowExpression=function(t,e,i){var s=this.inGenerator,r=this.inAsync,n=this.yieldPos,a=this.awaitPos,o=this.inFunction;return this.enterFunctionScope(),this.initFunction(t),this.options.ecmaVersion>=8&&(t.async=!!i),this.inGenerator=!1,this.inAsync=t.async,this.yieldPos=0,this.awaitPos=0,this.inFunction=!0,t.params=this.toAssignableList(e,!0),this.parseFunctionBody(t,!0),this.inGenerator=s,this.inAsync=r,this.yieldPos=n,this.awaitPos=a,this.inFunction=o,this.finishNode(t,"ArrowFunctionExpression")},Q.parseFunctionBody=function(t,e){var i=e&&this.type!==k.braceL,s=this.strict,r=!1;if(i)t.body=this.parseMaybeAssign(),t.expression=!0,this.checkParams(t,!1);else{var n=this.options.ecmaVersion>=7&&!this.isSimpleParamList(t.params);s&&!n||(r=this.strictDirective(this.end))&&n&&this.raiseRecoverable(t.start,"Illegal 'use strict' directive in function with non-simple parameter list");var a=this.labels;this.labels=[],r&&(this.strict=!0),this.checkParams(t,!s&&!r&&!e&&this.isSimpleParamList(t.params)),t.body=this.parseBlock(!1),t.expression=!1,this.adaptDirectivePrologue(t.body.body),this.labels=a}this.exitFunctionScope(),this.strict&&t.id&&this.checkLVal(t.id,"none"),this.strict=s},Q.isSimpleParamList=function(t){for(var e=0,i=t;e<i.length;e+=1){if("Identifier"!==i[e].type)return!1}return!0},Q.checkParams=function(t,e){for(var i={},s=0,r=t.params;s<r.length;s+=1){var n=r[s];this.checkLVal(n,"var",e?null:i)}},Q.parseExprList=function(t,e,i,s){for(var r=[],n=!0;!this.eat(t);){if(n)n=!1;else if(this.expect(k.comma),e&&this.afterTrailingComma(t))break;var a=void 0;i&&this.type===k.comma?a=null:this.type===k.ellipsis?(a=this.parseSpread(s),s&&this.type===k.comma&&s.trailingComma<0&&(s.trailingComma=this.start)):a=this.parseMaybeAssign(!1,s),r.push(a)}return r},Q.checkUnreserved=function(t){var e=t.start,i=t.end,s=t.name;(this.inGenerator&&"yield"===s&&this.raiseRecoverable(e,"Can not use 'yield' as identifier inside a generator"),this.inAsync&&"await"===s&&this.raiseRecoverable(e,"Can not use 'await' as identifier inside an async function"),this.isKeyword(s)&&this.raise(e,"Unexpected keyword '"+s+"'"),this.options.ecmaVersion<6&&-1!==this.input.slice(e,i).indexOf("\\"))||(this.strict?this.reservedWordsStrict:this.reservedWords).test(s)&&(this.inAsync||"await"!==s||this.raiseRecoverable(e,"Can not use keyword 'await' outside an async function"),this.raiseRecoverable(e,"The keyword '"+s+"' is reserved"))},Q.parseIdent=function(t,e){var i=this.startNode();return t&&"never"===this.options.allowReserved&&(t=!1),this.type===k.name?i.name=this.value:this.type.keyword?(i.name=this.type.keyword,"class"!==i.name&&"function"!==i.name||this.lastTokEnd===this.lastTokStart+1&&46===this.input.charCodeAt(this.lastTokStart)||this.context.pop()):this.unexpected(),this.next(),this.finishNode(i,"Identifier"),t||this.checkUnreserved(i),i},Q.parseYield=function(){this.yieldPos||(this.yieldPos=this.start);var t=this.startNode();return this.next(),this.type===k.semi||this.canInsertSemicolon()||this.type!==k.star&&!this.type.startsExpr?(t.delegate=!1,t.argument=null):(t.delegate=this.eat(k.star),t.argument=this.parseMaybeAssign()),this.finishNode(t,"YieldExpression")},Q.parseAwait=function(){this.awaitPos||(this.awaitPos=this.start);var t=this.startNode();return this.next(),t.argument=this.parseMaybeUnary(null,!0),this.finishNode(t,"AwaitExpression")};var $=F.prototype;$.raise=function(t,e){var i=O(this.input,t);e+=" ("+i.line+":"+i.column+")";var s=new SyntaxError(e);throw s.pos=t,s.loc=i,s.raisedAt=this.pos,s},$.raiseRecoverable=$.raise,$.curPosition=function(){if(this.options.locations)return new V(this.curLine,this.pos-this.lineStart)};var Z=F.prototype,Y=Object.assign||function(t){for(var e=[],i=arguments.length-1;i-- >0;)e[i]=arguments[i+1];for(var s=0,r=e;s<r.length;s+=1){var n=r[s];for(var a in n)I(n,a)&&(t[a]=n[a])}return t};Z.enterFunctionScope=function(){this.scopeStack.push({var:{},lexical:{},childVar:{},parentLexical:{}})},Z.exitFunctionScope=function(){this.scopeStack.pop()},Z.enterLexicalScope=function(){var t=this.scopeStack[this.scopeStack.length-1],e={var:{},lexical:{},childVar:{},parentLexical:{}};this.scopeStack.push(e),Y(e.parentLexical,t.lexical,t.parentLexical)},Z.exitLexicalScope=function(){var t=this.scopeStack.pop(),e=this.scopeStack[this.scopeStack.length-1];Y(e.childVar,t.var,t.childVar)},Z.canDeclareVarName=function(t){var e=this.scopeStack[this.scopeStack.length-1];return!I(e.lexical,t)&&!I(e.parentLexical,t)},Z.canDeclareLexicalName=function(t){var e=this.scopeStack[this.scopeStack.length-1];return!I(e.lexical,t)&&!I(e.var,t)&&!I(e.childVar,t)},Z.declareVarName=function(t){this.scopeStack[this.scopeStack.length-1].var[t]=!0},Z.declareLexicalName=function(t){this.scopeStack[this.scopeStack.length-1].lexical[t]=!0};var tt=function(t,e,i){this.type="",this.start=e,this.end=0,t.options.locations&&(this.loc=new j(t,i)),t.options.directSourceFile&&(this.sourceFile=t.options.directSourceFile),t.options.ranges&&(this.range=[e,0])},et=F.prototype;function it(t,e,i,s){return t.type=e,t.end=i,this.options.locations&&(t.loc.end=s),this.options.ranges&&(t.range[1]=i),t}et.startNode=function(){return new tt(this,this.start,this.startLoc)},et.startNodeAt=function(t,e){return new tt(this,t,e)},et.finishNode=function(t,e){return it.call(this,t,e,this.lastTokEnd,this.lastTokEndLoc)},et.finishNodeAt=function(t,e,i,s){return it.call(this,t,e,i,s)};var st=function(t,e,i,s,r){this.token=t,this.isExpr=!!e,this.preserveSpace=!!i,this.override=s,this.generator=!!r},rt={b_stat:new st("{",!1),b_expr:new st("{",!0),b_tmpl:new st("${",!1),p_stat:new st("(",!1),p_expr:new st("(",!0),q_tmpl:new st("`",!0,!0,function(t){return t.tryReadTemplateToken()}),f_stat:new st("function",!1),f_expr:new st("function",!0),f_expr_gen:new st("function",!0,!1,null,!0),f_gen:new st("function",!1,!1,null,!0)},nt=F.prototype;nt.initialContext=function(){return[rt.b_stat]},nt.braceIsBlock=function(t){var e=this.curContext();return e===rt.f_expr||e===rt.f_stat||(t!==k.colon||e!==rt.b_stat&&e!==rt.b_expr?t===k._return||t===k.name&&this.exprAllowed?E.test(this.input.slice(this.lastTokEnd,this.start)):t===k._else||t===k.semi||t===k.eof||t===k.parenR||t===k.arrow||(t===k.braceL?e===rt.b_stat:t!==k._var&&t!==k.name&&!this.exprAllowed):!e.isExpr)},nt.inGeneratorContext=function(){for(var t=this.context.length-1;t>=1;t--){var e=this.context[t];if("function"===e.token)return e.generator}return!1},nt.updateContext=function(t){var e,i=this.type;i.keyword&&t===k.dot?this.exprAllowed=!1:(e=i.updateContext)?e.call(this,t):this.exprAllowed=i.beforeExpr},k.parenR.updateContext=k.braceR.updateContext=function(){if(1!==this.context.length){var t=this.context.pop();t===rt.b_stat&&"function"===this.curContext().token&&(t=this.context.pop()),this.exprAllowed=!t.isExpr}else this.exprAllowed=!0},k.braceL.updateContext=function(t){this.context.push(this.braceIsBlock(t)?rt.b_stat:rt.b_expr),this.exprAllowed=!0},k.dollarBraceL.updateContext=function(){this.context.push(rt.b_tmpl),this.exprAllowed=!0},k.parenL.updateContext=function(t){var e=t===k._if||t===k._for||t===k._with||t===k._while;this.context.push(e?rt.p_stat:rt.p_expr),this.exprAllowed=!0},k.incDec.updateContext=function(){},k._function.updateContext=k._class.updateContext=function(t){t.beforeExpr&&t!==k.semi&&t!==k._else&&(t!==k.colon&&t!==k.braceL||this.curContext()!==rt.b_stat)?this.context.push(rt.f_expr):this.context.push(rt.f_stat),this.exprAllowed=!1},k.backQuote.updateContext=function(){this.curContext()===rt.q_tmpl?this.context.pop():this.context.push(rt.q_tmpl),this.exprAllowed=!1},k.star.updateContext=function(t){if(t===k._function){var e=this.context.length-1;this.context[e]===rt.f_expr?this.context[e]=rt.f_expr_gen:this.context[e]=rt.f_gen}this.exprAllowed=!0},k.name.updateContext=function(t){var e=!1;this.options.ecmaVersion>=6&&t!==k.dot&&("of"===this.value&&!this.exprAllowed||"yield"===this.value&&this.inGeneratorContext())&&(e=!0),this.exprAllowed=e};var at={$LONE:["ASCII","ASCII_Hex_Digit","AHex","Alphabetic","Alpha","Any","Assigned","Bidi_Control","Bidi_C","Bidi_Mirrored","Bidi_M","Case_Ignorable","CI","Cased","Changes_When_Casefolded","CWCF","Changes_When_Casemapped","CWCM","Changes_When_Lowercased","CWL","Changes_When_NFKC_Casefolded","CWKCF","Changes_When_Titlecased","CWT","Changes_When_Uppercased","CWU","Dash","Default_Ignorable_Code_Point","DI","Deprecated","Dep","Diacritic","Dia","Emoji","Emoji_Component","Emoji_Modifier","Emoji_Modifier_Base","Emoji_Presentation","Extender","Ext","Grapheme_Base","Gr_Base","Grapheme_Extend","Gr_Ext","Hex_Digit","Hex","IDS_Binary_Operator","IDSB","IDS_Trinary_Operator","IDST","ID_Continue","IDC","ID_Start","IDS","Ideographic","Ideo","Join_Control","Join_C","Logical_Order_Exception","LOE","Lowercase","Lower","Math","Noncharacter_Code_Point","NChar","Pattern_Syntax","Pat_Syn","Pattern_White_Space","Pat_WS","Quotation_Mark","QMark","Radical","Regional_Indicator","RI","Sentence_Terminal","STerm","Soft_Dotted","SD","Terminal_Punctuation","Term","Unified_Ideograph","UIdeo","Uppercase","Upper","Variation_Selector","VS","White_Space","space","XID_Continue","XIDC","XID_Start","XIDS"],General_Category:["Cased_Letter","LC","Close_Punctuation","Pe","Connector_Punctuation","Pc","Control","Cc","cntrl","Currency_Symbol","Sc","Dash_Punctuation","Pd","Decimal_Number","Nd","digit","Enclosing_Mark","Me","Final_Punctuation","Pf","Format","Cf","Initial_Punctuation","Pi","Letter","L","Letter_Number","Nl","Line_Separator","Zl","Lowercase_Letter","Ll","Mark","M","Combining_Mark","Math_Symbol","Sm","Modifier_Letter","Lm","Modifier_Symbol","Sk","Nonspacing_Mark","Mn","Number","N","Open_Punctuation","Ps","Other","C","Other_Letter","Lo","Other_Number","No","Other_Punctuation","Po","Other_Symbol","So","Paragraph_Separator","Zp","Private_Use","Co","Punctuation","P","punct","Separator","Z","Space_Separator","Zs","Spacing_Mark","Mc","Surrogate","Cs","Symbol","S","Titlecase_Letter","Lt","Unassigned","Cn","Uppercase_Letter","Lu"],Script:["Adlam","Adlm","Ahom","Anatolian_Hieroglyphs","Hluw","Arabic","Arab","Armenian","Armn","Avestan","Avst","Balinese","Bali","Bamum","Bamu","Bassa_Vah","Bass","Batak","Batk","Bengali","Beng","Bhaiksuki","Bhks","Bopomofo","Bopo","Brahmi","Brah","Braille","Brai","Buginese","Bugi","Buhid","Buhd","Canadian_Aboriginal","Cans","Carian","Cari","Caucasian_Albanian","Aghb","Chakma","Cakm","Cham","Cherokee","Cher","Common","Zyyy","Coptic","Copt","Qaac","Cuneiform","Xsux","Cypriot","Cprt","Cyrillic","Cyrl","Deseret","Dsrt","Devanagari","Deva","Duployan","Dupl","Egyptian_Hieroglyphs","Egyp","Elbasan","Elba","Ethiopic","Ethi","Georgian","Geor","Glagolitic","Glag","Gothic","Goth","Grantha","Gran","Greek","Grek","Gujarati","Gujr","Gurmukhi","Guru","Han","Hani","Hangul","Hang","Hanunoo","Hano","Hatran","Hatr","Hebrew","Hebr","Hiragana","Hira","Imperial_Aramaic","Armi","Inherited","Zinh","Qaai","Inscriptional_Pahlavi","Phli","Inscriptional_Parthian","Prti","Javanese","Java","Kaithi","Kthi","Kannada","Knda","Katakana","Kana","Kayah_Li","Kali","Kharoshthi","Khar","Khmer","Khmr","Khojki","Khoj","Khudawadi","Sind","Lao","Laoo","Latin","Latn","Lepcha","Lepc","Limbu","Limb","Linear_A","Lina","Linear_B","Linb","Lisu","Lycian","Lyci","Lydian","Lydi","Mahajani","Mahj","Malayalam","Mlym","Mandaic","Mand","Manichaean","Mani","Marchen","Marc","Masaram_Gondi","Gonm","Meetei_Mayek","Mtei","Mende_Kikakui","Mend","Meroitic_Cursive","Merc","Meroitic_Hieroglyphs","Mero","Miao","Plrd","Modi","Mongolian","Mong","Mro","Mroo","Multani","Mult","Myanmar","Mymr","Nabataean","Nbat","New_Tai_Lue","Talu","Newa","Nko","Nkoo","Nushu","Nshu","Ogham","Ogam","Ol_Chiki","Olck","Old_Hungarian","Hung","Old_Italic","Ital","Old_North_Arabian","Narb","Old_Permic","Perm","Old_Persian","Xpeo","Old_South_Arabian","Sarb","Old_Turkic","Orkh","Oriya","Orya","Osage","Osge","Osmanya","Osma","Pahawh_Hmong","Hmng","Palmyrene","Palm","Pau_Cin_Hau","Pauc","Phags_Pa","Phag","Phoenician","Phnx","Psalter_Pahlavi","Phlp","Rejang","Rjng","Runic","Runr","Samaritan","Samr","Saurashtra","Saur","Sharada","Shrd","Shavian","Shaw","Siddham","Sidd","SignWriting","Sgnw","Sinhala","Sinh","Sora_Sompeng","Sora","Soyombo","Soyo","Sundanese","Sund","Syloti_Nagri","Sylo","Syriac","Syrc","Tagalog","Tglg","Tagbanwa","Tagb","Tai_Le","Tale","Tai_Tham","Lana","Tai_Viet","Tavt","Takri","Takr","Tamil","Taml","Tangut","Tang","Telugu","Telu","Thaana","Thaa","Thai","Tibetan","Tibt","Tifinagh","Tfng","Tirhuta","Tirh","Ugaritic","Ugar","Vai","Vaii","Warang_Citi","Wara","Yi","Yiii","Zanabazar_Square","Zanb"]};Array.prototype.push.apply(at.$LONE,at.General_Category),at.gc=at.General_Category,at.sc=at.Script_Extensions=at.scx=at.Script;var ot=F.prototype,ht=function(t){this.parser=t,this.validFlags="gim"+(t.options.ecmaVersion>=6?"uy":"")+(t.options.ecmaVersion>=9?"s":""),this.source="",this.flags="",this.start=0,this.switchU=!1,this.switchN=!1,this.pos=0,this.lastIntValue=0,this.lastStringValue="",this.lastAssertionIsQuantifiable=!1,this.numCapturingParens=0,this.maxBackReference=0,this.groupNames=[],this.backReferenceNames=[]};function pt(t){return t<=65535?String.fromCharCode(t):(t-=65536,String.fromCharCode(55296+(t>>10),56320+(1023&t)))}function ct(t){return 36===t||t>=40&&t<=43||46===t||63===t||t>=91&&t<=94||t>=123&&t<=125}function ut(t){return t>=65&&t<=90||t>=97&&t<=122}function lt(t){return ut(t)||95===t}function dt(t){return lt(t)||ft(t)}function ft(t){return t>=48&&t<=57}function mt(t){return t>=48&&t<=57||t>=65&&t<=70||t>=97&&t<=102}function xt(t){return t>=65&&t<=70?t-65+10:t>=97&&t<=102?t-97+10:t-48}function gt(t){return t>=48&&t<=55}ht.prototype.reset=function(t,e,i){var s=-1!==i.indexOf("u");this.start=0|t,this.source=e+"",this.flags=i,this.switchU=s&&this.parser.options.ecmaVersion>=6,this.switchN=s&&this.parser.options.ecmaVersion>=9},ht.prototype.raise=function(t){this.parser.raiseRecoverable(this.start,"Invalid regular expression: /"+this.source+"/: "+t)},ht.prototype.at=function(t){var e=this.source,i=e.length;if(t>=i)return-1;var s=e.charCodeAt(t);return!this.switchU||s<=55295||s>=57344||t+1>=i?s:(s<<10)+e.charCodeAt(t+1)-56613888},ht.prototype.nextIndex=function(t){var e=this.source,i=e.length;if(t>=i)return i;var s=e.charCodeAt(t);return!this.switchU||s<=55295||s>=57344||t+1>=i?t+1:t+2},ht.prototype.current=function(){return this.at(this.pos)},ht.prototype.lookahead=function(){return this.at(this.nextIndex(this.pos))},ht.prototype.advance=function(){this.pos=this.nextIndex(this.pos)},ht.prototype.eat=function(t){return this.current()===t&&(this.advance(),!0)},ot.validateRegExpFlags=function(t){for(var e=t.validFlags,i=t.flags,s=0;s<i.length;s++){var r=i.charAt(s);-1===e.indexOf(r)&&this.raise(t.start,"Invalid regular expression flag"),i.indexOf(r,s+1)>-1&&this.raise(t.start,"Duplicate regular expression flag")}},ot.validateRegExpPattern=function(t){this.regexp_pattern(t),!t.switchN&&this.options.ecmaVersion>=9&&t.groupNames.length>0&&(t.switchN=!0,this.regexp_pattern(t))},ot.regexp_pattern=function(t){t.pos=0,t.lastIntValue=0,t.lastStringValue="",t.lastAssertionIsQuantifiable=!1,t.numCapturingParens=0,t.maxBackReference=0,t.groupNames.length=0,t.backReferenceNames.length=0,this.regexp_disjunction(t),t.pos!==t.source.length&&(t.eat(41)&&t.raise("Unmatched ')'"),(t.eat(93)||t.eat(125))&&t.raise("Lone quantifier brackets")),t.maxBackReference>t.numCapturingParens&&t.raise("Invalid escape");for(var e=0,i=t.backReferenceNames;e<i.length;e+=1){var s=i[e];-1===t.groupNames.indexOf(s)&&t.raise("Invalid named capture referenced")}},ot.regexp_disjunction=function(t){for(this.regexp_alternative(t);t.eat(124);)this.regexp_alternative(t);this.regexp_eatQuantifier(t,!0)&&t.raise("Nothing to repeat"),t.eat(123)&&t.raise("Lone quantifier brackets")},ot.regexp_alternative=function(t){for(;t.pos<t.source.length&&this.regexp_eatTerm(t););},ot.regexp_eatTerm=function(t){return this.regexp_eatAssertion(t)?(t.lastAssertionIsQuantifiable&&this.regexp_eatQuantifier(t)&&t.switchU&&t.raise("Invalid quantifier"),!0):!(t.switchU?!this.regexp_eatAtom(t):!this.regexp_eatExtendedAtom(t))&&(this.regexp_eatQuantifier(t),!0)},ot.regexp_eatAssertion=function(t){var e=t.pos;if(t.lastAssertionIsQuantifiable=!1,t.eat(94)||t.eat(36))return!0;if(t.eat(92)){if(t.eat(66)||t.eat(98))return!0;t.pos=e}if(t.eat(40)&&t.eat(63)){var i=!1;if(this.options.ecmaVersion>=9&&(i=t.eat(60)),t.eat(61)||t.eat(33))return this.regexp_disjunction(t),t.eat(41)||t.raise("Unterminated group"),t.lastAssertionIsQuantifiable=!i,!0}return t.pos=e,!1},ot.regexp_eatQuantifier=function(t,e){return void 0===e&&(e=!1),!!this.regexp_eatQuantifierPrefix(t,e)&&(t.eat(63),!0)},ot.regexp_eatQuantifierPrefix=function(t,e){return t.eat(42)||t.eat(43)||t.eat(63)||this.regexp_eatBracedQuantifier(t,e)},ot.regexp_eatBracedQuantifier=function(t,e){var i=t.pos;if(t.eat(123)){var s=0,r=-1;if(this.regexp_eatDecimalDigits(t)&&(s=t.lastIntValue,t.eat(44)&&this.regexp_eatDecimalDigits(t)&&(r=t.lastIntValue),t.eat(125)))return-1!==r&&r<s&&!e&&t.raise("numbers out of order in {} quantifier"),!0;t.switchU&&!e&&t.raise("Incomplete quantifier"),t.pos=i}return!1},ot.regexp_eatAtom=function(t){return this.regexp_eatPatternCharacters(t)||t.eat(46)||this.regexp_eatReverseSolidusAtomEscape(t)||this.regexp_eatCharacterClass(t)||this.regexp_eatUncapturingGroup(t)||this.regexp_eatCapturingGroup(t)},ot.regexp_eatReverseSolidusAtomEscape=function(t){var e=t.pos;if(t.eat(92)){if(this.regexp_eatAtomEscape(t))return!0;t.pos=e}return!1},ot.regexp_eatUncapturingGroup=function(t){var e=t.pos;if(t.eat(40)){if(t.eat(63)&&t.eat(58)){if(this.regexp_disjunction(t),t.eat(41))return!0;t.raise("Unterminated group")}t.pos=e}return!1},ot.regexp_eatCapturingGroup=function(t){if(t.eat(40)){if(this.options.ecmaVersion>=9?this.regexp_groupSpecifier(t):63===t.current()&&t.raise("Invalid group"),this.regexp_disjunction(t),t.eat(41))return t.numCapturingParens+=1,!0;t.raise("Unterminated group")}return!1},ot.regexp_eatExtendedAtom=function(t){return t.eat(46)||this.regexp_eatReverseSolidusAtomEscape(t)||this.regexp_eatCharacterClass(t)||this.regexp_eatUncapturingGroup(t)||this.regexp_eatCapturingGroup(t)||this.regexp_eatInvalidBracedQuantifier(t)||this.regexp_eatExtendedPatternCharacter(t)},ot.regexp_eatInvalidBracedQuantifier=function(t){return this.regexp_eatBracedQuantifier(t,!0)&&t.raise("Nothing to repeat"),!1},ot.regexp_eatSyntaxCharacter=function(t){var e=t.current();return!!ct(e)&&(t.lastIntValue=e,t.advance(),!0)},ot.regexp_eatPatternCharacters=function(t){for(var e=t.pos,i=0;-1!==(i=t.current())&&!ct(i);)t.advance();return t.pos!==e},ot.regexp_eatExtendedPatternCharacter=function(t){var e=t.current();return!(-1===e||36===e||e>=40&&e<=43||46===e||63===e||91===e||94===e||124===e)&&(t.advance(),!0)},ot.regexp_groupSpecifier=function(t){if(t.eat(63)){if(this.regexp_eatGroupName(t))return-1!==t.groupNames.indexOf(t.lastStringValue)&&t.raise("Duplicate capture group name"),void t.groupNames.push(t.lastStringValue);t.raise("Invalid group")}},ot.regexp_eatGroupName=function(t){if(t.lastStringValue="",t.eat(60)){if(this.regexp_eatRegExpIdentifierName(t)&&t.eat(62))return!0;t.raise("Invalid capture group name")}return!1},ot.regexp_eatRegExpIdentifierName=function(t){if(t.lastStringValue="",this.regexp_eatRegExpIdentifierStart(t)){for(t.lastStringValue+=pt(t.lastIntValue);this.regexp_eatRegExpIdentifierPart(t);)t.lastStringValue+=pt(t.lastIntValue);return!0}return!1},ot.regexp_eatRegExpIdentifierStart=function(t){var e=t.pos,i=t.current();return t.advance(),92===i&&this.regexp_eatRegExpUnicodeEscapeSequence(t)&&(i=t.lastIntValue),function(t){return f(t,!0)||36===t||95===t}(i)?(t.lastIntValue=i,!0):(t.pos=e,!1)},ot.regexp_eatRegExpIdentifierPart=function(t){var e=t.pos,i=t.current();return t.advance(),92===i&&this.regexp_eatRegExpUnicodeEscapeSequence(t)&&(i=t.lastIntValue),function(t){return m(t,!0)||36===t||95===t||8204===t||8205===t}(i)?(t.lastIntValue=i,!0):(t.pos=e,!1)},ot.regexp_eatAtomEscape=function(t){return!!(this.regexp_eatBackReference(t)||this.regexp_eatCharacterClassEscape(t)||this.regexp_eatCharacterEscape(t)||t.switchN&&this.regexp_eatKGroupName(t))||(t.switchU&&(99===t.current()&&t.raise("Invalid unicode escape"),t.raise("Invalid escape")),!1)},ot.regexp_eatBackReference=function(t){var e=t.pos;if(this.regexp_eatDecimalEscape(t)){var i=t.lastIntValue;if(t.switchU)return i>t.maxBackReference&&(t.maxBackReference=i),!0;if(i<=t.numCapturingParens)return!0;t.pos=e}return!1},ot.regexp_eatKGroupName=function(t){if(t.eat(107)){if(this.regexp_eatGroupName(t))return t.backReferenceNames.push(t.lastStringValue),!0;t.raise("Invalid named reference")}return!1},ot.regexp_eatCharacterEscape=function(t){return this.regexp_eatControlEscape(t)||this.regexp_eatCControlLetter(t)||this.regexp_eatZero(t)||this.regexp_eatHexEscapeSequence(t)||this.regexp_eatRegExpUnicodeEscapeSequence(t)||!t.switchU&&this.regexp_eatLegacyOctalEscapeSequence(t)||this.regexp_eatIdentityEscape(t)},ot.regexp_eatCControlLetter=function(t){var e=t.pos;if(t.eat(99)){if(this.regexp_eatControlLetter(t))return!0;t.pos=e}return!1},ot.regexp_eatZero=function(t){return 48===t.current()&&!ft(t.lookahead())&&(t.lastIntValue=0,t.advance(),!0)},ot.regexp_eatControlEscape=function(t){var e=t.current();return 116===e?(t.lastIntValue=9,t.advance(),!0):110===e?(t.lastIntValue=10,t.advance(),!0):118===e?(t.lastIntValue=11,t.advance(),!0):102===e?(t.lastIntValue=12,t.advance(),!0):114===e&&(t.lastIntValue=13,t.advance(),!0)},ot.regexp_eatControlLetter=function(t){var e=t.current();return!!ut(e)&&(t.lastIntValue=e%32,t.advance(),!0)},ot.regexp_eatRegExpUnicodeEscapeSequence=function(t){var e,i=t.pos;if(t.eat(117)){if(this.regexp_eatFixedHexDigits(t,4)){var s=t.lastIntValue;if(t.switchU&&s>=55296&&s<=56319){var r=t.pos;if(t.eat(92)&&t.eat(117)&&this.regexp_eatFixedHexDigits(t,4)){var n=t.lastIntValue;if(n>=56320&&n<=57343)return t.lastIntValue=1024*(s-55296)+(n-56320)+65536,!0}t.pos=r,t.lastIntValue=s}return!0}if(t.switchU&&t.eat(123)&&this.regexp_eatHexDigits(t)&&t.eat(125)&&((e=t.lastIntValue)>=0&&e<=1114111))return!0;t.switchU&&t.raise("Invalid unicode escape"),t.pos=i}return!1},ot.regexp_eatIdentityEscape=function(t){if(t.switchU)return!!this.regexp_eatSyntaxCharacter(t)||!!t.eat(47)&&(t.lastIntValue=47,!0);var e=t.current();return!(99===e||t.switchN&&107===e)&&(t.lastIntValue=e,t.advance(),!0)},ot.regexp_eatDecimalEscape=function(t){t.lastIntValue=0;var e=t.current();if(e>=49&&e<=57){do{t.lastIntValue=10*t.lastIntValue+(e-48),t.advance()}while((e=t.current())>=48&&e<=57);return!0}return!1},ot.regexp_eatCharacterClassEscape=function(t){var e=t.current();if(function(t){return 100===t||68===t||115===t||83===t||119===t||87===t}(e))return t.lastIntValue=-1,t.advance(),!0;if(t.switchU&&this.options.ecmaVersion>=9&&(80===e||112===e)){if(t.lastIntValue=-1,t.advance(),t.eat(123)&&this.regexp_eatUnicodePropertyValueExpression(t)&&t.eat(125))return!0;t.raise("Invalid property name")}return!1},ot.regexp_eatUnicodePropertyValueExpression=function(t){var e=t.pos;if(this.regexp_eatUnicodePropertyName(t)&&t.eat(61)){var i=t.lastStringValue;if(this.regexp_eatUnicodePropertyValue(t)){var s=t.lastStringValue;return this.regexp_validateUnicodePropertyNameAndValue(t,i,s),!0}}if(t.pos=e,this.regexp_eatLoneUnicodePropertyNameOrValue(t)){var r=t.lastStringValue;return this.regexp_validateUnicodePropertyNameOrValue(t,r),!0}return!1},ot.regexp_validateUnicodePropertyNameAndValue=function(t,e,i){at.hasOwnProperty(e)&&-1!==at[e].indexOf(i)||t.raise("Invalid property name")},ot.regexp_validateUnicodePropertyNameOrValue=function(t,e){-1===at.$LONE.indexOf(e)&&t.raise("Invalid property name")},ot.regexp_eatUnicodePropertyName=function(t){var e=0;for(t.lastStringValue="";lt(e=t.current());)t.lastStringValue+=pt(e),t.advance();return""!==t.lastStringValue},ot.regexp_eatUnicodePropertyValue=function(t){var e=0;for(t.lastStringValue="";dt(e=t.current());)t.lastStringValue+=pt(e),t.advance();return""!==t.lastStringValue},ot.regexp_eatLoneUnicodePropertyNameOrValue=function(t){return this.regexp_eatUnicodePropertyValue(t)},ot.regexp_eatCharacterClass=function(t){if(t.eat(91)){if(t.eat(94),this.regexp_classRanges(t),t.eat(93))return!0;t.raise("Unterminated character class")}return!1},ot.regexp_classRanges=function(t){for(;this.regexp_eatClassAtom(t);){var e=t.lastIntValue;if(t.eat(45)&&this.regexp_eatClassAtom(t)){var i=t.lastIntValue;!t.switchU||-1!==e&&-1!==i||t.raise("Invalid character class"),-1!==e&&-1!==i&&e>i&&t.raise("Range out of order in character class")}}},ot.regexp_eatClassAtom=function(t){var e=t.pos;if(t.eat(92)){if(this.regexp_eatClassEscape(t))return!0;if(t.switchU){var i=t.current();(99===i||gt(i))&&t.raise("Invalid class escape"),t.raise("Invalid escape")}t.pos=e}var s=t.current();return 93!==s&&(t.lastIntValue=s,t.advance(),!0)},ot.regexp_eatClassEscape=function(t){var e=t.pos;if(t.eat(98))return t.lastIntValue=8,!0;if(t.switchU&&t.eat(45))return t.lastIntValue=45,!0;if(!t.switchU&&t.eat(99)){if(this.regexp_eatClassControlLetter(t))return!0;t.pos=e}return this.regexp_eatCharacterClassEscape(t)||this.regexp_eatCharacterEscape(t)},ot.regexp_eatClassControlLetter=function(t){var e=t.current();return!(!ft(e)&&95!==e)&&(t.lastIntValue=e%32,t.advance(),!0)},ot.regexp_eatHexEscapeSequence=function(t){var e=t.pos;if(t.eat(120)){if(this.regexp_eatFixedHexDigits(t,2))return!0;t.switchU&&t.raise("Invalid escape"),t.pos=e}return!1},ot.regexp_eatDecimalDigits=function(t){var e=t.pos,i=0;for(t.lastIntValue=0;ft(i=t.current());)t.lastIntValue=10*t.lastIntValue+(i-48),t.advance();return t.pos!==e},ot.regexp_eatHexDigits=function(t){var e=t.pos,i=0;for(t.lastIntValue=0;mt(i=t.current());)t.lastIntValue=16*t.lastIntValue+xt(i),t.advance();return t.pos!==e},ot.regexp_eatLegacyOctalEscapeSequence=function(t){if(this.regexp_eatOctalDigit(t)){var e=t.lastIntValue;if(this.regexp_eatOctalDigit(t)){var i=t.lastIntValue;e<=3&&this.regexp_eatOctalDigit(t)?t.lastIntValue=64*e+8*i+t.lastIntValue:t.lastIntValue=8*e+i}else t.lastIntValue=e;return!0}return!1},ot.regexp_eatOctalDigit=function(t){var e=t.current();return gt(e)?(t.lastIntValue=e-48,t.advance(),!0):(t.lastIntValue=0,!1)},ot.regexp_eatFixedHexDigits=function(t,e){var i=t.pos;t.lastIntValue=0;for(var s=0;s<e;++s){var r=t.current();if(!mt(r))return t.pos=i,!1;t.lastIntValue=16*t.lastIntValue+xt(r),t.advance()}return!0};var yt=function(t){this.type=t.type,this.value=t.value,this.start=t.start,this.end=t.end,t.options.locations&&(this.loc=new j(t,t.startLoc,t.endLoc)),t.options.ranges&&(this.range=[t.start,t.end])},vt=F.prototype;function bt(t){return t<=65535?String.fromCharCode(t):(t-=65536,String.fromCharCode(55296+(t>>10),56320+(1023&t)))}vt.next=function(){this.options.onToken&&this.options.onToken(new yt(this)),this.lastTokEnd=this.end,this.lastTokStart=this.start,this.lastTokEndLoc=this.endLoc,this.lastTokStartLoc=this.startLoc,this.nextToken()},vt.getToken=function(){return this.next(),new yt(this)},"undefined"!=typeof Symbol&&(vt[Symbol.iterator]=function(){var t=this;return{next:function(){var e=t.getToken();return{done:e.type===k.eof,value:e}}}}),vt.curContext=function(){return this.context[this.context.length-1]},vt.nextToken=function(){var t=this.curContext();return t&&t.preserveSpace||this.skipSpace(),this.start=this.pos,this.options.locations&&(this.startLoc=this.curPosition()),this.pos>=this.input.length?this.finishToken(k.eof):t.override?t.override(this):void this.readToken(this.fullCharCodeAtPos())},vt.readToken=function(t){return f(t,this.options.ecmaVersion>=6)||92===t?this.readWord():this.getTokenFromCode(t)},vt.fullCharCodeAtPos=function(){var t=this.input.charCodeAt(this.pos);return t<=55295||t>=57344?t:(t<<10)+this.input.charCodeAt(this.pos+1)-56613888},vt.skipBlockComment=function(){var t,e=this.options.onComment&&this.curPosition(),i=this.pos,s=this.input.indexOf("*/",this.pos+=2);if(-1===s&&this.raise(this.pos-2,"Unterminated comment"),this.pos=s+2,this.options.locations)for(S.lastIndex=i;(t=S.exec(this.input))&&t.index<this.pos;)++this.curLine,this.lineStart=t.index+t[0].length;this.options.onComment&&this.options.onComment(!0,this.input.slice(i+2,s),i,this.pos,e,this.curPosition())},vt.skipLineComment=function(t){for(var e=this.pos,i=this.options.onComment&&this.curPosition(),s=this.input.charCodeAt(this.pos+=t);this.pos<this.input.length&&!w(s);)s=this.input.charCodeAt(++this.pos);this.options.onComment&&this.options.onComment(!1,this.input.slice(e+t,this.pos),e,this.pos,i,this.curPosition())},vt.skipSpace=function(){t:for(;this.pos<this.input.length;){var t=this.input.charCodeAt(this.pos);switch(t){case 32:case 160:++this.pos;break;case 13:10===this.input.charCodeAt(this.pos+1)&&++this.pos;case 10:case 8232:case 8233:++this.pos,this.options.locations&&(++this.curLine,this.lineStart=this.pos);break;case 47:switch(this.input.charCodeAt(this.pos+1)){case 42:this.skipBlockComment();break;case 47:this.skipLineComment(2);break;default:break t}break;default:if(!(t>8&&t<14||t>=5760&&C.test(String.fromCharCode(t))))break t;++this.pos}}},vt.finishToken=function(t,e){this.end=this.pos,this.options.locations&&(this.endLoc=this.curPosition());var i=this.type;this.type=t,this.value=e,this.updateContext(i)},vt.readToken_dot=function(){var t=this.input.charCodeAt(this.pos+1);if(t>=48&&t<=57)return this.readNumber(!0);var e=this.input.charCodeAt(this.pos+2);return this.options.ecmaVersion>=6&&46===t&&46===e?(this.pos+=3,this.finishToken(k.ellipsis)):(++this.pos,this.finishToken(k.dot))},vt.readToken_slash=function(){var t=this.input.charCodeAt(this.pos+1);return this.exprAllowed?(++this.pos,this.readRegexp()):61===t?this.finishOp(k.assign,2):this.finishOp(k.slash,1)},vt.readToken_mult_modulo_exp=function(t){var e=this.input.charCodeAt(this.pos+1),i=1,s=42===t?k.star:k.modulo;return this.options.ecmaVersion>=7&&42===t&&42===e&&(++i,s=k.starstar,e=this.input.charCodeAt(this.pos+2)),61===e?this.finishOp(k.assign,i+1):this.finishOp(s,i)},vt.readToken_pipe_amp=function(t){var e=this.input.charCodeAt(this.pos+1);return e===t?this.finishOp(124===t?k.logicalOR:k.logicalAND,2):61===e?this.finishOp(k.assign,2):this.finishOp(124===t?k.bitwiseOR:k.bitwiseAND,1)},vt.readToken_caret=function(){return 61===this.input.charCodeAt(this.pos+1)?this.finishOp(k.assign,2):this.finishOp(k.bitwiseXOR,1)},vt.readToken_plus_min=function(t){var e=this.input.charCodeAt(this.pos+1);return e===t?45!==e||this.inModule||62!==this.input.charCodeAt(this.pos+2)||0!==this.lastTokEnd&&!E.test(this.input.slice(this.lastTokEnd,this.pos))?this.finishOp(k.incDec,2):(this.skipLineComment(3),this.skipSpace(),this.nextToken()):61===e?this.finishOp(k.assign,2):this.finishOp(k.plusMin,1)},vt.readToken_lt_gt=function(t){var e=this.input.charCodeAt(this.pos+1),i=1;return e===t?(i=62===t&&62===this.input.charCodeAt(this.pos+2)?3:2,61===this.input.charCodeAt(this.pos+i)?this.finishOp(k.assign,i+1):this.finishOp(k.bitShift,i)):33!==e||60!==t||this.inModule||45!==this.input.charCodeAt(this.pos+2)||45!==this.input.charCodeAt(this.pos+3)?(61===e&&(i=2),this.finishOp(k.relational,i)):(this.skipLineComment(4),this.skipSpace(),this.nextToken())},vt.readToken_eq_excl=function(t){var e=this.input.charCodeAt(this.pos+1);return 61===e?this.finishOp(k.equality,61===this.input.charCodeAt(this.pos+2)?3:2):61===t&&62===e&&this.options.ecmaVersion>=6?(this.pos+=2,this.finishToken(k.arrow)):this.finishOp(61===t?k.eq:k.prefix,1)},vt.getTokenFromCode=function(t){switch(t){case 46:return this.readToken_dot();case 40:return++this.pos,this.finishToken(k.parenL);case 41:return++this.pos,this.finishToken(k.parenR);case 59:return++this.pos,this.finishToken(k.semi);case 44:return++this.pos,this.finishToken(k.comma);case 91:return++this.pos,this.finishToken(k.bracketL);case 93:return++this.pos,this.finishToken(k.bracketR);case 123:return++this.pos,this.finishToken(k.braceL);case 125:return++this.pos,this.finishToken(k.braceR);case 58:return++this.pos,this.finishToken(k.colon);case 63:return++this.pos,this.finishToken(k.question);case 96:if(this.options.ecmaVersion<6)break;return++this.pos,this.finishToken(k.backQuote);case 48:var e=this.input.charCodeAt(this.pos+1);if(120===e||88===e)return this.readRadixNumber(16);if(this.options.ecmaVersion>=6){if(111===e||79===e)return this.readRadixNumber(8);if(98===e||66===e)return this.readRadixNumber(2)}case 49:case 50:case 51:case 52:case 53:case 54:case 55:case 56:case 57:return this.readNumber(!1);case 34:case 39:return this.readString(t);case 47:return this.readToken_slash();case 37:case 42:return this.readToken_mult_modulo_exp(t);case 124:case 38:return this.readToken_pipe_amp(t);case 94:return this.readToken_caret();case 43:case 45:return this.readToken_plus_min(t);case 60:case 62:return this.readToken_lt_gt(t);case 61:case 33:return this.readToken_eq_excl(t);case 126:return this.finishOp(k.prefix,1)}this.raise(this.pos,"Unexpected character '"+bt(t)+"'")},vt.finishOp=function(t,e){var i=this.input.slice(this.pos,this.pos+e);return this.pos+=e,this.finishToken(t,i)},vt.readRegexp=function(){for(var t,e,i=this.pos;;){this.pos>=this.input.length&&this.raise(i,"Unterminated regular expression");var s=this.input.charAt(this.pos);if(E.test(s)&&this.raise(i,"Unterminated regular expression"),t)t=!1;else{if("["===s)e=!0;else if("]"===s&&e)e=!1;else if("/"===s&&!e)break;t="\\"===s}++this.pos}var r=this.input.slice(i,this.pos);++this.pos;var n=this.pos,a=this.readWord1();this.containsEsc&&this.unexpected(n);var o=this.regexpState||(this.regexpState=new ht(this));o.reset(i,r,a),this.validateRegExpFlags(o),this.validateRegExpPattern(o);var h=null;try{h=new RegExp(r,a)}catch(t){}return this.finishToken(k.regexp,{pattern:r,flags:a,value:h})},vt.readInt=function(t,e){for(var i=this.pos,s=0,r=0,n=null==e?1/0:e;r<n;++r){var a=this.input.charCodeAt(this.pos),o=void 0;if((o=a>=97?a-97+10:a>=65?a-65+10:a>=48&&a<=57?a-48:1/0)>=t)break;++this.pos,s=s*t+o}return this.pos===i||null!=e&&this.pos-i!==e?null:s},vt.readRadixNumber=function(t){this.pos+=2;var e=this.readInt(t);return null==e&&this.raise(this.start+2,"Expected number in radix "+t),f(this.fullCharCodeAtPos())&&this.raise(this.pos,"Identifier directly after number"),this.finishToken(k.num,e)},vt.readNumber=function(t){var e=this.pos;t||null!==this.readInt(10)||this.raise(e,"Invalid number");var i=this.pos-e>=2&&48===this.input.charCodeAt(e);i&&this.strict&&this.raise(e,"Invalid number"),i&&/[89]/.test(this.input.slice(e,this.pos))&&(i=!1);var s=this.input.charCodeAt(this.pos);46!==s||i||(++this.pos,this.readInt(10),s=this.input.charCodeAt(this.pos)),69!==s&&101!==s||i||(43!==(s=this.input.charCodeAt(++this.pos))&&45!==s||++this.pos,null===this.readInt(10)&&this.raise(e,"Invalid number")),f(this.fullCharCodeAtPos())&&this.raise(this.pos,"Identifier directly after number");var r=this.input.slice(e,this.pos),n=i?parseInt(r,8):parseFloat(r);return this.finishToken(k.num,n)},vt.readCodePoint=function(){var t;if(123===this.input.charCodeAt(this.pos)){this.options.ecmaVersion<6&&this.unexpected();var e=++this.pos;t=this.readHexChar(this.input.indexOf("}",this.pos)-this.pos),++this.pos,t>1114111&&this.invalidStringToken(e,"Code point out of bounds")}else t=this.readHexChar(4);return t},vt.readString=function(t){for(var e="",i=++this.pos;;){this.pos>=this.input.length&&this.raise(this.start,"Unterminated string constant");var s=this.input.charCodeAt(this.pos);if(s===t)break;92===s?(e+=this.input.slice(i,this.pos),e+=this.readEscapedChar(!1),i=this.pos):(w(s,this.options.ecmaVersion>=10)&&this.raise(this.start,"Unterminated string constant"),++this.pos)}return e+=this.input.slice(i,this.pos++),this.finishToken(k.string,e)};var _t={};vt.tryReadTemplateToken=function(){this.inTemplateElement=!0;try{this.readTmplToken()}catch(t){if(t!==_t)throw t;this.readInvalidTemplateToken()}this.inTemplateElement=!1},vt.invalidStringToken=function(t,e){if(this.inTemplateElement&&this.options.ecmaVersion>=9)throw _t;this.raise(t,e)},vt.readTmplToken=function(){for(var t="",e=this.pos;;){this.pos>=this.input.length&&this.raise(this.start,"Unterminated template");var i=this.input.charCodeAt(this.pos);if(96===i||36===i&&123===this.input.charCodeAt(this.pos+1))return this.pos!==this.start||this.type!==k.template&&this.type!==k.invalidTemplate?(t+=this.input.slice(e,this.pos),this.finishToken(k.template,t)):36===i?(this.pos+=2,this.finishToken(k.dollarBraceL)):(++this.pos,this.finishToken(k.backQuote));if(92===i)t+=this.input.slice(e,this.pos),t+=this.readEscapedChar(!0),e=this.pos;else if(w(i)){switch(t+=this.input.slice(e,this.pos),++this.pos,i){case 13:10===this.input.charCodeAt(this.pos)&&++this.pos;case 10:t+="\n";break;default:t+=String.fromCharCode(i)}this.options.locations&&(++this.curLine,this.lineStart=this.pos),e=this.pos}else++this.pos}},vt.readInvalidTemplateToken=function(){for(;this.pos<this.input.length;this.pos++)switch(this.input[this.pos]){case"\\":++this.pos;break;case"$":if("{"!==this.input[this.pos+1])break;case"`":return this.finishToken(k.invalidTemplate,this.input.slice(this.start,this.pos))}this.raise(this.start,"Unterminated template")},vt.readEscapedChar=function(t){var e=this.input.charCodeAt(++this.pos);switch(++this.pos,e){case 110:return"\n";case 114:return"\r";case 120:return String.fromCharCode(this.readHexChar(2));case 117:return bt(this.readCodePoint());case 116:return"\t";case 98:return"\b";case 118:return"\v";case 102:return"\f";case 13:10===this.input.charCodeAt(this.pos)&&++this.pos;case 10:return this.options.locations&&(this.lineStart=this.pos,++this.curLine),"";default:if(e>=48&&e<=55){var i=this.input.substr(this.pos-1,3).match(/^[0-7]+/)[0],s=parseInt(i,8);return s>255&&(i=i.slice(0,-1),s=parseInt(i,8)),this.pos+=i.length-1,e=this.input.charCodeAt(this.pos),"0"===i&&56!==e&&57!==e||!this.strict&&!t||this.invalidStringToken(this.pos-1-i.length,t?"Octal literal in template string":"Octal literal in strict mode"),String.fromCharCode(s)}return String.fromCharCode(e)}},vt.readHexChar=function(t){var e=this.pos,i=this.readInt(16,t);return null===i&&this.invalidStringToken(e,"Bad character escape sequence"),i},vt.readWord1=function(){this.containsEsc=!1;for(var t="",e=!0,i=this.pos,s=this.options.ecmaVersion>=6;this.pos<this.input.length;){var r=this.fullCharCodeAtPos();if(m(r,s))this.pos+=r<=65535?1:2;else{if(92!==r)break;this.containsEsc=!0,t+=this.input.slice(i,this.pos);var n=this.pos;117!==this.input.charCodeAt(++this.pos)&&this.invalidStringToken(this.pos,"Expecting Unicode escape sequence \\uXXXX"),++this.pos;var a=this.readCodePoint();(e?f:m)(a,s)||this.invalidStringToken(n,"Invalid Unicode escape"),t+=bt(a),i=this.pos}e=!1}return t+this.input.slice(i,this.pos)},vt.readWord=function(){var t=this.readWord1(),e=k.name;return this.keywords.test(t)&&(this.containsEsc&&this.raiseRecoverable(this.start,"Escape sequence in keyword "+t),e=b[t]),this.finishToken(e,t)};var kt,Et,St,wt="5.7.3";function Ct(t,e){return new F(e,t).parse()}function At(t,e,i){var s=new F(i,t,e);return s.nextToken(),s.parseExpression()}function Tt(t,e){return new F(e,t)}function Pt(t,e,i){kt=t,Et=e,St=i}},function(t,e,i){"use strict";i.r(e);var s=i(1),r=i(0),n=i.n(r),a={class:"className",for:"htmlFor",maxlength:"maxLength",colspan:"colSpan",rowspan:"rowSpan"},o=["area","base","br","col","embed","hr","img","input","keygen","link","menuitem","meta","param","source","track","wbr"],h=["table","tbody","tfoot","thead","tr"];var p=function(){return function(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"",e=arguments.length>1&&void 0!==arguments[1]?arguments[1]:16,i=String(t),s=0;return i.split("").forEach(function(t){s=(s<<5)-s+t.charCodeAt(0),s&=s}),Math.abs(s).toString(e)}(Math.random().toString())};function c(t,e){var i=Object.keys(t);return Object.getOwnPropertySymbols&&i.push.apply(i,Object.getOwnPropertySymbols(t)),e&&(i=i.filter(function(e){return Object.getOwnPropertyDescriptor(t,e).enumerable})),i}function u(t,e,i){return e in t?Object.defineProperty(t,e,{value:i,enumerable:!0,configurable:!0,writable:!0}):t[e]=i,t}function l(t){return(l="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t})(t)}function d(t){switch(l(t)){case"string":return t.split(";").filter(function(t){return t}).reduce(function(t,e){var i=e.slice(0,e.indexOf(":")).trim(),s=e.slice(e.indexOf(":")+1).trim();return function(t){for(var e=1;e<arguments.length;e++){var i=null!=arguments[e]?arguments[e]:{};e%2?c(i,!0).forEach(function(e){u(t,e,i[e])}):Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(i)):c(i).forEach(function(e){Object.defineProperty(t,e,Object.getOwnPropertyDescriptor(i,e))})}return t}({},t,u({},i.replace(/([A-Z])([A-Z])/g,"$1 $2").replace(/([a-z])([A-Z])/g,"$1 $2").replace(/[^a-zA-Z\u00C0-\u00ff]/g," ").toLowerCase().split(" ").filter(function(t){return t}).map(function(t,e){return e>0?t[0].toUpperCase()+t.slice(1):t}).join(""),s))},{});case"object":return t;default:return}}function f(t){return function(t){if(Array.isArray(t))return t}(t)||function(t){if(Symbol.iterator in Object(t)||"[object Arguments]"===Object.prototype.toString.call(t))return Array.from(t)}(t)||function(){throw new TypeError("Invalid attempt to destructure non-iterable instance")}()}var m=function(t,e){return function t(e,i){var s=f(i),r=s[0],n=s.slice(1);if(null!=e&&null!=r)return 0===n.length?e[r]:t(e[r],n)}(t,function(t){return null==t||""===t?[]:t.split(".")}(e))};function x(t){return(x="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t})(t)}function g(t,e){return function(t){if(Array.isArray(t))return t}(t)||function(t,e){var i=[],s=!0,r=!1,n=void 0;try{for(var a,o=t[Symbol.iterator]();!(s=(a=o.next()).done)&&(i.push(a.value),!e||i.length!==e);s=!0);}catch(t){r=!0,n=t}finally{try{s||null==o.return||o.return()}finally{if(r)throw n}}return i}(t,e)||function(){throw new TypeError("Invalid attempt to destructure non-iterable instance")}()}function y(t){return function(t){if(Array.isArray(t)){for(var e=0,i=new Array(t.length);e<t.length;e++)i[e]=t[e];return i}}(t)||function(t){if(Symbol.iterator in Object(t)||"[object Arguments]"===Object.prototype.toString.call(t))return Array.from(t)}(t)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance")}()}function v(t){return(v=Object.setPrototypeOf?Object.getPrototypeOf:function(t){return t.__proto__||Object.getPrototypeOf(t)})(t)}function b(t){if(void 0===t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return t}function _(t,e){return(_=Object.setPrototypeOf||function(t,e){return t.__proto__=e,t})(t,e)}function k(t,e,i){return e in t?Object.defineProperty(t,e,{value:i,enumerable:!0,configurable:!0,writable:!0}):t[e]=i,t}i.d(e,"default",function(){return S});var E={plugins:{jsx:!0}},S=function(t){function e(){var t,i,c,u;!function(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}(this,e);for(var l=arguments.length,f=new Array(l),_=0;_<l;_++)f[_]=arguments[_];return c=this,u=(t=v(e)).call.apply(t,[this].concat(f)),i=!u||"object"!==x(u)&&"function"!=typeof u?b(c):u,k(b(i),"parseJSX",function(t){var e="<root>".concat(t,"</root>"),r=[];try{r=(r=new s.Parser(E,e).parse()).body[0].expression.children||[]}catch(t){return i.props.showWarnings&&console.warn(t),i.props.onError&&i.props.onError(t),[]}return r.map(i.parseExpression).filter(Boolean)}),k(b(i),"parseExpression",function(t){switch(t.type){case"JSXElement":return i.parseElement(t);case"JSXText":var e=i.props.disableKeyGeneration?void 0:p();return i.props.disableFragments?t.value:n.a.createElement(r.Fragment,{key:e},t.value);case"JSXAttribute":return null===t.value||i.parseExpression(t.value);case"ConditionalExpression":return i.parseExpression(t.test)?i.parseExpression(t.consequent):i.parseExpression(t.alternate);case"ArrayExpression":return t.elements.map(i.parseExpression);case"ObjectExpression":var s={};return t.properties.forEach(function(t){s[t.key.name||t.key.value]=i.parseExpression(t.value)}),s;case"Identifier":return(i.props.bindings||{})[t.name];case"JSXExpressionContainer":return i.parseExpression(t.expression);case"Literal":return t.value;case"MemberExpression":return(i.parseExpression(t.object)||{})[t.property.name];case"CallExpression":var a=i.parseExpression(t.callee);return void 0===a?void i.props.onError(new Error("The expression '".concat(t.callee,"' could not be resolved, resulting in an undefined return value."))):a.apply(void 0,y(t.arguments.map(i.parseExpression)));case"LogicalExpression":var o=i.parseExpression(t.left);return!("||"!==t.operator||!o)||!!("&&"===t.operator&&o||"||"===t.operator&&!o)&&i.parseExpression(t.right);case"BinaryExpression":switch(t.operator){case"+":return i.parseExpression(t.left)+i.parseExpression(t.right);case"-":return i.parseExpression(t.left)-i.parseExpression(t.right);case"*":return i.parseExpression(t.left)*i.parseExpression(t.right);case"/":return i.parseExpression(t.left)/i.parseExpression(t.right);case"==":return(i.parseExpression(t.left)==i.parseExpression(t.right)).toString();case"!=":return(i.parseExpression(t.left)!=i.parseExpression(t.right)).toString();case"===":return(i.parseExpression(t.left)===i.parseExpression(t.right)).toString();case"!==":return(i.parseExpression(t.left)!==i.parseExpression(t.right)).toString()}break;case"UnaryExpression":switch(t.operator){case"+":return t.argument.value;case"-":return-1*t.argument.value;case"!":return(!t.argument.value).toString()}}}),k(b(i),"parseName",function(t){switch(t.type){case"JSXIdentifier":return t.name;case"JSXMemberExpression":return"".concat(i.parseName(t.object),".").concat(i.parseName(t.property))}}),k(b(i),"parseElement",function(t){var e=i.props,s=e.allowUnknownElements,r=e.components,c=void 0===r?{}:r,u=e.componentsOnly,l=e.onError,f=t.children,y=void 0===f?[]:f,v=t.openingElement,b=v.attributes,_=void 0===b?[]:b,k=i.parseName(v.name);if(k){var E=(i.props.blacklistedAttrs||[]).map(function(t){return t instanceof RegExp?t:new RegExp(t,"i")}),S=(i.props.blacklistedTags||[]).map(function(t){return t.trim().toLowerCase()}).filter(Boolean);if(/^(html|head|body)$/i.test(k))return y.map(function(t){return i.parseElement(t)});var w=k.trim().toLowerCase();if(-1===S.indexOf(w)){if(!m(c,k)){if(u)return void l(new Error("The componenet <".concat(k,"> is unrecognized, and will not be rendered.")));if(!s&&document.createElement(k)instanceof HTMLUnknownElement)return void l(new Error("The tag <".concat(k,"> is unrecognized in this browser, and will not be rendered.")))}var C,A=m(c,k);if(A||function(t){return-1===o.indexOf(t.toLowerCase())}(k))if(C=y.map(i.parseExpression),A||function(t){return-1!==h.indexOf(t.toLowerCase())}(k)||(C=C.filter(function(t){return"string"!=typeof t||!/^\s*$/.test(t)})),0===C.length)C=void 0;else if(1===C.length){C=g(C,1)[0]}var T={key:i.props.disableKeyGeneration?void 0:p()};return _.forEach(function(t){if("JSXAttribute"===t.type){var e=t.name.name,s=a[e]||e,r=i.parseExpression(t);0===E.filter(function(t){return t.test(s)}).length&&(T[s]="true"===r||"false"===r?"true"===r:r)}else if("JSXSpreadAttribute"===t.type&&"Identifier"===t.argument.type||"MemberExpression"===t.argument.type){var n=i.parseExpression(t.argument);"object"===x(n)&&Object.keys(n).forEach(function(t){var e=a[t]||t;0===E.filter(function(t){return t.test(e)}).length&&(T[e]=n[t])})}}),"string"==typeof T.style&&(T.style=d(T.style)),C&&(T.children=C),n.a.createElement(A||k.toLowerCase(),T)}l(new Error("The tag <".concat(k,"> is blacklisted, and will not be rendered.")))}else l(new Error("The <".concat(v.name,"> tag could not be parsed, and will not be rendered.")))}),k(b(i),"render",function(){var t=(i.props.jsx||"").trim().replace(/<!DOCTYPE([^>]*)>/g,"");return i.ParsedChildren=i.parseJSX(t),i.props.renderInWrapper?n.a.createElement("div",{className:"jsx-parser"},i.ParsedChildren):n.a.createElement(n.a.Fragment,null,i.ParsedChildren)}),i}return function(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function");t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,writable:!0,configurable:!0}}),e&&_(t,e)}(e,r["Component"]),e}();k(S,"displayName","JsxParser"),k(S,"defaultProps",{allowUnknownElements:!0,bindings:{},blacklistedAttrs:[/^on.+/i],blacklistedTags:["script"],components:[],componentsOnly:!1,disableFragments:!1,disableKeyGeneration:!1,jsx:"",onError:function(){},showWarnings:!1,renderInWrapper:!0})}])});
 
-},{"react":"../node_modules/react/index.js"}],"../node_modules/stylis/stylis.min.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js"}],"../node_modules/react-minimal-pie-chart/dist/index.js":[function(require,module,exports) {
+var define;
+var global = arguments[3];
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('react'), require('prop-types')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'react', 'prop-types'], factory) :
+  (global = global || self, factory(global.ReactMinimalPieChart = {}, global.React, global.PropTypes));
+}(this, function (exports, React, PropTypes) { 'use strict';
+
+  var React__default = 'default' in React ? React['default'] : React;
+  PropTypes = PropTypes && PropTypes.hasOwnProperty('default') ? PropTypes['default'] : PropTypes;
+
+  function _extends() {
+    _extends = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends.apply(this, arguments);
+  }
+
+  function _inheritsLoose(subClass, superClass) {
+    subClass.prototype = Object.create(superClass.prototype);
+    subClass.prototype.constructor = subClass;
+    subClass.__proto__ = superClass;
+  }
+
+  function _objectWithoutPropertiesLoose(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+
+  var partialCircle = function partialCircle(cx, cy, r, start, end) {
+    var length = end - start;
+    if (length === 0) return [];
+    var fromX = r * Math.cos(start) + cx;
+    var fromY = r * Math.sin(start) + cy;
+    var toX = r * Math.cos(end) + cx;
+    var toY = r * Math.sin(end) + cy;
+    var large = Math.abs(length) <= Math.PI ? '0' : '1';
+    var sweep = length < 0 ? '0' : '1';
+    return [['M', fromX, fromY], ['A', r, r, 0, large, sweep, toX, toY]];
+  };
+
+  var svgPartialCircle = partialCircle;
+
+  var PI = Math.PI;
+  function degreesToRadians(degrees) {
+    return degrees * PI / 180;
+  }
+  function evaluateViewBoxSize(ratio, baseSize) {
+    // Wide ratio
+    if (ratio > 1) {
+      return "0 0 " + baseSize + " " + baseSize / ratio;
+    } // Narrow/squared ratio
+
+
+    return "0 0 " + baseSize * ratio + " " + baseSize;
+  }
+  function evaluateLabelTextAnchor(_temp) {
+    var _ref = _temp === void 0 ? {} : _temp,
+        labelPosition = _ref.labelPosition,
+        lineWidth = _ref.lineWidth,
+        labelHorizontalShift = _ref.labelHorizontalShift;
+
+    // Label in the vertical center
+    if (labelHorizontalShift === 0) {
+      return 'middle';
+    } // Outward label
+
+
+    if (labelPosition > 100) {
+      return labelHorizontalShift > 0 ? 'start' : 'end';
+    } // Inward label
+
+
+    var innerRadius = 100 - lineWidth;
+
+    if (labelPosition < innerRadius) {
+      return labelHorizontalShift > 0 ? 'end' : 'start';
+    } // Overlying label
+
+
+    return 'middle';
+  }
+  function valueBetween(value, min, max) {
+    if (value > max) return max;
+    if (value < min) return min;
+    return value;
+  }
+  function extractPercentage(value, percentage) {
+    return value * percentage / 100;
+  }
+
+  function makePathCommands(cx, cy, startAngle, lengthAngle, radius) {
+    var patchedLengthAngle = valueBetween(lengthAngle, -359.999, 359.999);
+    return svgPartialCircle(cx, cy, // center X and Y
+    radius, degreesToRadians(startAngle), degreesToRadians(startAngle + patchedLengthAngle)).map(function (command) {
+      return command.join(' ');
+    }).join(' ');
+  }
+
+  function ReactMinimalPieChartPath(_ref) {
+    var cx = _ref.cx,
+        cy = _ref.cy,
+        startAngle = _ref.startAngle,
+        lengthAngle = _ref.lengthAngle,
+        radius = _ref.radius,
+        lineWidth = _ref.lineWidth,
+        reveal = _ref.reveal,
+        title = _ref.title,
+        props = _objectWithoutPropertiesLoose(_ref, ["cx", "cy", "startAngle", "lengthAngle", "radius", "lineWidth", "reveal", "title"]);
+
+    var actualRadio = radius - lineWidth / 2;
+    var pathCommands = makePathCommands(cx, cy, startAngle, lengthAngle, actualRadio);
+    var strokeDasharray;
+    var strokeDashoffset; // Animate/hide paths with "stroke-dasharray" + "stroke-dashoffset"
+    // https://css-tricks.com/svg-line-animation-works/
+
+    if (typeof reveal === 'number') {
+      var pathLength = degreesToRadians(actualRadio) * lengthAngle;
+      strokeDasharray = Math.abs(pathLength);
+      strokeDashoffset = strokeDasharray - extractPercentage(strokeDasharray, reveal);
+    }
+
+    return React__default.createElement("path", _extends({
+      d: pathCommands,
+      strokeWidth: lineWidth,
+      strokeDasharray: strokeDasharray,
+      strokeDashoffset: strokeDashoffset
+    }, props), title && React__default.createElement("title", null, title));
+  }
+  ReactMinimalPieChartPath.displayName = 'ReactMinimalPieChartPath';
+  ReactMinimalPieChartPath.propTypes = {
+    cx: PropTypes.number.isRequired,
+    cy: PropTypes.number.isRequired,
+    startAngle: PropTypes.number,
+    lengthAngle: PropTypes.number,
+    radius: PropTypes.number,
+    lineWidth: PropTypes.number,
+    reveal: PropTypes.number,
+    title: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+  };
+  ReactMinimalPieChartPath.defaultProps = {
+    startAngle: 0,
+    lengthAngle: 0,
+    lineWidth: 100,
+    radius: 100
+  };
+
+  var stylePropType = PropTypes.objectOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string]));
+  var dataPropType = PropTypes.arrayOf(PropTypes.shape({
+    title: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    value: PropTypes.number.isRequired,
+    color: PropTypes.string,
+    key: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    style: stylePropType
+  }));
+
+  function ReactMinimalPieChartLabel(_ref) {
+    var data = _ref.data,
+        dataIndex = _ref.dataIndex,
+        color = _ref.color,
+        props = _objectWithoutPropertiesLoose(_ref, ["data", "dataIndex", "color"]);
+
+    return React__default.createElement("text", _extends({
+      textAnchor: "middle",
+      dominantBaseline: "middle",
+      fill: color
+    }, props));
+  }
+  ReactMinimalPieChartLabel.displayName = 'ReactMinimalPieChartLabel';
+  ReactMinimalPieChartLabel.propTypes = {
+    data: dataPropType,
+    dataIndex: PropTypes.number,
+    color: PropTypes.string
+  };
+
+  var VIEWBOX_SIZE = 100;
+  var VIEWBOX_HALF_SIZE = VIEWBOX_SIZE / 2;
+
+  function sumValues(data) {
+    return data.reduce(function (acc, dataEntry) {
+      return acc + dataEntry.value;
+    }, 0);
+  } // Append "percentage", "degrees" and "startOffset" into each data entry
+
+
+  function extendData(_ref) {
+    var data = _ref.data,
+        totalAngle = _ref.lengthAngle,
+        totalValue = _ref.totalValue,
+        paddingAngle = _ref.paddingAngle;
+    var total = totalValue || sumValues(data);
+    var normalizedTotalAngle = valueBetween(totalAngle, -360, 360);
+    var numberOfPaddings = Math.abs(normalizedTotalAngle) === 360 ? data.length : data.length - 1;
+    var singlePaddingDegrees = Math.abs(paddingAngle) * Math.sign(totalAngle);
+    var degreesTakenByPadding = singlePaddingDegrees * numberOfPaddings;
+    var degreesTakenByPaths = normalizedTotalAngle - degreesTakenByPadding;
+    var lastSegmentEnd = 0;
+    return data.map(function (dataEntry) {
+      var valueInPercentage = dataEntry.value / total * 100;
+      var degrees = extractPercentage(degreesTakenByPaths, valueInPercentage);
+      var startOffset = lastSegmentEnd;
+      lastSegmentEnd = lastSegmentEnd + degrees + singlePaddingDegrees;
+      return _extends({
+        percentage: valueInPercentage,
+        degrees: degrees,
+        startOffset: startOffset
+      }, dataEntry);
+    });
+  }
+
+  function makeSegmentTransitionStyle(duration, easing, furtherStyles) {
+    if (furtherStyles === void 0) {
+      furtherStyles = {};
+    }
+
+    // Merge CSS transition necessary for chart animation with the ones provided by "segmentsStyle"
+    var transition = ["stroke-dashoffset " + duration + "ms " + easing, furtherStyles.transition].filter(Boolean).join(',');
+    return {
+      transition: transition
+    };
+  }
+
+  function renderLabelItem(option, props, value) {
+    if (React__default.isValidElement(option)) {
+      return React__default.cloneElement(option, props);
+    }
+
+    var label = value;
+
+    if (typeof option === 'function') {
+      label = option(props);
+
+      if (React__default.isValidElement(label)) {
+        return label;
+      }
+    }
+
+    return React__default.createElement(ReactMinimalPieChartLabel, props, label);
+  }
+
+  function renderLabels(data, props) {
+    var labelPosition = extractPercentage(props.radius, props.labelPosition);
+    return data.map(function (dataEntry, index) {
+      var startAngle = props.startAngle + dataEntry.startOffset;
+      var halfAngle = startAngle + dataEntry.degrees / 2;
+      var halfAngleRadians = degreesToRadians(halfAngle);
+      var dx = Math.cos(halfAngleRadians) * labelPosition;
+      var dy = Math.sin(halfAngleRadians) * labelPosition; // This object is passed as props to the "label" component
+
+      var labelProps = {
+        key: "label-" + (dataEntry.key || index),
+        x: props.cx,
+        y: props.cy,
+        dx: dx,
+        dy: dy,
+        textAnchor: evaluateLabelTextAnchor({
+          lineWidth: props.lineWidth,
+          labelPosition: props.labelPosition,
+          labelHorizontalShift: dx
+        }),
+        data: data,
+        dataIndex: index,
+        color: dataEntry.color,
+        style: props.labelStyle
+      };
+      return renderLabelItem(props.label, labelProps, dataEntry.value);
+    });
+  }
+
+  function renderSegments(data, props, hide) {
+    var style = props.segmentsStyle;
+    var reveal;
+
+    if (props.animate) {
+      var transitionStyle = makeSegmentTransitionStyle(props.animationDuration, props.animationEasing, style);
+      style = Object.assign({}, style, transitionStyle);
+    } // Hide/reveal the segment?
+
+
+    if (hide === true) {
+      reveal = 0;
+    } else if (typeof props.reveal === 'number') {
+      reveal = props.reveal;
+    } else if (hide === false) {
+      reveal = 100;
+    }
+
+    var paths = data.map(function (dataEntry, index) {
+      var startAngle = props.startAngle + dataEntry.startOffset;
+      return React__default.createElement(ReactMinimalPieChartPath, {
+        key: dataEntry.key || index,
+        cx: props.cx,
+        cy: props.cy,
+        startAngle: startAngle,
+        lengthAngle: dataEntry.degrees,
+        radius: props.radius,
+        lineWidth: extractPercentage(props.radius, props.lineWidth),
+        reveal: reveal,
+        title: dataEntry.title,
+        style: Object.assign({}, style, dataEntry.style),
+        stroke: dataEntry.color,
+        strokeLinecap: props.rounded ? 'round' : undefined,
+        fill: "none",
+        onMouseOver: props.onMouseOver && function (e) {
+          return props.onMouseOver(e, props.data, index);
+        },
+        onMouseOut: props.onMouseOut && function (e) {
+          return props.onMouseOut(e, props.data, index);
+        },
+        onClick: props.onClick && function (e) {
+          return props.onClick(e, props.data, index);
+        }
+      });
+    });
+
+    if (props.background) {
+      paths.unshift(React__default.createElement(ReactMinimalPieChartPath, {
+        key: "bg",
+        cx: props.cx,
+        cy: props.cy,
+        startAngle: props.startAngle,
+        lengthAngle: props.lengthAngle,
+        radius: props.radius,
+        lineWidth: extractPercentage(props.radius, props.lineWidth),
+        stroke: props.background,
+        strokeLinecap: props.rounded ? 'round' : undefined,
+        fill: "none"
+      }));
+    }
+
+    return paths;
+  }
+
+  var ReactMinimalPieChart =
+  /*#__PURE__*/
+  function (_Component) {
+    _inheritsLoose(ReactMinimalPieChart, _Component);
+
+    function ReactMinimalPieChart(props) {
+      var _this;
+
+      _this = _Component.call(this, props) || this;
+
+      if (_this.props.animate === true) {
+        _this.hideSegments = true;
+      }
+
+      return _this;
+    }
+
+    var _proto = ReactMinimalPieChart.prototype;
+
+    _proto.componentDidMount = function componentDidMount() {
+      var _this2 = this;
+
+      if (this.props.animate === true && requestAnimationFrame) {
+        this.initialAnimationTimerId = setTimeout(function () {
+          _this2.initialAnimationTimerId = null;
+          _this2.initialAnimationRAFId = requestAnimationFrame(function () {
+            _this2.initialAnimationRAFId = null;
+
+            _this2.startAnimation();
+          });
+        });
+      }
+    };
+
+    _proto.componentWillUnmount = function componentWillUnmount() {
+      if (this.initialAnimationTimerId) {
+        clearTimeout(this.initialAnimationTimerId);
+      }
+
+      if (this.initialAnimationRAFId) {
+        cancelAnimationFrame(this.initialAnimationRAFId);
+      }
+    };
+
+    _proto.startAnimation = function startAnimation() {
+      this.hideSegments = false;
+      this.forceUpdate();
+    };
+
+    _proto.render = function render() {
+      if (this.props.data === undefined) {
+        return null;
+      }
+
+      var extendedData = extendData(this.props);
+      return React__default.createElement("div", {
+        className: this.props.className,
+        style: this.props.style
+      }, React__default.createElement("svg", {
+        viewBox: evaluateViewBoxSize(this.props.ratio, VIEWBOX_SIZE),
+        width: "100%",
+        height: "100%",
+        style: {
+          display: 'block'
+        }
+      }, renderSegments(extendedData, this.props, this.hideSegments), this.props.label && renderLabels(extendedData, this.props), this.props.injectSvg && this.props.injectSvg()), this.props.children);
+    };
+
+    return ReactMinimalPieChart;
+  }(React.Component);
+  ReactMinimalPieChart.displayName = 'ReactMinimalPieChart';
+  ReactMinimalPieChart.propTypes = {
+    data: dataPropType,
+    cx: PropTypes.number,
+    cy: PropTypes.number,
+    ratio: PropTypes.number,
+    totalValue: PropTypes.number,
+    className: PropTypes.string,
+    style: stylePropType,
+    segmentsStyle: stylePropType,
+    background: PropTypes.string,
+    startAngle: PropTypes.number,
+    lengthAngle: PropTypes.number,
+    paddingAngle: PropTypes.number,
+    lineWidth: PropTypes.number,
+    radius: PropTypes.number,
+    rounded: PropTypes.bool,
+    animate: PropTypes.bool,
+    animationDuration: PropTypes.number,
+    animationEasing: PropTypes.string,
+    reveal: PropTypes.number,
+    children: PropTypes.node,
+    injectSvg: PropTypes.func,
+    label: PropTypes.oneOfType([PropTypes.func, PropTypes.element, PropTypes.bool]),
+    labelPosition: PropTypes.number,
+    labelStyle: stylePropType,
+    onMouseOver: PropTypes.func,
+    onMouseOut: PropTypes.func,
+    onClick: PropTypes.func
+  };
+  ReactMinimalPieChart.defaultProps = {
+    cx: VIEWBOX_HALF_SIZE,
+    cy: VIEWBOX_HALF_SIZE,
+    ratio: 1,
+    startAngle: 0,
+    lengthAngle: 360,
+    paddingAngle: 0,
+    lineWidth: 100,
+    radius: VIEWBOX_HALF_SIZE,
+    rounded: false,
+    animate: false,
+    animationDuration: 500,
+    animationEasing: 'ease-out',
+    label: false,
+    labelPosition: 50,
+    onMouseOver: undefined,
+    onMouseOut: undefined,
+    onClick: undefined
+  };
+
+  exports.default = ReactMinimalPieChart;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+}));
+
+
+},{"react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js"}],"../node_modules/stylis/stylis.min.js":[function(require,module,exports) {
 var define;
 !function(e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e(null):"function"==typeof define&&define.amd?define(e(null)):window.stylis=e(null)}(function e(a){"use strict";var r=/^\0+/g,c=/[\0\r\f]/g,s=/: */g,t=/zoo|gra/,i=/([,: ])(transform)/g,f=/,+\s*(?![^(]*[)])/g,n=/ +\s*(?![^(]*[)])/g,l=/ *[\0] */g,o=/,\r+?/g,h=/([\t\r\n ])*\f?&/g,u=/:global\(((?:[^\(\)\[\]]*|\[.*\]|\([^\(\)]*\))*)\)/g,d=/\W+/g,b=/@(k\w+)\s*(\S*)\s*/,p=/::(place)/g,k=/:(read-only)/g,g=/\s+(?=[{\];=:>])/g,A=/([[}=:>])\s+/g,C=/(\{[^{]+?);(?=\})/g,w=/\s{2,}/g,v=/([^\(])(:+) */g,m=/[svh]\w+-[tblr]{2}/,x=/\(\s*(.*)\s*\)/g,$=/([\s\S]*?);/g,y=/-self|flex-/g,O=/[^]*?(:[rp][el]a[\w-]+)[^]*/,j=/stretch|:\s*\w+\-(?:conte|avail)/,z=/([^-])(image-set\()/,N="-webkit-",S="-moz-",F="-ms-",W=59,q=125,B=123,D=40,E=41,G=91,H=93,I=10,J=13,K=9,L=64,M=32,P=38,Q=45,R=95,T=42,U=44,V=58,X=39,Y=34,Z=47,_=62,ee=43,ae=126,re=0,ce=12,se=11,te=107,ie=109,fe=115,ne=112,le=111,oe=105,he=99,ue=100,de=112,be=1,pe=1,ke=0,ge=1,Ae=1,Ce=1,we=0,ve=0,me=0,xe=[],$e=[],ye=0,Oe=null,je=-2,ze=-1,Ne=0,Se=1,Fe=2,We=3,qe=0,Be=1,De="",Ee="",Ge="";function He(e,a,s,t,i){for(var f,n,o=0,h=0,u=0,d=0,g=0,A=0,C=0,w=0,m=0,$=0,y=0,O=0,j=0,z=0,R=0,we=0,$e=0,Oe=0,je=0,ze=s.length,Je=ze-1,Re="",Te="",Ue="",Ve="",Xe="",Ye="";R<ze;){if(C=s.charCodeAt(R),R===Je)if(h+d+u+o!==0){if(0!==h)C=h===Z?I:Z;d=u=o=0,ze++,Je++}if(h+d+u+o===0){if(R===Je){if(we>0)Te=Te.replace(c,"");if(Te.trim().length>0){switch(C){case M:case K:case W:case J:case I:break;default:Te+=s.charAt(R)}C=W}}if(1===$e)switch(C){case B:case q:case W:case Y:case X:case D:case E:case U:$e=0;case K:case J:case I:case M:break;default:for($e=0,je=R,g=C,R--,C=W;je<ze;)switch(s.charCodeAt(je++)){case I:case J:case W:++R,C=g,je=ze;break;case V:if(we>0)++R,C=g;case B:je=ze}}switch(C){case B:for(g=(Te=Te.trim()).charCodeAt(0),y=1,je=++R;R<ze;){switch(C=s.charCodeAt(R)){case B:y++;break;case q:y--;break;case Z:switch(A=s.charCodeAt(R+1)){case T:case Z:R=Qe(A,R,Je,s)}break;case G:C++;case D:C++;case Y:case X:for(;R++<Je&&s.charCodeAt(R)!==C;);}if(0===y)break;R++}if(Ue=s.substring(je,R),g===re)g=(Te=Te.replace(r,"").trim()).charCodeAt(0);switch(g){case L:if(we>0)Te=Te.replace(c,"");switch(A=Te.charCodeAt(1)){case ue:case ie:case fe:case Q:f=a;break;default:f=xe}if(je=(Ue=He(a,f,Ue,A,i+1)).length,me>0&&0===je)je=Te.length;if(ye>0)if(f=Ie(xe,Te,Oe),n=Pe(We,Ue,f,a,pe,be,je,A,i,t),Te=f.join(""),void 0!==n)if(0===(je=(Ue=n.trim()).length))A=0,Ue="";if(je>0)switch(A){case fe:Te=Te.replace(x,Me);case ue:case ie:case Q:Ue=Te+"{"+Ue+"}";break;case te:if(Ue=(Te=Te.replace(b,"$1 $2"+(Be>0?De:"")))+"{"+Ue+"}",1===Ae||2===Ae&&Le("@"+Ue,3))Ue="@"+N+Ue+"@"+Ue;else Ue="@"+Ue;break;default:if(Ue=Te+Ue,t===de)Ve+=Ue,Ue=""}else Ue="";break;default:Ue=He(a,Ie(a,Te,Oe),Ue,t,i+1)}Xe+=Ue,O=0,$e=0,z=0,we=0,Oe=0,j=0,Te="",Ue="",C=s.charCodeAt(++R);break;case q:case W:if((je=(Te=(we>0?Te.replace(c,""):Te).trim()).length)>1){if(0===z)if((g=Te.charCodeAt(0))===Q||g>96&&g<123)je=(Te=Te.replace(" ",":")).length;if(ye>0)if(void 0!==(n=Pe(Se,Te,a,e,pe,be,Ve.length,t,i,t)))if(0===(je=(Te=n.trim()).length))Te="\0\0";switch(g=Te.charCodeAt(0),A=Te.charCodeAt(1),g){case re:break;case L:if(A===oe||A===he){Ye+=Te+s.charAt(R);break}default:if(Te.charCodeAt(je-1)===V)break;Ve+=Ke(Te,g,A,Te.charCodeAt(2))}}O=0,$e=0,z=0,we=0,Oe=0,Te="",C=s.charCodeAt(++R)}}switch(C){case J:case I:if(h+d+u+o+ve===0)switch($){case E:case X:case Y:case L:case ae:case _:case T:case ee:case Z:case Q:case V:case U:case W:case B:case q:break;default:if(z>0)$e=1}if(h===Z)h=0;else if(ge+O===0&&t!==te&&Te.length>0)we=1,Te+="\0";if(ye*qe>0)Pe(Ne,Te,a,e,pe,be,Ve.length,t,i,t);be=1,pe++;break;case W:case q:if(h+d+u+o===0){be++;break}default:switch(be++,Re=s.charAt(R),C){case K:case M:if(d+o+h===0)switch(w){case U:case V:case K:case M:Re="";break;default:if(C!==M)Re=" "}break;case re:Re="\\0";break;case ce:Re="\\f";break;case se:Re="\\v";break;case P:if(d+h+o===0&&ge>0)Oe=1,we=1,Re="\f"+Re;break;case 108:if(d+h+o+ke===0&&z>0)switch(R-z){case 2:if(w===ne&&s.charCodeAt(R-3)===V)ke=w;case 8:if(m===le)ke=m}break;case V:if(d+h+o===0)z=R;break;case U:if(h+u+d+o===0)we=1,Re+="\r";break;case Y:case X:if(0===h)d=d===C?0:0===d?C:d;break;case G:if(d+h+u===0)o++;break;case H:if(d+h+u===0)o--;break;case E:if(d+h+o===0)u--;break;case D:if(d+h+o===0){if(0===O)switch(2*w+3*m){case 533:break;default:y=0,O=1}u++}break;case L:if(h+u+d+o+z+j===0)j=1;break;case T:case Z:if(d+o+u>0)break;switch(h){case 0:switch(2*C+3*s.charCodeAt(R+1)){case 235:h=Z;break;case 220:je=R,h=T}break;case T:if(C===Z&&w===T&&je+2!==R){if(33===s.charCodeAt(je+2))Ve+=s.substring(je,R+1);Re="",h=0}}}if(0===h){if(ge+d+o+j===0&&t!==te&&C!==W)switch(C){case U:case ae:case _:case ee:case E:case D:if(0===O){switch(w){case K:case M:case I:case J:Re+="\0";break;default:Re="\0"+Re+(C===U?"":"\0")}we=1}else switch(C){case D:if(z+7===R&&108===w)z=0;O=++y;break;case E:if(0==(O=--y))we=1,Re+="\0"}break;case K:case M:switch(w){case re:case B:case q:case W:case U:case ce:case K:case M:case I:case J:break;default:if(0===O)we=1,Re+="\0"}}if(Te+=Re,C!==M&&C!==K)$=C}}m=w,w=C,R++}if(je=Ve.length,me>0)if(0===je&&0===Xe.length&&0===a[0].length==false)if(t!==ie||1===a.length&&(ge>0?Ee:Ge)===a[0])je=a.join(",").length+2;if(je>0){if(f=0===ge&&t!==te?function(e){for(var a,r,s=0,t=e.length,i=Array(t);s<t;++s){for(var f=e[s].split(l),n="",o=0,h=0,u=0,d=0,b=f.length;o<b;++o){if(0===(h=(r=f[o]).length)&&b>1)continue;if(u=n.charCodeAt(n.length-1),d=r.charCodeAt(0),a="",0!==o)switch(u){case T:case ae:case _:case ee:case M:case D:break;default:a=" "}switch(d){case P:r=a+Ee;case ae:case _:case ee:case M:case E:case D:break;case G:r=a+r+Ee;break;case V:switch(2*r.charCodeAt(1)+3*r.charCodeAt(2)){case 530:if(Ce>0){r=a+r.substring(8,h-1);break}default:if(o<1||f[o-1].length<1)r=a+Ee+r}break;case U:a="";default:if(h>1&&r.indexOf(":")>0)r=a+r.replace(v,"$1"+Ee+"$2");else r=a+r+Ee}n+=r}i[s]=n.replace(c,"").trim()}return i}(a):a,ye>0)if(void 0!==(n=Pe(Fe,Ve,f,e,pe,be,je,t,i,t))&&0===(Ve=n).length)return Ye+Ve+Xe;if(Ve=f.join(",")+"{"+Ve+"}",Ae*ke!=0){if(2===Ae&&!Le(Ve,2))ke=0;switch(ke){case le:Ve=Ve.replace(k,":"+S+"$1")+Ve;break;case ne:Ve=Ve.replace(p,"::"+N+"input-$1")+Ve.replace(p,"::"+S+"$1")+Ve.replace(p,":"+F+"input-$1")+Ve}ke=0}}return Ye+Ve+Xe}function Ie(e,a,r){var c=a.trim().split(o),s=c,t=c.length,i=e.length;switch(i){case 0:case 1:for(var f=0,n=0===i?"":e[0]+" ";f<t;++f)s[f]=Je(n,s[f],r,i).trim();break;default:f=0;var l=0;for(s=[];f<t;++f)for(var h=0;h<i;++h)s[l++]=Je(e[h]+" ",c[f],r,i).trim()}return s}function Je(e,a,r,c){var s=a,t=s.charCodeAt(0);if(t<33)t=(s=s.trim()).charCodeAt(0);switch(t){case P:switch(ge+c){case 0:case 1:if(0===e.trim().length)break;default:return s.replace(h,"$1"+e.trim())}break;case V:switch(s.charCodeAt(1)){case 103:if(Ce>0&&ge>0)return s.replace(u,"$1").replace(h,"$1"+Ge);break;default:return e.trim()+s.replace(h,"$1"+e.trim())}default:if(r*ge>0&&s.indexOf("\f")>0)return s.replace(h,(e.charCodeAt(0)===V?"":"$1")+e.trim())}return e+s}function Ke(e,a,r,c){var l,o=0,h=e+";",u=2*a+3*r+4*c;if(944===u)return function(e){var a=e.length,r=e.indexOf(":",9)+1,c=e.substring(0,r).trim(),s=e.substring(r,a-1).trim();switch(e.charCodeAt(9)*Be){case 0:break;case Q:if(110!==e.charCodeAt(10))break;default:for(var t=s.split((s="",f)),i=0,r=0,a=t.length;i<a;r=0,++i){for(var l=t[i],o=l.split(n);l=o[r];){var h=l.charCodeAt(0);if(1===Be&&(h>L&&h<90||h>96&&h<123||h===R||h===Q&&l.charCodeAt(1)!==Q))switch(isNaN(parseFloat(l))+(-1!==l.indexOf("("))){case 1:switch(l){case"infinite":case"alternate":case"backwards":case"running":case"normal":case"forwards":case"both":case"none":case"linear":case"ease":case"ease-in":case"ease-out":case"ease-in-out":case"paused":case"reverse":case"alternate-reverse":case"inherit":case"initial":case"unset":case"step-start":case"step-end":break;default:l+=De}}o[r++]=l}s+=(0===i?"":",")+o.join(" ")}}if(s=c+s+";",1===Ae||2===Ae&&Le(s,1))return N+s+s;return s}(h);else if(0===Ae||2===Ae&&!Le(h,1))return h;switch(u){case 1015:return 97===h.charCodeAt(10)?N+h+h:h;case 951:return 116===h.charCodeAt(3)?N+h+h:h;case 963:return 110===h.charCodeAt(5)?N+h+h:h;case 1009:if(100!==h.charCodeAt(4))break;case 969:case 942:return N+h+h;case 978:return N+h+S+h+h;case 1019:case 983:return N+h+S+h+F+h+h;case 883:if(h.charCodeAt(8)===Q)return N+h+h;if(h.indexOf("image-set(",11)>0)return h.replace(z,"$1"+N+"$2")+h;return h;case 932:if(h.charCodeAt(4)===Q)switch(h.charCodeAt(5)){case 103:return N+"box-"+h.replace("-grow","")+N+h+F+h.replace("grow","positive")+h;case 115:return N+h+F+h.replace("shrink","negative")+h;case 98:return N+h+F+h.replace("basis","preferred-size")+h}return N+h+F+h+h;case 964:return N+h+F+"flex-"+h+h;case 1023:if(99!==h.charCodeAt(8))break;return l=h.substring(h.indexOf(":",15)).replace("flex-","").replace("space-between","justify"),N+"box-pack"+l+N+h+F+"flex-pack"+l+h;case 1005:return t.test(h)?h.replace(s,":"+N)+h.replace(s,":"+S)+h:h;case 1e3:switch(o=(l=h.substring(13).trim()).indexOf("-")+1,l.charCodeAt(0)+l.charCodeAt(o)){case 226:l=h.replace(m,"tb");break;case 232:l=h.replace(m,"tb-rl");break;case 220:l=h.replace(m,"lr");break;default:return h}return N+h+F+l+h;case 1017:if(-1===h.indexOf("sticky",9))return h;case 975:switch(o=(h=e).length-10,u=(l=(33===h.charCodeAt(o)?h.substring(0,o):h).substring(e.indexOf(":",7)+1).trim()).charCodeAt(0)+(0|l.charCodeAt(7))){case 203:if(l.charCodeAt(8)<111)break;case 115:h=h.replace(l,N+l)+";"+h;break;case 207:case 102:h=h.replace(l,N+(u>102?"inline-":"")+"box")+";"+h.replace(l,N+l)+";"+h.replace(l,F+l+"box")+";"+h}return h+";";case 938:if(h.charCodeAt(5)===Q)switch(h.charCodeAt(6)){case 105:return l=h.replace("-items",""),N+h+N+"box-"+l+F+"flex-"+l+h;case 115:return N+h+F+"flex-item-"+h.replace(y,"")+h;default:return N+h+F+"flex-line-pack"+h.replace("align-content","").replace(y,"")+h}break;case 973:case 989:if(h.charCodeAt(3)!==Q||122===h.charCodeAt(4))break;case 931:case 953:if(true===j.test(e))if(115===(l=e.substring(e.indexOf(":")+1)).charCodeAt(0))return Ke(e.replace("stretch","fill-available"),a,r,c).replace(":fill-available",":stretch");else return h.replace(l,N+l)+h.replace(l,S+l.replace("fill-",""))+h;break;case 962:if(h=N+h+(102===h.charCodeAt(5)?F+h:"")+h,r+c===211&&105===h.charCodeAt(13)&&h.indexOf("transform",10)>0)return h.substring(0,h.indexOf(";",27)+1).replace(i,"$1"+N+"$2")+h}return h}function Le(e,a){var r=e.indexOf(1===a?":":"{"),c=e.substring(0,3!==a?r:10),s=e.substring(r+1,e.length-1);return Oe(2!==a?c:c.replace(O,"$1"),s,a)}function Me(e,a){var r=Ke(a,a.charCodeAt(0),a.charCodeAt(1),a.charCodeAt(2));return r!==a+";"?r.replace($," or ($1)").substring(4):"("+a+")"}function Pe(e,a,r,c,s,t,i,f,n,l){for(var o,h=0,u=a;h<ye;++h)switch(o=$e[h].call(Te,e,u,r,c,s,t,i,f,n,l)){case void 0:case false:case true:case null:break;default:u=o}if(u!==a)return u}function Qe(e,a,r,c){for(var s=a+1;s<r;++s)switch(c.charCodeAt(s)){case Z:if(e===T)if(c.charCodeAt(s-1)===T&&a+2!==s)return s+1;break;case I:if(e===Z)return s+1}return s}function Re(e){for(var a in e){var r=e[a];switch(a){case"keyframe":Be=0|r;break;case"global":Ce=0|r;break;case"cascade":ge=0|r;break;case"compress":we=0|r;break;case"semicolon":ve=0|r;break;case"preserve":me=0|r;break;case"prefix":if(Oe=null,!r)Ae=0;else if("function"!=typeof r)Ae=1;else Ae=2,Oe=r}}return Re}function Te(a,r){if(void 0!==this&&this.constructor===Te)return e(a);var s=a,t=s.charCodeAt(0);if(t<33)t=(s=s.trim()).charCodeAt(0);if(Be>0)De=s.replace(d,t===G?"":"-");if(t=1,1===ge)Ge=s;else Ee=s;var i,f=[Ge];if(ye>0)if(void 0!==(i=Pe(ze,r,f,f,pe,be,0,0,0,0))&&"string"==typeof i)r=i;var n=He(xe,f,r,0,0);if(ye>0)if(void 0!==(i=Pe(je,n,f,f,pe,be,n.length,0,0,0))&&"string"!=typeof(n=i))t=0;return De="",Ge="",Ee="",ke=0,pe=1,be=1,we*t==0?n:n.replace(c,"").replace(g,"").replace(A,"$1").replace(C,"$1").replace(w," ")}if(Te.use=function e(a){switch(a){case void 0:case null:ye=$e.length=0;break;default:if("function"==typeof a)$e[ye++]=a;else if("object"==typeof a)for(var r=0,c=a.length;r<c;++r)e(a[r]);else qe=0|!!a}return e},Te.set=Re,void 0!==a)Re(a);return Te});
 
@@ -44608,7 +45090,3951 @@ if ("development" !== 'production' && "development" !== 'test' && typeof window 
 
 var _default = styled;
 exports.default = _default;
-},{"stylis/stylis.min":"../node_modules/stylis/stylis.min.js","stylis-rule-sheet":"../node_modules/stylis-rule-sheet/index.js","react":"../node_modules/react/index.js","@emotion/unitless":"../node_modules/@emotion/unitless/dist/unitless.browser.esm.js","react-is":"../node_modules/react-is/index.js","memoize-one":"../node_modules/memoize-one/dist/memoize-one.esm.js","prop-types":"../node_modules/prop-types/index.js","@emotion/is-prop-valid":"../node_modules/@emotion/is-prop-valid/dist/is-prop-valid.browser.esm.js","merge-anything":"../node_modules/merge-anything/dist/index.esm.js","process":"../node_modules/process/browser.js"}],"../node_modules/prism-react-renderer/prism/index.js":[function(require,module,exports) {
+},{"stylis/stylis.min":"../node_modules/stylis/stylis.min.js","stylis-rule-sheet":"../node_modules/stylis-rule-sheet/index.js","react":"../node_modules/react/index.js","@emotion/unitless":"../node_modules/@emotion/unitless/dist/unitless.browser.esm.js","react-is":"../node_modules/react-is/index.js","memoize-one":"../node_modules/memoize-one/dist/memoize-one.esm.js","prop-types":"../node_modules/prop-types/index.js","@emotion/is-prop-valid":"../node_modules/@emotion/is-prop-valid/dist/is-prop-valid.browser.esm.js","merge-anything":"../node_modules/merge-anything/dist/index.esm.js","process":"../node_modules/process/browser.js"}],"../node_modules/js-yaml/lib/js-yaml/common.js":[function(require,module,exports) {
+'use strict';
+
+
+function isNothing(subject) {
+  return (typeof subject === 'undefined') || (subject === null);
+}
+
+
+function isObject(subject) {
+  return (typeof subject === 'object') && (subject !== null);
+}
+
+
+function toArray(sequence) {
+  if (Array.isArray(sequence)) return sequence;
+  else if (isNothing(sequence)) return [];
+
+  return [ sequence ];
+}
+
+
+function extend(target, source) {
+  var index, length, key, sourceKeys;
+
+  if (source) {
+    sourceKeys = Object.keys(source);
+
+    for (index = 0, length = sourceKeys.length; index < length; index += 1) {
+      key = sourceKeys[index];
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+}
+
+
+function repeat(string, count) {
+  var result = '', cycle;
+
+  for (cycle = 0; cycle < count; cycle += 1) {
+    result += string;
+  }
+
+  return result;
+}
+
+
+function isNegativeZero(number) {
+  return (number === 0) && (Number.NEGATIVE_INFINITY === 1 / number);
+}
+
+
+module.exports.isNothing      = isNothing;
+module.exports.isObject       = isObject;
+module.exports.toArray        = toArray;
+module.exports.repeat         = repeat;
+module.exports.isNegativeZero = isNegativeZero;
+module.exports.extend         = extend;
+
+},{}],"../node_modules/js-yaml/lib/js-yaml/exception.js":[function(require,module,exports) {
+// YAML error class. http://stackoverflow.com/questions/8458984
+//
+'use strict';
+
+function YAMLException(reason, mark) {
+  // Super constructor
+  Error.call(this);
+
+  this.name = 'YAMLException';
+  this.reason = reason;
+  this.mark = mark;
+  this.message = (this.reason || '(unknown reason)') + (this.mark ? ' ' + this.mark.toString() : '');
+
+  // Include stack trace in error object
+  if (Error.captureStackTrace) {
+    // Chrome and NodeJS
+    Error.captureStackTrace(this, this.constructor);
+  } else {
+    // FF, IE 10+ and Safari 6+. Fallback for others
+    this.stack = (new Error()).stack || '';
+  }
+}
+
+
+// Inherit from Error
+YAMLException.prototype = Object.create(Error.prototype);
+YAMLException.prototype.constructor = YAMLException;
+
+
+YAMLException.prototype.toString = function toString(compact) {
+  var result = this.name + ': ';
+
+  result += this.reason || '(unknown reason)';
+
+  if (!compact && this.mark) {
+    result += ' ' + this.mark.toString();
+  }
+
+  return result;
+};
+
+
+module.exports = YAMLException;
+
+},{}],"../node_modules/js-yaml/lib/js-yaml/mark.js":[function(require,module,exports) {
+'use strict';
+
+
+var common = require('./common');
+
+
+function Mark(name, buffer, position, line, column) {
+  this.name     = name;
+  this.buffer   = buffer;
+  this.position = position;
+  this.line     = line;
+  this.column   = column;
+}
+
+
+Mark.prototype.getSnippet = function getSnippet(indent, maxLength) {
+  var head, start, tail, end, snippet;
+
+  if (!this.buffer) return null;
+
+  indent = indent || 4;
+  maxLength = maxLength || 75;
+
+  head = '';
+  start = this.position;
+
+  while (start > 0 && '\x00\r\n\x85\u2028\u2029'.indexOf(this.buffer.charAt(start - 1)) === -1) {
+    start -= 1;
+    if (this.position - start > (maxLength / 2 - 1)) {
+      head = ' ... ';
+      start += 5;
+      break;
+    }
+  }
+
+  tail = '';
+  end = this.position;
+
+  while (end < this.buffer.length && '\x00\r\n\x85\u2028\u2029'.indexOf(this.buffer.charAt(end)) === -1) {
+    end += 1;
+    if (end - this.position > (maxLength / 2 - 1)) {
+      tail = ' ... ';
+      end -= 5;
+      break;
+    }
+  }
+
+  snippet = this.buffer.slice(start, end);
+
+  return common.repeat(' ', indent) + head + snippet + tail + '\n' +
+         common.repeat(' ', indent + this.position - start + head.length) + '^';
+};
+
+
+Mark.prototype.toString = function toString(compact) {
+  var snippet, where = '';
+
+  if (this.name) {
+    where += 'in "' + this.name + '" ';
+  }
+
+  where += 'at line ' + (this.line + 1) + ', column ' + (this.column + 1);
+
+  if (!compact) {
+    snippet = this.getSnippet();
+
+    if (snippet) {
+      where += ':\n' + snippet;
+    }
+  }
+
+  return where;
+};
+
+
+module.exports = Mark;
+
+},{"./common":"../node_modules/js-yaml/lib/js-yaml/common.js"}],"../node_modules/js-yaml/lib/js-yaml/type.js":[function(require,module,exports) {
+'use strict';
+
+var YAMLException = require('./exception');
+
+var TYPE_CONSTRUCTOR_OPTIONS = [
+  'kind',
+  'resolve',
+  'construct',
+  'instanceOf',
+  'predicate',
+  'represent',
+  'defaultStyle',
+  'styleAliases'
+];
+
+var YAML_NODE_KINDS = [
+  'scalar',
+  'sequence',
+  'mapping'
+];
+
+function compileStyleAliases(map) {
+  var result = {};
+
+  if (map !== null) {
+    Object.keys(map).forEach(function (style) {
+      map[style].forEach(function (alias) {
+        result[String(alias)] = style;
+      });
+    });
+  }
+
+  return result;
+}
+
+function Type(tag, options) {
+  options = options || {};
+
+  Object.keys(options).forEach(function (name) {
+    if (TYPE_CONSTRUCTOR_OPTIONS.indexOf(name) === -1) {
+      throw new YAMLException('Unknown option "' + name + '" is met in definition of "' + tag + '" YAML type.');
+    }
+  });
+
+  // TODO: Add tag format check.
+  this.tag          = tag;
+  this.kind         = options['kind']         || null;
+  this.resolve      = options['resolve']      || function () { return true; };
+  this.construct    = options['construct']    || function (data) { return data; };
+  this.instanceOf   = options['instanceOf']   || null;
+  this.predicate    = options['predicate']    || null;
+  this.represent    = options['represent']    || null;
+  this.defaultStyle = options['defaultStyle'] || null;
+  this.styleAliases = compileStyleAliases(options['styleAliases'] || null);
+
+  if (YAML_NODE_KINDS.indexOf(this.kind) === -1) {
+    throw new YAMLException('Unknown kind "' + this.kind + '" is specified for "' + tag + '" YAML type.');
+  }
+}
+
+module.exports = Type;
+
+},{"./exception":"../node_modules/js-yaml/lib/js-yaml/exception.js"}],"../node_modules/js-yaml/lib/js-yaml/schema.js":[function(require,module,exports) {
+'use strict';
+
+/*eslint-disable max-len*/
+
+var common        = require('./common');
+var YAMLException = require('./exception');
+var Type          = require('./type');
+
+
+function compileList(schema, name, result) {
+  var exclude = [];
+
+  schema.include.forEach(function (includedSchema) {
+    result = compileList(includedSchema, name, result);
+  });
+
+  schema[name].forEach(function (currentType) {
+    result.forEach(function (previousType, previousIndex) {
+      if (previousType.tag === currentType.tag && previousType.kind === currentType.kind) {
+        exclude.push(previousIndex);
+      }
+    });
+
+    result.push(currentType);
+  });
+
+  return result.filter(function (type, index) {
+    return exclude.indexOf(index) === -1;
+  });
+}
+
+
+function compileMap(/* lists... */) {
+  var result = {
+        scalar: {},
+        sequence: {},
+        mapping: {},
+        fallback: {}
+      }, index, length;
+
+  function collectType(type) {
+    result[type.kind][type.tag] = result['fallback'][type.tag] = type;
+  }
+
+  for (index = 0, length = arguments.length; index < length; index += 1) {
+    arguments[index].forEach(collectType);
+  }
+  return result;
+}
+
+
+function Schema(definition) {
+  this.include  = definition.include  || [];
+  this.implicit = definition.implicit || [];
+  this.explicit = definition.explicit || [];
+
+  this.implicit.forEach(function (type) {
+    if (type.loadKind && type.loadKind !== 'scalar') {
+      throw new YAMLException('There is a non-scalar type in the implicit list of a schema. Implicit resolving of such types is not supported.');
+    }
+  });
+
+  this.compiledImplicit = compileList(this, 'implicit', []);
+  this.compiledExplicit = compileList(this, 'explicit', []);
+  this.compiledTypeMap  = compileMap(this.compiledImplicit, this.compiledExplicit);
+}
+
+
+Schema.DEFAULT = null;
+
+
+Schema.create = function createSchema() {
+  var schemas, types;
+
+  switch (arguments.length) {
+    case 1:
+      schemas = Schema.DEFAULT;
+      types = arguments[0];
+      break;
+
+    case 2:
+      schemas = arguments[0];
+      types = arguments[1];
+      break;
+
+    default:
+      throw new YAMLException('Wrong number of arguments for Schema.create function');
+  }
+
+  schemas = common.toArray(schemas);
+  types = common.toArray(types);
+
+  if (!schemas.every(function (schema) { return schema instanceof Schema; })) {
+    throw new YAMLException('Specified list of super schemas (or a single Schema object) contains a non-Schema object.');
+  }
+
+  if (!types.every(function (type) { return type instanceof Type; })) {
+    throw new YAMLException('Specified list of YAML types (or a single Type object) contains a non-Type object.');
+  }
+
+  return new Schema({
+    include: schemas,
+    explicit: types
+  });
+};
+
+
+module.exports = Schema;
+
+},{"./common":"../node_modules/js-yaml/lib/js-yaml/common.js","./exception":"../node_modules/js-yaml/lib/js-yaml/exception.js","./type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/str.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../type');
+
+module.exports = new Type('tag:yaml.org,2002:str', {
+  kind: 'scalar',
+  construct: function (data) { return data !== null ? data : ''; }
+});
+
+},{"../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/seq.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../type');
+
+module.exports = new Type('tag:yaml.org,2002:seq', {
+  kind: 'sequence',
+  construct: function (data) { return data !== null ? data : []; }
+});
+
+},{"../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/map.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../type');
+
+module.exports = new Type('tag:yaml.org,2002:map', {
+  kind: 'mapping',
+  construct: function (data) { return data !== null ? data : {}; }
+});
+
+},{"../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/schema/failsafe.js":[function(require,module,exports) {
+// Standard YAML's Failsafe schema.
+// http://www.yaml.org/spec/1.2/spec.html#id2802346
+
+
+'use strict';
+
+
+var Schema = require('../schema');
+
+
+module.exports = new Schema({
+  explicit: [
+    require('../type/str'),
+    require('../type/seq'),
+    require('../type/map')
+  ]
+});
+
+},{"../schema":"../node_modules/js-yaml/lib/js-yaml/schema.js","../type/str":"../node_modules/js-yaml/lib/js-yaml/type/str.js","../type/seq":"../node_modules/js-yaml/lib/js-yaml/type/seq.js","../type/map":"../node_modules/js-yaml/lib/js-yaml/type/map.js"}],"../node_modules/js-yaml/lib/js-yaml/type/null.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../type');
+
+function resolveYamlNull(data) {
+  if (data === null) return true;
+
+  var max = data.length;
+
+  return (max === 1 && data === '~') ||
+         (max === 4 && (data === 'null' || data === 'Null' || data === 'NULL'));
+}
+
+function constructYamlNull() {
+  return null;
+}
+
+function isNull(object) {
+  return object === null;
+}
+
+module.exports = new Type('tag:yaml.org,2002:null', {
+  kind: 'scalar',
+  resolve: resolveYamlNull,
+  construct: constructYamlNull,
+  predicate: isNull,
+  represent: {
+    canonical: function () { return '~';    },
+    lowercase: function () { return 'null'; },
+    uppercase: function () { return 'NULL'; },
+    camelcase: function () { return 'Null'; }
+  },
+  defaultStyle: 'lowercase'
+});
+
+},{"../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/bool.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../type');
+
+function resolveYamlBoolean(data) {
+  if (data === null) return false;
+
+  var max = data.length;
+
+  return (max === 4 && (data === 'true' || data === 'True' || data === 'TRUE')) ||
+         (max === 5 && (data === 'false' || data === 'False' || data === 'FALSE'));
+}
+
+function constructYamlBoolean(data) {
+  return data === 'true' ||
+         data === 'True' ||
+         data === 'TRUE';
+}
+
+function isBoolean(object) {
+  return Object.prototype.toString.call(object) === '[object Boolean]';
+}
+
+module.exports = new Type('tag:yaml.org,2002:bool', {
+  kind: 'scalar',
+  resolve: resolveYamlBoolean,
+  construct: constructYamlBoolean,
+  predicate: isBoolean,
+  represent: {
+    lowercase: function (object) { return object ? 'true' : 'false'; },
+    uppercase: function (object) { return object ? 'TRUE' : 'FALSE'; },
+    camelcase: function (object) { return object ? 'True' : 'False'; }
+  },
+  defaultStyle: 'lowercase'
+});
+
+},{"../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/int.js":[function(require,module,exports) {
+'use strict';
+
+var common = require('../common');
+var Type   = require('../type');
+
+function isHexCode(c) {
+  return ((0x30/* 0 */ <= c) && (c <= 0x39/* 9 */)) ||
+         ((0x41/* A */ <= c) && (c <= 0x46/* F */)) ||
+         ((0x61/* a */ <= c) && (c <= 0x66/* f */));
+}
+
+function isOctCode(c) {
+  return ((0x30/* 0 */ <= c) && (c <= 0x37/* 7 */));
+}
+
+function isDecCode(c) {
+  return ((0x30/* 0 */ <= c) && (c <= 0x39/* 9 */));
+}
+
+function resolveYamlInteger(data) {
+  if (data === null) return false;
+
+  var max = data.length,
+      index = 0,
+      hasDigits = false,
+      ch;
+
+  if (!max) return false;
+
+  ch = data[index];
+
+  // sign
+  if (ch === '-' || ch === '+') {
+    ch = data[++index];
+  }
+
+  if (ch === '0') {
+    // 0
+    if (index + 1 === max) return true;
+    ch = data[++index];
+
+    // base 2, base 8, base 16
+
+    if (ch === 'b') {
+      // base 2
+      index++;
+
+      for (; index < max; index++) {
+        ch = data[index];
+        if (ch === '_') continue;
+        if (ch !== '0' && ch !== '1') return false;
+        hasDigits = true;
+      }
+      return hasDigits && ch !== '_';
+    }
+
+
+    if (ch === 'x') {
+      // base 16
+      index++;
+
+      for (; index < max; index++) {
+        ch = data[index];
+        if (ch === '_') continue;
+        if (!isHexCode(data.charCodeAt(index))) return false;
+        hasDigits = true;
+      }
+      return hasDigits && ch !== '_';
+    }
+
+    // base 8
+    for (; index < max; index++) {
+      ch = data[index];
+      if (ch === '_') continue;
+      if (!isOctCode(data.charCodeAt(index))) return false;
+      hasDigits = true;
+    }
+    return hasDigits && ch !== '_';
+  }
+
+  // base 10 (except 0) or base 60
+
+  // value should not start with `_`;
+  if (ch === '_') return false;
+
+  for (; index < max; index++) {
+    ch = data[index];
+    if (ch === '_') continue;
+    if (ch === ':') break;
+    if (!isDecCode(data.charCodeAt(index))) {
+      return false;
+    }
+    hasDigits = true;
+  }
+
+  // Should have digits and should not end with `_`
+  if (!hasDigits || ch === '_') return false;
+
+  // if !base60 - done;
+  if (ch !== ':') return true;
+
+  // base60 almost not used, no needs to optimize
+  return /^(:[0-5]?[0-9])+$/.test(data.slice(index));
+}
+
+function constructYamlInteger(data) {
+  var value = data, sign = 1, ch, base, digits = [];
+
+  if (value.indexOf('_') !== -1) {
+    value = value.replace(/_/g, '');
+  }
+
+  ch = value[0];
+
+  if (ch === '-' || ch === '+') {
+    if (ch === '-') sign = -1;
+    value = value.slice(1);
+    ch = value[0];
+  }
+
+  if (value === '0') return 0;
+
+  if (ch === '0') {
+    if (value[1] === 'b') return sign * parseInt(value.slice(2), 2);
+    if (value[1] === 'x') return sign * parseInt(value, 16);
+    return sign * parseInt(value, 8);
+  }
+
+  if (value.indexOf(':') !== -1) {
+    value.split(':').forEach(function (v) {
+      digits.unshift(parseInt(v, 10));
+    });
+
+    value = 0;
+    base = 1;
+
+    digits.forEach(function (d) {
+      value += (d * base);
+      base *= 60;
+    });
+
+    return sign * value;
+
+  }
+
+  return sign * parseInt(value, 10);
+}
+
+function isInteger(object) {
+  return (Object.prototype.toString.call(object)) === '[object Number]' &&
+         (object % 1 === 0 && !common.isNegativeZero(object));
+}
+
+module.exports = new Type('tag:yaml.org,2002:int', {
+  kind: 'scalar',
+  resolve: resolveYamlInteger,
+  construct: constructYamlInteger,
+  predicate: isInteger,
+  represent: {
+    binary:      function (obj) { return obj >= 0 ? '0b' + obj.toString(2) : '-0b' + obj.toString(2).slice(1); },
+    octal:       function (obj) { return obj >= 0 ? '0'  + obj.toString(8) : '-0'  + obj.toString(8).slice(1); },
+    decimal:     function (obj) { return obj.toString(10); },
+    /* eslint-disable max-len */
+    hexadecimal: function (obj) { return obj >= 0 ? '0x' + obj.toString(16).toUpperCase() :  '-0x' + obj.toString(16).toUpperCase().slice(1); }
+  },
+  defaultStyle: 'decimal',
+  styleAliases: {
+    binary:      [ 2,  'bin' ],
+    octal:       [ 8,  'oct' ],
+    decimal:     [ 10, 'dec' ],
+    hexadecimal: [ 16, 'hex' ]
+  }
+});
+
+},{"../common":"../node_modules/js-yaml/lib/js-yaml/common.js","../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/float.js":[function(require,module,exports) {
+'use strict';
+
+var common = require('../common');
+var Type   = require('../type');
+
+var YAML_FLOAT_PATTERN = new RegExp(
+  // 2.5e4, 2.5 and integers
+  '^(?:[-+]?(?:0|[1-9][0-9_]*)(?:\\.[0-9_]*)?(?:[eE][-+]?[0-9]+)?' +
+  // .2e4, .2
+  // special case, seems not from spec
+  '|\\.[0-9_]+(?:[eE][-+]?[0-9]+)?' +
+  // 20:59
+  '|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*' +
+  // .inf
+  '|[-+]?\\.(?:inf|Inf|INF)' +
+  // .nan
+  '|\\.(?:nan|NaN|NAN))$');
+
+function resolveYamlFloat(data) {
+  if (data === null) return false;
+
+  if (!YAML_FLOAT_PATTERN.test(data) ||
+      // Quick hack to not allow integers end with `_`
+      // Probably should update regexp & check speed
+      data[data.length - 1] === '_') {
+    return false;
+  }
+
+  return true;
+}
+
+function constructYamlFloat(data) {
+  var value, sign, base, digits;
+
+  value  = data.replace(/_/g, '').toLowerCase();
+  sign   = value[0] === '-' ? -1 : 1;
+  digits = [];
+
+  if ('+-'.indexOf(value[0]) >= 0) {
+    value = value.slice(1);
+  }
+
+  if (value === '.inf') {
+    return (sign === 1) ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
+
+  } else if (value === '.nan') {
+    return NaN;
+
+  } else if (value.indexOf(':') >= 0) {
+    value.split(':').forEach(function (v) {
+      digits.unshift(parseFloat(v, 10));
+    });
+
+    value = 0.0;
+    base = 1;
+
+    digits.forEach(function (d) {
+      value += d * base;
+      base *= 60;
+    });
+
+    return sign * value;
+
+  }
+  return sign * parseFloat(value, 10);
+}
+
+
+var SCIENTIFIC_WITHOUT_DOT = /^[-+]?[0-9]+e/;
+
+function representYamlFloat(object, style) {
+  var res;
+
+  if (isNaN(object)) {
+    switch (style) {
+      case 'lowercase': return '.nan';
+      case 'uppercase': return '.NAN';
+      case 'camelcase': return '.NaN';
+    }
+  } else if (Number.POSITIVE_INFINITY === object) {
+    switch (style) {
+      case 'lowercase': return '.inf';
+      case 'uppercase': return '.INF';
+      case 'camelcase': return '.Inf';
+    }
+  } else if (Number.NEGATIVE_INFINITY === object) {
+    switch (style) {
+      case 'lowercase': return '-.inf';
+      case 'uppercase': return '-.INF';
+      case 'camelcase': return '-.Inf';
+    }
+  } else if (common.isNegativeZero(object)) {
+    return '-0.0';
+  }
+
+  res = object.toString(10);
+
+  // JS stringifier can build scientific format without dots: 5e-100,
+  // while YAML requres dot: 5.e-100. Fix it with simple hack
+
+  return SCIENTIFIC_WITHOUT_DOT.test(res) ? res.replace('e', '.e') : res;
+}
+
+function isFloat(object) {
+  return (Object.prototype.toString.call(object) === '[object Number]') &&
+         (object % 1 !== 0 || common.isNegativeZero(object));
+}
+
+module.exports = new Type('tag:yaml.org,2002:float', {
+  kind: 'scalar',
+  resolve: resolveYamlFloat,
+  construct: constructYamlFloat,
+  predicate: isFloat,
+  represent: representYamlFloat,
+  defaultStyle: 'lowercase'
+});
+
+},{"../common":"../node_modules/js-yaml/lib/js-yaml/common.js","../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/schema/json.js":[function(require,module,exports) {
+// Standard YAML's JSON schema.
+// http://www.yaml.org/spec/1.2/spec.html#id2803231
+//
+// NOTE: JS-YAML does not support schema-specific tag resolution restrictions.
+// So, this schema is not such strict as defined in the YAML specification.
+// It allows numbers in binary notaion, use `Null` and `NULL` as `null`, etc.
+
+
+'use strict';
+
+
+var Schema = require('../schema');
+
+
+module.exports = new Schema({
+  include: [
+    require('./failsafe')
+  ],
+  implicit: [
+    require('../type/null'),
+    require('../type/bool'),
+    require('../type/int'),
+    require('../type/float')
+  ]
+});
+
+},{"../schema":"../node_modules/js-yaml/lib/js-yaml/schema.js","./failsafe":"../node_modules/js-yaml/lib/js-yaml/schema/failsafe.js","../type/null":"../node_modules/js-yaml/lib/js-yaml/type/null.js","../type/bool":"../node_modules/js-yaml/lib/js-yaml/type/bool.js","../type/int":"../node_modules/js-yaml/lib/js-yaml/type/int.js","../type/float":"../node_modules/js-yaml/lib/js-yaml/type/float.js"}],"../node_modules/js-yaml/lib/js-yaml/schema/core.js":[function(require,module,exports) {
+// Standard YAML's Core schema.
+// http://www.yaml.org/spec/1.2/spec.html#id2804923
+//
+// NOTE: JS-YAML does not support schema-specific tag resolution restrictions.
+// So, Core schema has no distinctions from JSON schema is JS-YAML.
+
+
+'use strict';
+
+
+var Schema = require('../schema');
+
+
+module.exports = new Schema({
+  include: [
+    require('./json')
+  ]
+});
+
+},{"../schema":"../node_modules/js-yaml/lib/js-yaml/schema.js","./json":"../node_modules/js-yaml/lib/js-yaml/schema/json.js"}],"../node_modules/js-yaml/lib/js-yaml/type/timestamp.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../type');
+
+var YAML_DATE_REGEXP = new RegExp(
+  '^([0-9][0-9][0-9][0-9])'          + // [1] year
+  '-([0-9][0-9])'                    + // [2] month
+  '-([0-9][0-9])$');                   // [3] day
+
+var YAML_TIMESTAMP_REGEXP = new RegExp(
+  '^([0-9][0-9][0-9][0-9])'          + // [1] year
+  '-([0-9][0-9]?)'                   + // [2] month
+  '-([0-9][0-9]?)'                   + // [3] day
+  '(?:[Tt]|[ \\t]+)'                 + // ...
+  '([0-9][0-9]?)'                    + // [4] hour
+  ':([0-9][0-9])'                    + // [5] minute
+  ':([0-9][0-9])'                    + // [6] second
+  '(?:\\.([0-9]*))?'                 + // [7] fraction
+  '(?:[ \\t]*(Z|([-+])([0-9][0-9]?)' + // [8] tz [9] tz_sign [10] tz_hour
+  '(?::([0-9][0-9]))?))?$');           // [11] tz_minute
+
+function resolveYamlTimestamp(data) {
+  if (data === null) return false;
+  if (YAML_DATE_REGEXP.exec(data) !== null) return true;
+  if (YAML_TIMESTAMP_REGEXP.exec(data) !== null) return true;
+  return false;
+}
+
+function constructYamlTimestamp(data) {
+  var match, year, month, day, hour, minute, second, fraction = 0,
+      delta = null, tz_hour, tz_minute, date;
+
+  match = YAML_DATE_REGEXP.exec(data);
+  if (match === null) match = YAML_TIMESTAMP_REGEXP.exec(data);
+
+  if (match === null) throw new Error('Date resolve error');
+
+  // match: [1] year [2] month [3] day
+
+  year = +(match[1]);
+  month = +(match[2]) - 1; // JS month starts with 0
+  day = +(match[3]);
+
+  if (!match[4]) { // no hour
+    return new Date(Date.UTC(year, month, day));
+  }
+
+  // match: [4] hour [5] minute [6] second [7] fraction
+
+  hour = +(match[4]);
+  minute = +(match[5]);
+  second = +(match[6]);
+
+  if (match[7]) {
+    fraction = match[7].slice(0, 3);
+    while (fraction.length < 3) { // milli-seconds
+      fraction += '0';
+    }
+    fraction = +fraction;
+  }
+
+  // match: [8] tz [9] tz_sign [10] tz_hour [11] tz_minute
+
+  if (match[9]) {
+    tz_hour = +(match[10]);
+    tz_minute = +(match[11] || 0);
+    delta = (tz_hour * 60 + tz_minute) * 60000; // delta in mili-seconds
+    if (match[9] === '-') delta = -delta;
+  }
+
+  date = new Date(Date.UTC(year, month, day, hour, minute, second, fraction));
+
+  if (delta) date.setTime(date.getTime() - delta);
+
+  return date;
+}
+
+function representYamlTimestamp(object /*, style*/) {
+  return object.toISOString();
+}
+
+module.exports = new Type('tag:yaml.org,2002:timestamp', {
+  kind: 'scalar',
+  resolve: resolveYamlTimestamp,
+  construct: constructYamlTimestamp,
+  instanceOf: Date,
+  represent: representYamlTimestamp
+});
+
+},{"../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/merge.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../type');
+
+function resolveYamlMerge(data) {
+  return data === '<<' || data === null;
+}
+
+module.exports = new Type('tag:yaml.org,2002:merge', {
+  kind: 'scalar',
+  resolve: resolveYamlMerge
+});
+
+},{"../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/binary.js":[function(require,module,exports) {
+'use strict';
+
+/*eslint-disable no-bitwise*/
+
+var NodeBuffer;
+
+try {
+  // A trick for browserified version, to not include `Buffer` shim
+  var _require = require;
+  NodeBuffer = _require('buffer').Buffer;
+} catch (__) {}
+
+var Type       = require('../type');
+
+
+// [ 64, 65, 66 ] -> [ padding, CR, LF ]
+var BASE64_MAP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=\n\r';
+
+
+function resolveYamlBinary(data) {
+  if (data === null) return false;
+
+  var code, idx, bitlen = 0, max = data.length, map = BASE64_MAP;
+
+  // Convert one by one.
+  for (idx = 0; idx < max; idx++) {
+    code = map.indexOf(data.charAt(idx));
+
+    // Skip CR/LF
+    if (code > 64) continue;
+
+    // Fail on illegal characters
+    if (code < 0) return false;
+
+    bitlen += 6;
+  }
+
+  // If there are any bits left, source was corrupted
+  return (bitlen % 8) === 0;
+}
+
+function constructYamlBinary(data) {
+  var idx, tailbits,
+      input = data.replace(/[\r\n=]/g, ''), // remove CR/LF & padding to simplify scan
+      max = input.length,
+      map = BASE64_MAP,
+      bits = 0,
+      result = [];
+
+  // Collect by 6*4 bits (3 bytes)
+
+  for (idx = 0; idx < max; idx++) {
+    if ((idx % 4 === 0) && idx) {
+      result.push((bits >> 16) & 0xFF);
+      result.push((bits >> 8) & 0xFF);
+      result.push(bits & 0xFF);
+    }
+
+    bits = (bits << 6) | map.indexOf(input.charAt(idx));
+  }
+
+  // Dump tail
+
+  tailbits = (max % 4) * 6;
+
+  if (tailbits === 0) {
+    result.push((bits >> 16) & 0xFF);
+    result.push((bits >> 8) & 0xFF);
+    result.push(bits & 0xFF);
+  } else if (tailbits === 18) {
+    result.push((bits >> 10) & 0xFF);
+    result.push((bits >> 2) & 0xFF);
+  } else if (tailbits === 12) {
+    result.push((bits >> 4) & 0xFF);
+  }
+
+  // Wrap into Buffer for NodeJS and leave Array for browser
+  if (NodeBuffer) {
+    // Support node 6.+ Buffer API when available
+    return NodeBuffer.from ? NodeBuffer.from(result) : new NodeBuffer(result);
+  }
+
+  return result;
+}
+
+function representYamlBinary(object /*, style*/) {
+  var result = '', bits = 0, idx, tail,
+      max = object.length,
+      map = BASE64_MAP;
+
+  // Convert every three bytes to 4 ASCII characters.
+
+  for (idx = 0; idx < max; idx++) {
+    if ((idx % 3 === 0) && idx) {
+      result += map[(bits >> 18) & 0x3F];
+      result += map[(bits >> 12) & 0x3F];
+      result += map[(bits >> 6) & 0x3F];
+      result += map[bits & 0x3F];
+    }
+
+    bits = (bits << 8) + object[idx];
+  }
+
+  // Dump tail
+
+  tail = max % 3;
+
+  if (tail === 0) {
+    result += map[(bits >> 18) & 0x3F];
+    result += map[(bits >> 12) & 0x3F];
+    result += map[(bits >> 6) & 0x3F];
+    result += map[bits & 0x3F];
+  } else if (tail === 2) {
+    result += map[(bits >> 10) & 0x3F];
+    result += map[(bits >> 4) & 0x3F];
+    result += map[(bits << 2) & 0x3F];
+    result += map[64];
+  } else if (tail === 1) {
+    result += map[(bits >> 2) & 0x3F];
+    result += map[(bits << 4) & 0x3F];
+    result += map[64];
+    result += map[64];
+  }
+
+  return result;
+}
+
+function isBinary(object) {
+  return NodeBuffer && NodeBuffer.isBuffer(object);
+}
+
+module.exports = new Type('tag:yaml.org,2002:binary', {
+  kind: 'scalar',
+  resolve: resolveYamlBinary,
+  construct: constructYamlBinary,
+  predicate: isBinary,
+  represent: representYamlBinary
+});
+
+},{"../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/omap.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../type');
+
+var _hasOwnProperty = Object.prototype.hasOwnProperty;
+var _toString       = Object.prototype.toString;
+
+function resolveYamlOmap(data) {
+  if (data === null) return true;
+
+  var objectKeys = [], index, length, pair, pairKey, pairHasKey,
+      object = data;
+
+  for (index = 0, length = object.length; index < length; index += 1) {
+    pair = object[index];
+    pairHasKey = false;
+
+    if (_toString.call(pair) !== '[object Object]') return false;
+
+    for (pairKey in pair) {
+      if (_hasOwnProperty.call(pair, pairKey)) {
+        if (!pairHasKey) pairHasKey = true;
+        else return false;
+      }
+    }
+
+    if (!pairHasKey) return false;
+
+    if (objectKeys.indexOf(pairKey) === -1) objectKeys.push(pairKey);
+    else return false;
+  }
+
+  return true;
+}
+
+function constructYamlOmap(data) {
+  return data !== null ? data : [];
+}
+
+module.exports = new Type('tag:yaml.org,2002:omap', {
+  kind: 'sequence',
+  resolve: resolveYamlOmap,
+  construct: constructYamlOmap
+});
+
+},{"../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/pairs.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../type');
+
+var _toString = Object.prototype.toString;
+
+function resolveYamlPairs(data) {
+  if (data === null) return true;
+
+  var index, length, pair, keys, result,
+      object = data;
+
+  result = new Array(object.length);
+
+  for (index = 0, length = object.length; index < length; index += 1) {
+    pair = object[index];
+
+    if (_toString.call(pair) !== '[object Object]') return false;
+
+    keys = Object.keys(pair);
+
+    if (keys.length !== 1) return false;
+
+    result[index] = [ keys[0], pair[keys[0]] ];
+  }
+
+  return true;
+}
+
+function constructYamlPairs(data) {
+  if (data === null) return [];
+
+  var index, length, pair, keys, result,
+      object = data;
+
+  result = new Array(object.length);
+
+  for (index = 0, length = object.length; index < length; index += 1) {
+    pair = object[index];
+
+    keys = Object.keys(pair);
+
+    result[index] = [ keys[0], pair[keys[0]] ];
+  }
+
+  return result;
+}
+
+module.exports = new Type('tag:yaml.org,2002:pairs', {
+  kind: 'sequence',
+  resolve: resolveYamlPairs,
+  construct: constructYamlPairs
+});
+
+},{"../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/set.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../type');
+
+var _hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function resolveYamlSet(data) {
+  if (data === null) return true;
+
+  var key, object = data;
+
+  for (key in object) {
+    if (_hasOwnProperty.call(object, key)) {
+      if (object[key] !== null) return false;
+    }
+  }
+
+  return true;
+}
+
+function constructYamlSet(data) {
+  return data !== null ? data : {};
+}
+
+module.exports = new Type('tag:yaml.org,2002:set', {
+  kind: 'mapping',
+  resolve: resolveYamlSet,
+  construct: constructYamlSet
+});
+
+},{"../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/schema/default_safe.js":[function(require,module,exports) {
+// JS-YAML's default schema for `safeLoad` function.
+// It is not described in the YAML specification.
+//
+// This schema is based on standard YAML's Core schema and includes most of
+// extra types described at YAML tag repository. (http://yaml.org/type/)
+
+
+'use strict';
+
+
+var Schema = require('../schema');
+
+
+module.exports = new Schema({
+  include: [
+    require('./core')
+  ],
+  implicit: [
+    require('../type/timestamp'),
+    require('../type/merge')
+  ],
+  explicit: [
+    require('../type/binary'),
+    require('../type/omap'),
+    require('../type/pairs'),
+    require('../type/set')
+  ]
+});
+
+},{"../schema":"../node_modules/js-yaml/lib/js-yaml/schema.js","./core":"../node_modules/js-yaml/lib/js-yaml/schema/core.js","../type/timestamp":"../node_modules/js-yaml/lib/js-yaml/type/timestamp.js","../type/merge":"../node_modules/js-yaml/lib/js-yaml/type/merge.js","../type/binary":"../node_modules/js-yaml/lib/js-yaml/type/binary.js","../type/omap":"../node_modules/js-yaml/lib/js-yaml/type/omap.js","../type/pairs":"../node_modules/js-yaml/lib/js-yaml/type/pairs.js","../type/set":"../node_modules/js-yaml/lib/js-yaml/type/set.js"}],"../node_modules/js-yaml/lib/js-yaml/type/js/undefined.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../../type');
+
+function resolveJavascriptUndefined() {
+  return true;
+}
+
+function constructJavascriptUndefined() {
+  /*eslint-disable no-undefined*/
+  return undefined;
+}
+
+function representJavascriptUndefined() {
+  return '';
+}
+
+function isUndefined(object) {
+  return typeof object === 'undefined';
+}
+
+module.exports = new Type('tag:yaml.org,2002:js/undefined', {
+  kind: 'scalar',
+  resolve: resolveJavascriptUndefined,
+  construct: constructJavascriptUndefined,
+  predicate: isUndefined,
+  represent: representJavascriptUndefined
+});
+
+},{"../../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/js/regexp.js":[function(require,module,exports) {
+'use strict';
+
+var Type = require('../../type');
+
+function resolveJavascriptRegExp(data) {
+  if (data === null) return false;
+  if (data.length === 0) return false;
+
+  var regexp = data,
+      tail   = /\/([gim]*)$/.exec(data),
+      modifiers = '';
+
+  // if regexp starts with '/' it can have modifiers and must be properly closed
+  // `/foo/gim` - modifiers tail can be maximum 3 chars
+  if (regexp[0] === '/') {
+    if (tail) modifiers = tail[1];
+
+    if (modifiers.length > 3) return false;
+    // if expression starts with /, is should be properly terminated
+    if (regexp[regexp.length - modifiers.length - 1] !== '/') return false;
+  }
+
+  return true;
+}
+
+function constructJavascriptRegExp(data) {
+  var regexp = data,
+      tail   = /\/([gim]*)$/.exec(data),
+      modifiers = '';
+
+  // `/foo/gim` - tail can be maximum 4 chars
+  if (regexp[0] === '/') {
+    if (tail) modifiers = tail[1];
+    regexp = regexp.slice(1, regexp.length - modifiers.length - 1);
+  }
+
+  return new RegExp(regexp, modifiers);
+}
+
+function representJavascriptRegExp(object /*, style*/) {
+  var result = '/' + object.source + '/';
+
+  if (object.global) result += 'g';
+  if (object.multiline) result += 'm';
+  if (object.ignoreCase) result += 'i';
+
+  return result;
+}
+
+function isRegExp(object) {
+  return Object.prototype.toString.call(object) === '[object RegExp]';
+}
+
+module.exports = new Type('tag:yaml.org,2002:js/regexp', {
+  kind: 'scalar',
+  resolve: resolveJavascriptRegExp,
+  construct: constructJavascriptRegExp,
+  predicate: isRegExp,
+  represent: representJavascriptRegExp
+});
+
+},{"../../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/type/js/function.js":[function(require,module,exports) {
+'use strict';
+
+var esprima;
+
+// Browserified version does not have esprima
+//
+// 1. For node.js just require module as deps
+// 2. For browser try to require mudule via external AMD system.
+//    If not found - try to fallback to window.esprima. If not
+//    found too - then fail to parse.
+//
+try {
+  // workaround to exclude package from browserify list.
+  var _require = require;
+  esprima = _require('esprima');
+} catch (_) {
+  /*global window */
+  if (typeof window !== 'undefined') esprima = window.esprima;
+}
+
+var Type = require('../../type');
+
+function resolveJavascriptFunction(data) {
+  if (data === null) return false;
+
+  try {
+    var source = '(' + data + ')',
+        ast    = esprima.parse(source, { range: true });
+
+    if (ast.type                    !== 'Program'             ||
+        ast.body.length             !== 1                     ||
+        ast.body[0].type            !== 'ExpressionStatement' ||
+        (ast.body[0].expression.type !== 'ArrowFunctionExpression' &&
+          ast.body[0].expression.type !== 'FunctionExpression')) {
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+function constructJavascriptFunction(data) {
+  /*jslint evil:true*/
+
+  var source = '(' + data + ')',
+      ast    = esprima.parse(source, { range: true }),
+      params = [],
+      body;
+
+  if (ast.type                    !== 'Program'             ||
+      ast.body.length             !== 1                     ||
+      ast.body[0].type            !== 'ExpressionStatement' ||
+      (ast.body[0].expression.type !== 'ArrowFunctionExpression' &&
+        ast.body[0].expression.type !== 'FunctionExpression')) {
+    throw new Error('Failed to resolve function');
+  }
+
+  ast.body[0].expression.params.forEach(function (param) {
+    params.push(param.name);
+  });
+
+  body = ast.body[0].expression.body.range;
+
+  // Esprima's ranges include the first '{' and the last '}' characters on
+  // function expressions. So cut them out.
+  if (ast.body[0].expression.body.type === 'BlockStatement') {
+    /*eslint-disable no-new-func*/
+    return new Function(params, source.slice(body[0] + 1, body[1] - 1));
+  }
+  // ES6 arrow functions can omit the BlockStatement. In that case, just return
+  // the body.
+  /*eslint-disable no-new-func*/
+  return new Function(params, 'return ' + source.slice(body[0], body[1]));
+}
+
+function representJavascriptFunction(object /*, style*/) {
+  return object.toString();
+}
+
+function isFunction(object) {
+  return Object.prototype.toString.call(object) === '[object Function]';
+}
+
+module.exports = new Type('tag:yaml.org,2002:js/function', {
+  kind: 'scalar',
+  resolve: resolveJavascriptFunction,
+  construct: constructJavascriptFunction,
+  predicate: isFunction,
+  represent: representJavascriptFunction
+});
+
+},{"../../type":"../node_modules/js-yaml/lib/js-yaml/type.js"}],"../node_modules/js-yaml/lib/js-yaml/schema/default_full.js":[function(require,module,exports) {
+// JS-YAML's default schema for `load` function.
+// It is not described in the YAML specification.
+//
+// This schema is based on JS-YAML's default safe schema and includes
+// JavaScript-specific types: !!js/undefined, !!js/regexp and !!js/function.
+//
+// Also this schema is used as default base schema at `Schema.create` function.
+
+
+'use strict';
+
+
+var Schema = require('../schema');
+
+
+module.exports = Schema.DEFAULT = new Schema({
+  include: [
+    require('./default_safe')
+  ],
+  explicit: [
+    require('../type/js/undefined'),
+    require('../type/js/regexp'),
+    require('../type/js/function')
+  ]
+});
+
+},{"../schema":"../node_modules/js-yaml/lib/js-yaml/schema.js","./default_safe":"../node_modules/js-yaml/lib/js-yaml/schema/default_safe.js","../type/js/undefined":"../node_modules/js-yaml/lib/js-yaml/type/js/undefined.js","../type/js/regexp":"../node_modules/js-yaml/lib/js-yaml/type/js/regexp.js","../type/js/function":"../node_modules/js-yaml/lib/js-yaml/type/js/function.js"}],"../node_modules/js-yaml/lib/js-yaml/loader.js":[function(require,module,exports) {
+'use strict';
+
+/*eslint-disable max-len,no-use-before-define*/
+
+var common              = require('./common');
+var YAMLException       = require('./exception');
+var Mark                = require('./mark');
+var DEFAULT_SAFE_SCHEMA = require('./schema/default_safe');
+var DEFAULT_FULL_SCHEMA = require('./schema/default_full');
+
+
+var _hasOwnProperty = Object.prototype.hasOwnProperty;
+
+
+var CONTEXT_FLOW_IN   = 1;
+var CONTEXT_FLOW_OUT  = 2;
+var CONTEXT_BLOCK_IN  = 3;
+var CONTEXT_BLOCK_OUT = 4;
+
+
+var CHOMPING_CLIP  = 1;
+var CHOMPING_STRIP = 2;
+var CHOMPING_KEEP  = 3;
+
+
+var PATTERN_NON_PRINTABLE         = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x84\x86-\x9F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/;
+var PATTERN_NON_ASCII_LINE_BREAKS = /[\x85\u2028\u2029]/;
+var PATTERN_FLOW_INDICATORS       = /[,\[\]\{\}]/;
+var PATTERN_TAG_HANDLE            = /^(?:!|!!|![a-z\-]+!)$/i;
+var PATTERN_TAG_URI               = /^(?:!|[^,\[\]\{\}])(?:%[0-9a-f]{2}|[0-9a-z\-#;\/\?:@&=\+\$,_\.!~\*'\(\)\[\]])*$/i;
+
+
+function _class(obj) { return Object.prototype.toString.call(obj); }
+
+function is_EOL(c) {
+  return (c === 0x0A/* LF */) || (c === 0x0D/* CR */);
+}
+
+function is_WHITE_SPACE(c) {
+  return (c === 0x09/* Tab */) || (c === 0x20/* Space */);
+}
+
+function is_WS_OR_EOL(c) {
+  return (c === 0x09/* Tab */) ||
+         (c === 0x20/* Space */) ||
+         (c === 0x0A/* LF */) ||
+         (c === 0x0D/* CR */);
+}
+
+function is_FLOW_INDICATOR(c) {
+  return c === 0x2C/* , */ ||
+         c === 0x5B/* [ */ ||
+         c === 0x5D/* ] */ ||
+         c === 0x7B/* { */ ||
+         c === 0x7D/* } */;
+}
+
+function fromHexCode(c) {
+  var lc;
+
+  if ((0x30/* 0 */ <= c) && (c <= 0x39/* 9 */)) {
+    return c - 0x30;
+  }
+
+  /*eslint-disable no-bitwise*/
+  lc = c | 0x20;
+
+  if ((0x61/* a */ <= lc) && (lc <= 0x66/* f */)) {
+    return lc - 0x61 + 10;
+  }
+
+  return -1;
+}
+
+function escapedHexLen(c) {
+  if (c === 0x78/* x */) { return 2; }
+  if (c === 0x75/* u */) { return 4; }
+  if (c === 0x55/* U */) { return 8; }
+  return 0;
+}
+
+function fromDecimalCode(c) {
+  if ((0x30/* 0 */ <= c) && (c <= 0x39/* 9 */)) {
+    return c - 0x30;
+  }
+
+  return -1;
+}
+
+function simpleEscapeSequence(c) {
+  /* eslint-disable indent */
+  return (c === 0x30/* 0 */) ? '\x00' :
+        (c === 0x61/* a */) ? '\x07' :
+        (c === 0x62/* b */) ? '\x08' :
+        (c === 0x74/* t */) ? '\x09' :
+        (c === 0x09/* Tab */) ? '\x09' :
+        (c === 0x6E/* n */) ? '\x0A' :
+        (c === 0x76/* v */) ? '\x0B' :
+        (c === 0x66/* f */) ? '\x0C' :
+        (c === 0x72/* r */) ? '\x0D' :
+        (c === 0x65/* e */) ? '\x1B' :
+        (c === 0x20/* Space */) ? ' ' :
+        (c === 0x22/* " */) ? '\x22' :
+        (c === 0x2F/* / */) ? '/' :
+        (c === 0x5C/* \ */) ? '\x5C' :
+        (c === 0x4E/* N */) ? '\x85' :
+        (c === 0x5F/* _ */) ? '\xA0' :
+        (c === 0x4C/* L */) ? '\u2028' :
+        (c === 0x50/* P */) ? '\u2029' : '';
+}
+
+function charFromCodepoint(c) {
+  if (c <= 0xFFFF) {
+    return String.fromCharCode(c);
+  }
+  // Encode UTF-16 surrogate pair
+  // https://en.wikipedia.org/wiki/UTF-16#Code_points_U.2B010000_to_U.2B10FFFF
+  return String.fromCharCode(
+    ((c - 0x010000) >> 10) + 0xD800,
+    ((c - 0x010000) & 0x03FF) + 0xDC00
+  );
+}
+
+var simpleEscapeCheck = new Array(256); // integer, for fast access
+var simpleEscapeMap = new Array(256);
+for (var i = 0; i < 256; i++) {
+  simpleEscapeCheck[i] = simpleEscapeSequence(i) ? 1 : 0;
+  simpleEscapeMap[i] = simpleEscapeSequence(i);
+}
+
+
+function State(input, options) {
+  this.input = input;
+
+  this.filename  = options['filename']  || null;
+  this.schema    = options['schema']    || DEFAULT_FULL_SCHEMA;
+  this.onWarning = options['onWarning'] || null;
+  this.legacy    = options['legacy']    || false;
+  this.json      = options['json']      || false;
+  this.listener  = options['listener']  || null;
+
+  this.implicitTypes = this.schema.compiledImplicit;
+  this.typeMap       = this.schema.compiledTypeMap;
+
+  this.length     = input.length;
+  this.position   = 0;
+  this.line       = 0;
+  this.lineStart  = 0;
+  this.lineIndent = 0;
+
+  this.documents = [];
+
+  /*
+  this.version;
+  this.checkLineBreaks;
+  this.tagMap;
+  this.anchorMap;
+  this.tag;
+  this.anchor;
+  this.kind;
+  this.result;*/
+
+}
+
+
+function generateError(state, message) {
+  return new YAMLException(
+    message,
+    new Mark(state.filename, state.input, state.position, state.line, (state.position - state.lineStart)));
+}
+
+function throwError(state, message) {
+  throw generateError(state, message);
+}
+
+function throwWarning(state, message) {
+  if (state.onWarning) {
+    state.onWarning.call(null, generateError(state, message));
+  }
+}
+
+
+var directiveHandlers = {
+
+  YAML: function handleYamlDirective(state, name, args) {
+
+    var match, major, minor;
+
+    if (state.version !== null) {
+      throwError(state, 'duplication of %YAML directive');
+    }
+
+    if (args.length !== 1) {
+      throwError(state, 'YAML directive accepts exactly one argument');
+    }
+
+    match = /^([0-9]+)\.([0-9]+)$/.exec(args[0]);
+
+    if (match === null) {
+      throwError(state, 'ill-formed argument of the YAML directive');
+    }
+
+    major = parseInt(match[1], 10);
+    minor = parseInt(match[2], 10);
+
+    if (major !== 1) {
+      throwError(state, 'unacceptable YAML version of the document');
+    }
+
+    state.version = args[0];
+    state.checkLineBreaks = (minor < 2);
+
+    if (minor !== 1 && minor !== 2) {
+      throwWarning(state, 'unsupported YAML version of the document');
+    }
+  },
+
+  TAG: function handleTagDirective(state, name, args) {
+
+    var handle, prefix;
+
+    if (args.length !== 2) {
+      throwError(state, 'TAG directive accepts exactly two arguments');
+    }
+
+    handle = args[0];
+    prefix = args[1];
+
+    if (!PATTERN_TAG_HANDLE.test(handle)) {
+      throwError(state, 'ill-formed tag handle (first argument) of the TAG directive');
+    }
+
+    if (_hasOwnProperty.call(state.tagMap, handle)) {
+      throwError(state, 'there is a previously declared suffix for "' + handle + '" tag handle');
+    }
+
+    if (!PATTERN_TAG_URI.test(prefix)) {
+      throwError(state, 'ill-formed tag prefix (second argument) of the TAG directive');
+    }
+
+    state.tagMap[handle] = prefix;
+  }
+};
+
+
+function captureSegment(state, start, end, checkJson) {
+  var _position, _length, _character, _result;
+
+  if (start < end) {
+    _result = state.input.slice(start, end);
+
+    if (checkJson) {
+      for (_position = 0, _length = _result.length; _position < _length; _position += 1) {
+        _character = _result.charCodeAt(_position);
+        if (!(_character === 0x09 ||
+              (0x20 <= _character && _character <= 0x10FFFF))) {
+          throwError(state, 'expected valid JSON character');
+        }
+      }
+    } else if (PATTERN_NON_PRINTABLE.test(_result)) {
+      throwError(state, 'the stream contains non-printable characters');
+    }
+
+    state.result += _result;
+  }
+}
+
+function mergeMappings(state, destination, source, overridableKeys) {
+  var sourceKeys, key, index, quantity;
+
+  if (!common.isObject(source)) {
+    throwError(state, 'cannot merge mappings; the provided source object is unacceptable');
+  }
+
+  sourceKeys = Object.keys(source);
+
+  for (index = 0, quantity = sourceKeys.length; index < quantity; index += 1) {
+    key = sourceKeys[index];
+
+    if (!_hasOwnProperty.call(destination, key)) {
+      destination[key] = source[key];
+      overridableKeys[key] = true;
+    }
+  }
+}
+
+function storeMappingPair(state, _result, overridableKeys, keyTag, keyNode, valueNode, startLine, startPos) {
+  var index, quantity;
+
+  // The output is a plain object here, so keys can only be strings.
+  // We need to convert keyNode to a string, but doing so can hang the process
+  // (deeply nested arrays that explode exponentially using aliases).
+  if (Array.isArray(keyNode)) {
+    keyNode = Array.prototype.slice.call(keyNode);
+
+    for (index = 0, quantity = keyNode.length; index < quantity; index += 1) {
+      if (Array.isArray(keyNode[index])) {
+        throwError(state, 'nested arrays are not supported inside keys');
+      }
+
+      if (typeof keyNode === 'object' && _class(keyNode[index]) === '[object Object]') {
+        keyNode[index] = '[object Object]';
+      }
+    }
+  }
+
+  // Avoid code execution in load() via toString property
+  // (still use its own toString for arrays, timestamps,
+  // and whatever user schema extensions happen to have @@toStringTag)
+  if (typeof keyNode === 'object' && _class(keyNode) === '[object Object]') {
+    keyNode = '[object Object]';
+  }
+
+
+  keyNode = String(keyNode);
+
+  if (_result === null) {
+    _result = {};
+  }
+
+  if (keyTag === 'tag:yaml.org,2002:merge') {
+    if (Array.isArray(valueNode)) {
+      for (index = 0, quantity = valueNode.length; index < quantity; index += 1) {
+        mergeMappings(state, _result, valueNode[index], overridableKeys);
+      }
+    } else {
+      mergeMappings(state, _result, valueNode, overridableKeys);
+    }
+  } else {
+    if (!state.json &&
+        !_hasOwnProperty.call(overridableKeys, keyNode) &&
+        _hasOwnProperty.call(_result, keyNode)) {
+      state.line = startLine || state.line;
+      state.position = startPos || state.position;
+      throwError(state, 'duplicated mapping key');
+    }
+    _result[keyNode] = valueNode;
+    delete overridableKeys[keyNode];
+  }
+
+  return _result;
+}
+
+function readLineBreak(state) {
+  var ch;
+
+  ch = state.input.charCodeAt(state.position);
+
+  if (ch === 0x0A/* LF */) {
+    state.position++;
+  } else if (ch === 0x0D/* CR */) {
+    state.position++;
+    if (state.input.charCodeAt(state.position) === 0x0A/* LF */) {
+      state.position++;
+    }
+  } else {
+    throwError(state, 'a line break is expected');
+  }
+
+  state.line += 1;
+  state.lineStart = state.position;
+}
+
+function skipSeparationSpace(state, allowComments, checkIndent) {
+  var lineBreaks = 0,
+      ch = state.input.charCodeAt(state.position);
+
+  while (ch !== 0) {
+    while (is_WHITE_SPACE(ch)) {
+      ch = state.input.charCodeAt(++state.position);
+    }
+
+    if (allowComments && ch === 0x23/* # */) {
+      do {
+        ch = state.input.charCodeAt(++state.position);
+      } while (ch !== 0x0A/* LF */ && ch !== 0x0D/* CR */ && ch !== 0);
+    }
+
+    if (is_EOL(ch)) {
+      readLineBreak(state);
+
+      ch = state.input.charCodeAt(state.position);
+      lineBreaks++;
+      state.lineIndent = 0;
+
+      while (ch === 0x20/* Space */) {
+        state.lineIndent++;
+        ch = state.input.charCodeAt(++state.position);
+      }
+    } else {
+      break;
+    }
+  }
+
+  if (checkIndent !== -1 && lineBreaks !== 0 && state.lineIndent < checkIndent) {
+    throwWarning(state, 'deficient indentation');
+  }
+
+  return lineBreaks;
+}
+
+function testDocumentSeparator(state) {
+  var _position = state.position,
+      ch;
+
+  ch = state.input.charCodeAt(_position);
+
+  // Condition state.position === state.lineStart is tested
+  // in parent on each call, for efficiency. No needs to test here again.
+  if ((ch === 0x2D/* - */ || ch === 0x2E/* . */) &&
+      ch === state.input.charCodeAt(_position + 1) &&
+      ch === state.input.charCodeAt(_position + 2)) {
+
+    _position += 3;
+
+    ch = state.input.charCodeAt(_position);
+
+    if (ch === 0 || is_WS_OR_EOL(ch)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function writeFoldedLines(state, count) {
+  if (count === 1) {
+    state.result += ' ';
+  } else if (count > 1) {
+    state.result += common.repeat('\n', count - 1);
+  }
+}
+
+
+function readPlainScalar(state, nodeIndent, withinFlowCollection) {
+  var preceding,
+      following,
+      captureStart,
+      captureEnd,
+      hasPendingContent,
+      _line,
+      _lineStart,
+      _lineIndent,
+      _kind = state.kind,
+      _result = state.result,
+      ch;
+
+  ch = state.input.charCodeAt(state.position);
+
+  if (is_WS_OR_EOL(ch)      ||
+      is_FLOW_INDICATOR(ch) ||
+      ch === 0x23/* # */    ||
+      ch === 0x26/* & */    ||
+      ch === 0x2A/* * */    ||
+      ch === 0x21/* ! */    ||
+      ch === 0x7C/* | */    ||
+      ch === 0x3E/* > */    ||
+      ch === 0x27/* ' */    ||
+      ch === 0x22/* " */    ||
+      ch === 0x25/* % */    ||
+      ch === 0x40/* @ */    ||
+      ch === 0x60/* ` */) {
+    return false;
+  }
+
+  if (ch === 0x3F/* ? */ || ch === 0x2D/* - */) {
+    following = state.input.charCodeAt(state.position + 1);
+
+    if (is_WS_OR_EOL(following) ||
+        withinFlowCollection && is_FLOW_INDICATOR(following)) {
+      return false;
+    }
+  }
+
+  state.kind = 'scalar';
+  state.result = '';
+  captureStart = captureEnd = state.position;
+  hasPendingContent = false;
+
+  while (ch !== 0) {
+    if (ch === 0x3A/* : */) {
+      following = state.input.charCodeAt(state.position + 1);
+
+      if (is_WS_OR_EOL(following) ||
+          withinFlowCollection && is_FLOW_INDICATOR(following)) {
+        break;
+      }
+
+    } else if (ch === 0x23/* # */) {
+      preceding = state.input.charCodeAt(state.position - 1);
+
+      if (is_WS_OR_EOL(preceding)) {
+        break;
+      }
+
+    } else if ((state.position === state.lineStart && testDocumentSeparator(state)) ||
+               withinFlowCollection && is_FLOW_INDICATOR(ch)) {
+      break;
+
+    } else if (is_EOL(ch)) {
+      _line = state.line;
+      _lineStart = state.lineStart;
+      _lineIndent = state.lineIndent;
+      skipSeparationSpace(state, false, -1);
+
+      if (state.lineIndent >= nodeIndent) {
+        hasPendingContent = true;
+        ch = state.input.charCodeAt(state.position);
+        continue;
+      } else {
+        state.position = captureEnd;
+        state.line = _line;
+        state.lineStart = _lineStart;
+        state.lineIndent = _lineIndent;
+        break;
+      }
+    }
+
+    if (hasPendingContent) {
+      captureSegment(state, captureStart, captureEnd, false);
+      writeFoldedLines(state, state.line - _line);
+      captureStart = captureEnd = state.position;
+      hasPendingContent = false;
+    }
+
+    if (!is_WHITE_SPACE(ch)) {
+      captureEnd = state.position + 1;
+    }
+
+    ch = state.input.charCodeAt(++state.position);
+  }
+
+  captureSegment(state, captureStart, captureEnd, false);
+
+  if (state.result) {
+    return true;
+  }
+
+  state.kind = _kind;
+  state.result = _result;
+  return false;
+}
+
+function readSingleQuotedScalar(state, nodeIndent) {
+  var ch,
+      captureStart, captureEnd;
+
+  ch = state.input.charCodeAt(state.position);
+
+  if (ch !== 0x27/* ' */) {
+    return false;
+  }
+
+  state.kind = 'scalar';
+  state.result = '';
+  state.position++;
+  captureStart = captureEnd = state.position;
+
+  while ((ch = state.input.charCodeAt(state.position)) !== 0) {
+    if (ch === 0x27/* ' */) {
+      captureSegment(state, captureStart, state.position, true);
+      ch = state.input.charCodeAt(++state.position);
+
+      if (ch === 0x27/* ' */) {
+        captureStart = state.position;
+        state.position++;
+        captureEnd = state.position;
+      } else {
+        return true;
+      }
+
+    } else if (is_EOL(ch)) {
+      captureSegment(state, captureStart, captureEnd, true);
+      writeFoldedLines(state, skipSeparationSpace(state, false, nodeIndent));
+      captureStart = captureEnd = state.position;
+
+    } else if (state.position === state.lineStart && testDocumentSeparator(state)) {
+      throwError(state, 'unexpected end of the document within a single quoted scalar');
+
+    } else {
+      state.position++;
+      captureEnd = state.position;
+    }
+  }
+
+  throwError(state, 'unexpected end of the stream within a single quoted scalar');
+}
+
+function readDoubleQuotedScalar(state, nodeIndent) {
+  var captureStart,
+      captureEnd,
+      hexLength,
+      hexResult,
+      tmp,
+      ch;
+
+  ch = state.input.charCodeAt(state.position);
+
+  if (ch !== 0x22/* " */) {
+    return false;
+  }
+
+  state.kind = 'scalar';
+  state.result = '';
+  state.position++;
+  captureStart = captureEnd = state.position;
+
+  while ((ch = state.input.charCodeAt(state.position)) !== 0) {
+    if (ch === 0x22/* " */) {
+      captureSegment(state, captureStart, state.position, true);
+      state.position++;
+      return true;
+
+    } else if (ch === 0x5C/* \ */) {
+      captureSegment(state, captureStart, state.position, true);
+      ch = state.input.charCodeAt(++state.position);
+
+      if (is_EOL(ch)) {
+        skipSeparationSpace(state, false, nodeIndent);
+
+        // TODO: rework to inline fn with no type cast?
+      } else if (ch < 256 && simpleEscapeCheck[ch]) {
+        state.result += simpleEscapeMap[ch];
+        state.position++;
+
+      } else if ((tmp = escapedHexLen(ch)) > 0) {
+        hexLength = tmp;
+        hexResult = 0;
+
+        for (; hexLength > 0; hexLength--) {
+          ch = state.input.charCodeAt(++state.position);
+
+          if ((tmp = fromHexCode(ch)) >= 0) {
+            hexResult = (hexResult << 4) + tmp;
+
+          } else {
+            throwError(state, 'expected hexadecimal character');
+          }
+        }
+
+        state.result += charFromCodepoint(hexResult);
+
+        state.position++;
+
+      } else {
+        throwError(state, 'unknown escape sequence');
+      }
+
+      captureStart = captureEnd = state.position;
+
+    } else if (is_EOL(ch)) {
+      captureSegment(state, captureStart, captureEnd, true);
+      writeFoldedLines(state, skipSeparationSpace(state, false, nodeIndent));
+      captureStart = captureEnd = state.position;
+
+    } else if (state.position === state.lineStart && testDocumentSeparator(state)) {
+      throwError(state, 'unexpected end of the document within a double quoted scalar');
+
+    } else {
+      state.position++;
+      captureEnd = state.position;
+    }
+  }
+
+  throwError(state, 'unexpected end of the stream within a double quoted scalar');
+}
+
+function readFlowCollection(state, nodeIndent) {
+  var readNext = true,
+      _line,
+      _tag     = state.tag,
+      _result,
+      _anchor  = state.anchor,
+      following,
+      terminator,
+      isPair,
+      isExplicitPair,
+      isMapping,
+      overridableKeys = {},
+      keyNode,
+      keyTag,
+      valueNode,
+      ch;
+
+  ch = state.input.charCodeAt(state.position);
+
+  if (ch === 0x5B/* [ */) {
+    terminator = 0x5D;/* ] */
+    isMapping = false;
+    _result = [];
+  } else if (ch === 0x7B/* { */) {
+    terminator = 0x7D;/* } */
+    isMapping = true;
+    _result = {};
+  } else {
+    return false;
+  }
+
+  if (state.anchor !== null) {
+    state.anchorMap[state.anchor] = _result;
+  }
+
+  ch = state.input.charCodeAt(++state.position);
+
+  while (ch !== 0) {
+    skipSeparationSpace(state, true, nodeIndent);
+
+    ch = state.input.charCodeAt(state.position);
+
+    if (ch === terminator) {
+      state.position++;
+      state.tag = _tag;
+      state.anchor = _anchor;
+      state.kind = isMapping ? 'mapping' : 'sequence';
+      state.result = _result;
+      return true;
+    } else if (!readNext) {
+      throwError(state, 'missed comma between flow collection entries');
+    }
+
+    keyTag = keyNode = valueNode = null;
+    isPair = isExplicitPair = false;
+
+    if (ch === 0x3F/* ? */) {
+      following = state.input.charCodeAt(state.position + 1);
+
+      if (is_WS_OR_EOL(following)) {
+        isPair = isExplicitPair = true;
+        state.position++;
+        skipSeparationSpace(state, true, nodeIndent);
+      }
+    }
+
+    _line = state.line;
+    composeNode(state, nodeIndent, CONTEXT_FLOW_IN, false, true);
+    keyTag = state.tag;
+    keyNode = state.result;
+    skipSeparationSpace(state, true, nodeIndent);
+
+    ch = state.input.charCodeAt(state.position);
+
+    if ((isExplicitPair || state.line === _line) && ch === 0x3A/* : */) {
+      isPair = true;
+      ch = state.input.charCodeAt(++state.position);
+      skipSeparationSpace(state, true, nodeIndent);
+      composeNode(state, nodeIndent, CONTEXT_FLOW_IN, false, true);
+      valueNode = state.result;
+    }
+
+    if (isMapping) {
+      storeMappingPair(state, _result, overridableKeys, keyTag, keyNode, valueNode);
+    } else if (isPair) {
+      _result.push(storeMappingPair(state, null, overridableKeys, keyTag, keyNode, valueNode));
+    } else {
+      _result.push(keyNode);
+    }
+
+    skipSeparationSpace(state, true, nodeIndent);
+
+    ch = state.input.charCodeAt(state.position);
+
+    if (ch === 0x2C/* , */) {
+      readNext = true;
+      ch = state.input.charCodeAt(++state.position);
+    } else {
+      readNext = false;
+    }
+  }
+
+  throwError(state, 'unexpected end of the stream within a flow collection');
+}
+
+function readBlockScalar(state, nodeIndent) {
+  var captureStart,
+      folding,
+      chomping       = CHOMPING_CLIP,
+      didReadContent = false,
+      detectedIndent = false,
+      textIndent     = nodeIndent,
+      emptyLines     = 0,
+      atMoreIndented = false,
+      tmp,
+      ch;
+
+  ch = state.input.charCodeAt(state.position);
+
+  if (ch === 0x7C/* | */) {
+    folding = false;
+  } else if (ch === 0x3E/* > */) {
+    folding = true;
+  } else {
+    return false;
+  }
+
+  state.kind = 'scalar';
+  state.result = '';
+
+  while (ch !== 0) {
+    ch = state.input.charCodeAt(++state.position);
+
+    if (ch === 0x2B/* + */ || ch === 0x2D/* - */) {
+      if (CHOMPING_CLIP === chomping) {
+        chomping = (ch === 0x2B/* + */) ? CHOMPING_KEEP : CHOMPING_STRIP;
+      } else {
+        throwError(state, 'repeat of a chomping mode identifier');
+      }
+
+    } else if ((tmp = fromDecimalCode(ch)) >= 0) {
+      if (tmp === 0) {
+        throwError(state, 'bad explicit indentation width of a block scalar; it cannot be less than one');
+      } else if (!detectedIndent) {
+        textIndent = nodeIndent + tmp - 1;
+        detectedIndent = true;
+      } else {
+        throwError(state, 'repeat of an indentation width identifier');
+      }
+
+    } else {
+      break;
+    }
+  }
+
+  if (is_WHITE_SPACE(ch)) {
+    do { ch = state.input.charCodeAt(++state.position); }
+    while (is_WHITE_SPACE(ch));
+
+    if (ch === 0x23/* # */) {
+      do { ch = state.input.charCodeAt(++state.position); }
+      while (!is_EOL(ch) && (ch !== 0));
+    }
+  }
+
+  while (ch !== 0) {
+    readLineBreak(state);
+    state.lineIndent = 0;
+
+    ch = state.input.charCodeAt(state.position);
+
+    while ((!detectedIndent || state.lineIndent < textIndent) &&
+           (ch === 0x20/* Space */)) {
+      state.lineIndent++;
+      ch = state.input.charCodeAt(++state.position);
+    }
+
+    if (!detectedIndent && state.lineIndent > textIndent) {
+      textIndent = state.lineIndent;
+    }
+
+    if (is_EOL(ch)) {
+      emptyLines++;
+      continue;
+    }
+
+    // End of the scalar.
+    if (state.lineIndent < textIndent) {
+
+      // Perform the chomping.
+      if (chomping === CHOMPING_KEEP) {
+        state.result += common.repeat('\n', didReadContent ? 1 + emptyLines : emptyLines);
+      } else if (chomping === CHOMPING_CLIP) {
+        if (didReadContent) { // i.e. only if the scalar is not empty.
+          state.result += '\n';
+        }
+      }
+
+      // Break this `while` cycle and go to the funciton's epilogue.
+      break;
+    }
+
+    // Folded style: use fancy rules to handle line breaks.
+    if (folding) {
+
+      // Lines starting with white space characters (more-indented lines) are not folded.
+      if (is_WHITE_SPACE(ch)) {
+        atMoreIndented = true;
+        // except for the first content line (cf. Example 8.1)
+        state.result += common.repeat('\n', didReadContent ? 1 + emptyLines : emptyLines);
+
+      // End of more-indented block.
+      } else if (atMoreIndented) {
+        atMoreIndented = false;
+        state.result += common.repeat('\n', emptyLines + 1);
+
+      // Just one line break - perceive as the same line.
+      } else if (emptyLines === 0) {
+        if (didReadContent) { // i.e. only if we have already read some scalar content.
+          state.result += ' ';
+        }
+
+      // Several line breaks - perceive as different lines.
+      } else {
+        state.result += common.repeat('\n', emptyLines);
+      }
+
+    // Literal style: just add exact number of line breaks between content lines.
+    } else {
+      // Keep all line breaks except the header line break.
+      state.result += common.repeat('\n', didReadContent ? 1 + emptyLines : emptyLines);
+    }
+
+    didReadContent = true;
+    detectedIndent = true;
+    emptyLines = 0;
+    captureStart = state.position;
+
+    while (!is_EOL(ch) && (ch !== 0)) {
+      ch = state.input.charCodeAt(++state.position);
+    }
+
+    captureSegment(state, captureStart, state.position, false);
+  }
+
+  return true;
+}
+
+function readBlockSequence(state, nodeIndent) {
+  var _line,
+      _tag      = state.tag,
+      _anchor   = state.anchor,
+      _result   = [],
+      following,
+      detected  = false,
+      ch;
+
+  if (state.anchor !== null) {
+    state.anchorMap[state.anchor] = _result;
+  }
+
+  ch = state.input.charCodeAt(state.position);
+
+  while (ch !== 0) {
+
+    if (ch !== 0x2D/* - */) {
+      break;
+    }
+
+    following = state.input.charCodeAt(state.position + 1);
+
+    if (!is_WS_OR_EOL(following)) {
+      break;
+    }
+
+    detected = true;
+    state.position++;
+
+    if (skipSeparationSpace(state, true, -1)) {
+      if (state.lineIndent <= nodeIndent) {
+        _result.push(null);
+        ch = state.input.charCodeAt(state.position);
+        continue;
+      }
+    }
+
+    _line = state.line;
+    composeNode(state, nodeIndent, CONTEXT_BLOCK_IN, false, true);
+    _result.push(state.result);
+    skipSeparationSpace(state, true, -1);
+
+    ch = state.input.charCodeAt(state.position);
+
+    if ((state.line === _line || state.lineIndent > nodeIndent) && (ch !== 0)) {
+      throwError(state, 'bad indentation of a sequence entry');
+    } else if (state.lineIndent < nodeIndent) {
+      break;
+    }
+  }
+
+  if (detected) {
+    state.tag = _tag;
+    state.anchor = _anchor;
+    state.kind = 'sequence';
+    state.result = _result;
+    return true;
+  }
+  return false;
+}
+
+function readBlockMapping(state, nodeIndent, flowIndent) {
+  var following,
+      allowCompact,
+      _line,
+      _pos,
+      _tag          = state.tag,
+      _anchor       = state.anchor,
+      _result       = {},
+      overridableKeys = {},
+      keyTag        = null,
+      keyNode       = null,
+      valueNode     = null,
+      atExplicitKey = false,
+      detected      = false,
+      ch;
+
+  if (state.anchor !== null) {
+    state.anchorMap[state.anchor] = _result;
+  }
+
+  ch = state.input.charCodeAt(state.position);
+
+  while (ch !== 0) {
+    following = state.input.charCodeAt(state.position + 1);
+    _line = state.line; // Save the current line.
+    _pos = state.position;
+
+    //
+    // Explicit notation case. There are two separate blocks:
+    // first for the key (denoted by "?") and second for the value (denoted by ":")
+    //
+    if ((ch === 0x3F/* ? */ || ch === 0x3A/* : */) && is_WS_OR_EOL(following)) {
+
+      if (ch === 0x3F/* ? */) {
+        if (atExplicitKey) {
+          storeMappingPair(state, _result, overridableKeys, keyTag, keyNode, null);
+          keyTag = keyNode = valueNode = null;
+        }
+
+        detected = true;
+        atExplicitKey = true;
+        allowCompact = true;
+
+      } else if (atExplicitKey) {
+        // i.e. 0x3A/* : */ === character after the explicit key.
+        atExplicitKey = false;
+        allowCompact = true;
+
+      } else {
+        throwError(state, 'incomplete explicit mapping pair; a key node is missed; or followed by a non-tabulated empty line');
+      }
+
+      state.position += 1;
+      ch = following;
+
+    //
+    // Implicit notation case. Flow-style node as the key first, then ":", and the value.
+    //
+    } else if (composeNode(state, flowIndent, CONTEXT_FLOW_OUT, false, true)) {
+
+      if (state.line === _line) {
+        ch = state.input.charCodeAt(state.position);
+
+        while (is_WHITE_SPACE(ch)) {
+          ch = state.input.charCodeAt(++state.position);
+        }
+
+        if (ch === 0x3A/* : */) {
+          ch = state.input.charCodeAt(++state.position);
+
+          if (!is_WS_OR_EOL(ch)) {
+            throwError(state, 'a whitespace character is expected after the key-value separator within a block mapping');
+          }
+
+          if (atExplicitKey) {
+            storeMappingPair(state, _result, overridableKeys, keyTag, keyNode, null);
+            keyTag = keyNode = valueNode = null;
+          }
+
+          detected = true;
+          atExplicitKey = false;
+          allowCompact = false;
+          keyTag = state.tag;
+          keyNode = state.result;
+
+        } else if (detected) {
+          throwError(state, 'can not read an implicit mapping pair; a colon is missed');
+
+        } else {
+          state.tag = _tag;
+          state.anchor = _anchor;
+          return true; // Keep the result of `composeNode`.
+        }
+
+      } else if (detected) {
+        throwError(state, 'can not read a block mapping entry; a multiline key may not be an implicit key');
+
+      } else {
+        state.tag = _tag;
+        state.anchor = _anchor;
+        return true; // Keep the result of `composeNode`.
+      }
+
+    } else {
+      break; // Reading is done. Go to the epilogue.
+    }
+
+    //
+    // Common reading code for both explicit and implicit notations.
+    //
+    if (state.line === _line || state.lineIndent > nodeIndent) {
+      if (composeNode(state, nodeIndent, CONTEXT_BLOCK_OUT, true, allowCompact)) {
+        if (atExplicitKey) {
+          keyNode = state.result;
+        } else {
+          valueNode = state.result;
+        }
+      }
+
+      if (!atExplicitKey) {
+        storeMappingPair(state, _result, overridableKeys, keyTag, keyNode, valueNode, _line, _pos);
+        keyTag = keyNode = valueNode = null;
+      }
+
+      skipSeparationSpace(state, true, -1);
+      ch = state.input.charCodeAt(state.position);
+    }
+
+    if (state.lineIndent > nodeIndent && (ch !== 0)) {
+      throwError(state, 'bad indentation of a mapping entry');
+    } else if (state.lineIndent < nodeIndent) {
+      break;
+    }
+  }
+
+  //
+  // Epilogue.
+  //
+
+  // Special case: last mapping's node contains only the key in explicit notation.
+  if (atExplicitKey) {
+    storeMappingPair(state, _result, overridableKeys, keyTag, keyNode, null);
+  }
+
+  // Expose the resulting mapping.
+  if (detected) {
+    state.tag = _tag;
+    state.anchor = _anchor;
+    state.kind = 'mapping';
+    state.result = _result;
+  }
+
+  return detected;
+}
+
+function readTagProperty(state) {
+  var _position,
+      isVerbatim = false,
+      isNamed    = false,
+      tagHandle,
+      tagName,
+      ch;
+
+  ch = state.input.charCodeAt(state.position);
+
+  if (ch !== 0x21/* ! */) return false;
+
+  if (state.tag !== null) {
+    throwError(state, 'duplication of a tag property');
+  }
+
+  ch = state.input.charCodeAt(++state.position);
+
+  if (ch === 0x3C/* < */) {
+    isVerbatim = true;
+    ch = state.input.charCodeAt(++state.position);
+
+  } else if (ch === 0x21/* ! */) {
+    isNamed = true;
+    tagHandle = '!!';
+    ch = state.input.charCodeAt(++state.position);
+
+  } else {
+    tagHandle = '!';
+  }
+
+  _position = state.position;
+
+  if (isVerbatim) {
+    do { ch = state.input.charCodeAt(++state.position); }
+    while (ch !== 0 && ch !== 0x3E/* > */);
+
+    if (state.position < state.length) {
+      tagName = state.input.slice(_position, state.position);
+      ch = state.input.charCodeAt(++state.position);
+    } else {
+      throwError(state, 'unexpected end of the stream within a verbatim tag');
+    }
+  } else {
+    while (ch !== 0 && !is_WS_OR_EOL(ch)) {
+
+      if (ch === 0x21/* ! */) {
+        if (!isNamed) {
+          tagHandle = state.input.slice(_position - 1, state.position + 1);
+
+          if (!PATTERN_TAG_HANDLE.test(tagHandle)) {
+            throwError(state, 'named tag handle cannot contain such characters');
+          }
+
+          isNamed = true;
+          _position = state.position + 1;
+        } else {
+          throwError(state, 'tag suffix cannot contain exclamation marks');
+        }
+      }
+
+      ch = state.input.charCodeAt(++state.position);
+    }
+
+    tagName = state.input.slice(_position, state.position);
+
+    if (PATTERN_FLOW_INDICATORS.test(tagName)) {
+      throwError(state, 'tag suffix cannot contain flow indicator characters');
+    }
+  }
+
+  if (tagName && !PATTERN_TAG_URI.test(tagName)) {
+    throwError(state, 'tag name cannot contain such characters: ' + tagName);
+  }
+
+  if (isVerbatim) {
+    state.tag = tagName;
+
+  } else if (_hasOwnProperty.call(state.tagMap, tagHandle)) {
+    state.tag = state.tagMap[tagHandle] + tagName;
+
+  } else if (tagHandle === '!') {
+    state.tag = '!' + tagName;
+
+  } else if (tagHandle === '!!') {
+    state.tag = 'tag:yaml.org,2002:' + tagName;
+
+  } else {
+    throwError(state, 'undeclared tag handle "' + tagHandle + '"');
+  }
+
+  return true;
+}
+
+function readAnchorProperty(state) {
+  var _position,
+      ch;
+
+  ch = state.input.charCodeAt(state.position);
+
+  if (ch !== 0x26/* & */) return false;
+
+  if (state.anchor !== null) {
+    throwError(state, 'duplication of an anchor property');
+  }
+
+  ch = state.input.charCodeAt(++state.position);
+  _position = state.position;
+
+  while (ch !== 0 && !is_WS_OR_EOL(ch) && !is_FLOW_INDICATOR(ch)) {
+    ch = state.input.charCodeAt(++state.position);
+  }
+
+  if (state.position === _position) {
+    throwError(state, 'name of an anchor node must contain at least one character');
+  }
+
+  state.anchor = state.input.slice(_position, state.position);
+  return true;
+}
+
+function readAlias(state) {
+  var _position, alias,
+      ch;
+
+  ch = state.input.charCodeAt(state.position);
+
+  if (ch !== 0x2A/* * */) return false;
+
+  ch = state.input.charCodeAt(++state.position);
+  _position = state.position;
+
+  while (ch !== 0 && !is_WS_OR_EOL(ch) && !is_FLOW_INDICATOR(ch)) {
+    ch = state.input.charCodeAt(++state.position);
+  }
+
+  if (state.position === _position) {
+    throwError(state, 'name of an alias node must contain at least one character');
+  }
+
+  alias = state.input.slice(_position, state.position);
+
+  if (!state.anchorMap.hasOwnProperty(alias)) {
+    throwError(state, 'unidentified alias "' + alias + '"');
+  }
+
+  state.result = state.anchorMap[alias];
+  skipSeparationSpace(state, true, -1);
+  return true;
+}
+
+function composeNode(state, parentIndent, nodeContext, allowToSeek, allowCompact) {
+  var allowBlockStyles,
+      allowBlockScalars,
+      allowBlockCollections,
+      indentStatus = 1, // 1: this>parent, 0: this=parent, -1: this<parent
+      atNewLine  = false,
+      hasContent = false,
+      typeIndex,
+      typeQuantity,
+      type,
+      flowIndent,
+      blockIndent;
+
+  if (state.listener !== null) {
+    state.listener('open', state);
+  }
+
+  state.tag    = null;
+  state.anchor = null;
+  state.kind   = null;
+  state.result = null;
+
+  allowBlockStyles = allowBlockScalars = allowBlockCollections =
+    CONTEXT_BLOCK_OUT === nodeContext ||
+    CONTEXT_BLOCK_IN  === nodeContext;
+
+  if (allowToSeek) {
+    if (skipSeparationSpace(state, true, -1)) {
+      atNewLine = true;
+
+      if (state.lineIndent > parentIndent) {
+        indentStatus = 1;
+      } else if (state.lineIndent === parentIndent) {
+        indentStatus = 0;
+      } else if (state.lineIndent < parentIndent) {
+        indentStatus = -1;
+      }
+    }
+  }
+
+  if (indentStatus === 1) {
+    while (readTagProperty(state) || readAnchorProperty(state)) {
+      if (skipSeparationSpace(state, true, -1)) {
+        atNewLine = true;
+        allowBlockCollections = allowBlockStyles;
+
+        if (state.lineIndent > parentIndent) {
+          indentStatus = 1;
+        } else if (state.lineIndent === parentIndent) {
+          indentStatus = 0;
+        } else if (state.lineIndent < parentIndent) {
+          indentStatus = -1;
+        }
+      } else {
+        allowBlockCollections = false;
+      }
+    }
+  }
+
+  if (allowBlockCollections) {
+    allowBlockCollections = atNewLine || allowCompact;
+  }
+
+  if (indentStatus === 1 || CONTEXT_BLOCK_OUT === nodeContext) {
+    if (CONTEXT_FLOW_IN === nodeContext || CONTEXT_FLOW_OUT === nodeContext) {
+      flowIndent = parentIndent;
+    } else {
+      flowIndent = parentIndent + 1;
+    }
+
+    blockIndent = state.position - state.lineStart;
+
+    if (indentStatus === 1) {
+      if (allowBlockCollections &&
+          (readBlockSequence(state, blockIndent) ||
+           readBlockMapping(state, blockIndent, flowIndent)) ||
+          readFlowCollection(state, flowIndent)) {
+        hasContent = true;
+      } else {
+        if ((allowBlockScalars && readBlockScalar(state, flowIndent)) ||
+            readSingleQuotedScalar(state, flowIndent) ||
+            readDoubleQuotedScalar(state, flowIndent)) {
+          hasContent = true;
+
+        } else if (readAlias(state)) {
+          hasContent = true;
+
+          if (state.tag !== null || state.anchor !== null) {
+            throwError(state, 'alias node should not have any properties');
+          }
+
+        } else if (readPlainScalar(state, flowIndent, CONTEXT_FLOW_IN === nodeContext)) {
+          hasContent = true;
+
+          if (state.tag === null) {
+            state.tag = '?';
+          }
+        }
+
+        if (state.anchor !== null) {
+          state.anchorMap[state.anchor] = state.result;
+        }
+      }
+    } else if (indentStatus === 0) {
+      // Special case: block sequences are allowed to have same indentation level as the parent.
+      // http://www.yaml.org/spec/1.2/spec.html#id2799784
+      hasContent = allowBlockCollections && readBlockSequence(state, blockIndent);
+    }
+  }
+
+  if (state.tag !== null && state.tag !== '!') {
+    if (state.tag === '?') {
+      for (typeIndex = 0, typeQuantity = state.implicitTypes.length; typeIndex < typeQuantity; typeIndex += 1) {
+        type = state.implicitTypes[typeIndex];
+
+        // Implicit resolving is not allowed for non-scalar types, and '?'
+        // non-specific tag is only assigned to plain scalars. So, it isn't
+        // needed to check for 'kind' conformity.
+
+        if (type.resolve(state.result)) { // `state.result` updated in resolver if matched
+          state.result = type.construct(state.result);
+          state.tag = type.tag;
+          if (state.anchor !== null) {
+            state.anchorMap[state.anchor] = state.result;
+          }
+          break;
+        }
+      }
+    } else if (_hasOwnProperty.call(state.typeMap[state.kind || 'fallback'], state.tag)) {
+      type = state.typeMap[state.kind || 'fallback'][state.tag];
+
+      if (state.result !== null && type.kind !== state.kind) {
+        throwError(state, 'unacceptable node kind for !<' + state.tag + '> tag; it should be "' + type.kind + '", not "' + state.kind + '"');
+      }
+
+      if (!type.resolve(state.result)) { // `state.result` updated in resolver if matched
+        throwError(state, 'cannot resolve a node with !<' + state.tag + '> explicit tag');
+      } else {
+        state.result = type.construct(state.result);
+        if (state.anchor !== null) {
+          state.anchorMap[state.anchor] = state.result;
+        }
+      }
+    } else {
+      throwError(state, 'unknown tag !<' + state.tag + '>');
+    }
+  }
+
+  if (state.listener !== null) {
+    state.listener('close', state);
+  }
+  return state.tag !== null ||  state.anchor !== null || hasContent;
+}
+
+function readDocument(state) {
+  var documentStart = state.position,
+      _position,
+      directiveName,
+      directiveArgs,
+      hasDirectives = false,
+      ch;
+
+  state.version = null;
+  state.checkLineBreaks = state.legacy;
+  state.tagMap = {};
+  state.anchorMap = {};
+
+  while ((ch = state.input.charCodeAt(state.position)) !== 0) {
+    skipSeparationSpace(state, true, -1);
+
+    ch = state.input.charCodeAt(state.position);
+
+    if (state.lineIndent > 0 || ch !== 0x25/* % */) {
+      break;
+    }
+
+    hasDirectives = true;
+    ch = state.input.charCodeAt(++state.position);
+    _position = state.position;
+
+    while (ch !== 0 && !is_WS_OR_EOL(ch)) {
+      ch = state.input.charCodeAt(++state.position);
+    }
+
+    directiveName = state.input.slice(_position, state.position);
+    directiveArgs = [];
+
+    if (directiveName.length < 1) {
+      throwError(state, 'directive name must not be less than one character in length');
+    }
+
+    while (ch !== 0) {
+      while (is_WHITE_SPACE(ch)) {
+        ch = state.input.charCodeAt(++state.position);
+      }
+
+      if (ch === 0x23/* # */) {
+        do { ch = state.input.charCodeAt(++state.position); }
+        while (ch !== 0 && !is_EOL(ch));
+        break;
+      }
+
+      if (is_EOL(ch)) break;
+
+      _position = state.position;
+
+      while (ch !== 0 && !is_WS_OR_EOL(ch)) {
+        ch = state.input.charCodeAt(++state.position);
+      }
+
+      directiveArgs.push(state.input.slice(_position, state.position));
+    }
+
+    if (ch !== 0) readLineBreak(state);
+
+    if (_hasOwnProperty.call(directiveHandlers, directiveName)) {
+      directiveHandlers[directiveName](state, directiveName, directiveArgs);
+    } else {
+      throwWarning(state, 'unknown document directive "' + directiveName + '"');
+    }
+  }
+
+  skipSeparationSpace(state, true, -1);
+
+  if (state.lineIndent === 0 &&
+      state.input.charCodeAt(state.position)     === 0x2D/* - */ &&
+      state.input.charCodeAt(state.position + 1) === 0x2D/* - */ &&
+      state.input.charCodeAt(state.position + 2) === 0x2D/* - */) {
+    state.position += 3;
+    skipSeparationSpace(state, true, -1);
+
+  } else if (hasDirectives) {
+    throwError(state, 'directives end mark is expected');
+  }
+
+  composeNode(state, state.lineIndent - 1, CONTEXT_BLOCK_OUT, false, true);
+  skipSeparationSpace(state, true, -1);
+
+  if (state.checkLineBreaks &&
+      PATTERN_NON_ASCII_LINE_BREAKS.test(state.input.slice(documentStart, state.position))) {
+    throwWarning(state, 'non-ASCII line breaks are interpreted as content');
+  }
+
+  state.documents.push(state.result);
+
+  if (state.position === state.lineStart && testDocumentSeparator(state)) {
+
+    if (state.input.charCodeAt(state.position) === 0x2E/* . */) {
+      state.position += 3;
+      skipSeparationSpace(state, true, -1);
+    }
+    return;
+  }
+
+  if (state.position < (state.length - 1)) {
+    throwError(state, 'end of the stream or a document separator is expected');
+  } else {
+    return;
+  }
+}
+
+
+function loadDocuments(input, options) {
+  input = String(input);
+  options = options || {};
+
+  if (input.length !== 0) {
+
+    // Add tailing `\n` if not exists
+    if (input.charCodeAt(input.length - 1) !== 0x0A/* LF */ &&
+        input.charCodeAt(input.length - 1) !== 0x0D/* CR */) {
+      input += '\n';
+    }
+
+    // Strip BOM
+    if (input.charCodeAt(0) === 0xFEFF) {
+      input = input.slice(1);
+    }
+  }
+
+  var state = new State(input, options);
+
+  // Use 0 as string terminator. That significantly simplifies bounds check.
+  state.input += '\0';
+
+  while (state.input.charCodeAt(state.position) === 0x20/* Space */) {
+    state.lineIndent += 1;
+    state.position += 1;
+  }
+
+  while (state.position < (state.length - 1)) {
+    readDocument(state);
+  }
+
+  return state.documents;
+}
+
+
+function loadAll(input, iterator, options) {
+  var documents = loadDocuments(input, options), index, length;
+
+  if (typeof iterator !== 'function') {
+    return documents;
+  }
+
+  for (index = 0, length = documents.length; index < length; index += 1) {
+    iterator(documents[index]);
+  }
+}
+
+
+function load(input, options) {
+  var documents = loadDocuments(input, options);
+
+  if (documents.length === 0) {
+    /*eslint-disable no-undefined*/
+    return undefined;
+  } else if (documents.length === 1) {
+    return documents[0];
+  }
+  throw new YAMLException('expected a single document in the stream, but found more');
+}
+
+
+function safeLoadAll(input, output, options) {
+  if (typeof output === 'function') {
+    loadAll(input, output, common.extend({ schema: DEFAULT_SAFE_SCHEMA }, options));
+  } else {
+    return loadAll(input, common.extend({ schema: DEFAULT_SAFE_SCHEMA }, options));
+  }
+}
+
+
+function safeLoad(input, options) {
+  return load(input, common.extend({ schema: DEFAULT_SAFE_SCHEMA }, options));
+}
+
+
+module.exports.loadAll     = loadAll;
+module.exports.load        = load;
+module.exports.safeLoadAll = safeLoadAll;
+module.exports.safeLoad    = safeLoad;
+
+},{"./common":"../node_modules/js-yaml/lib/js-yaml/common.js","./exception":"../node_modules/js-yaml/lib/js-yaml/exception.js","./mark":"../node_modules/js-yaml/lib/js-yaml/mark.js","./schema/default_safe":"../node_modules/js-yaml/lib/js-yaml/schema/default_safe.js","./schema/default_full":"../node_modules/js-yaml/lib/js-yaml/schema/default_full.js"}],"../node_modules/js-yaml/lib/js-yaml/dumper.js":[function(require,module,exports) {
+'use strict';
+
+/*eslint-disable no-use-before-define*/
+
+var common              = require('./common');
+var YAMLException       = require('./exception');
+var DEFAULT_FULL_SCHEMA = require('./schema/default_full');
+var DEFAULT_SAFE_SCHEMA = require('./schema/default_safe');
+
+var _toString       = Object.prototype.toString;
+var _hasOwnProperty = Object.prototype.hasOwnProperty;
+
+var CHAR_TAB                  = 0x09; /* Tab */
+var CHAR_LINE_FEED            = 0x0A; /* LF */
+var CHAR_SPACE                = 0x20; /* Space */
+var CHAR_EXCLAMATION          = 0x21; /* ! */
+var CHAR_DOUBLE_QUOTE         = 0x22; /* " */
+var CHAR_SHARP                = 0x23; /* # */
+var CHAR_PERCENT              = 0x25; /* % */
+var CHAR_AMPERSAND            = 0x26; /* & */
+var CHAR_SINGLE_QUOTE         = 0x27; /* ' */
+var CHAR_ASTERISK             = 0x2A; /* * */
+var CHAR_COMMA                = 0x2C; /* , */
+var CHAR_MINUS                = 0x2D; /* - */
+var CHAR_COLON                = 0x3A; /* : */
+var CHAR_GREATER_THAN         = 0x3E; /* > */
+var CHAR_QUESTION             = 0x3F; /* ? */
+var CHAR_COMMERCIAL_AT        = 0x40; /* @ */
+var CHAR_LEFT_SQUARE_BRACKET  = 0x5B; /* [ */
+var CHAR_RIGHT_SQUARE_BRACKET = 0x5D; /* ] */
+var CHAR_GRAVE_ACCENT         = 0x60; /* ` */
+var CHAR_LEFT_CURLY_BRACKET   = 0x7B; /* { */
+var CHAR_VERTICAL_LINE        = 0x7C; /* | */
+var CHAR_RIGHT_CURLY_BRACKET  = 0x7D; /* } */
+
+var ESCAPE_SEQUENCES = {};
+
+ESCAPE_SEQUENCES[0x00]   = '\\0';
+ESCAPE_SEQUENCES[0x07]   = '\\a';
+ESCAPE_SEQUENCES[0x08]   = '\\b';
+ESCAPE_SEQUENCES[0x09]   = '\\t';
+ESCAPE_SEQUENCES[0x0A]   = '\\n';
+ESCAPE_SEQUENCES[0x0B]   = '\\v';
+ESCAPE_SEQUENCES[0x0C]   = '\\f';
+ESCAPE_SEQUENCES[0x0D]   = '\\r';
+ESCAPE_SEQUENCES[0x1B]   = '\\e';
+ESCAPE_SEQUENCES[0x22]   = '\\"';
+ESCAPE_SEQUENCES[0x5C]   = '\\\\';
+ESCAPE_SEQUENCES[0x85]   = '\\N';
+ESCAPE_SEQUENCES[0xA0]   = '\\_';
+ESCAPE_SEQUENCES[0x2028] = '\\L';
+ESCAPE_SEQUENCES[0x2029] = '\\P';
+
+var DEPRECATED_BOOLEANS_SYNTAX = [
+  'y', 'Y', 'yes', 'Yes', 'YES', 'on', 'On', 'ON',
+  'n', 'N', 'no', 'No', 'NO', 'off', 'Off', 'OFF'
+];
+
+function compileStyleMap(schema, map) {
+  var result, keys, index, length, tag, style, type;
+
+  if (map === null) return {};
+
+  result = {};
+  keys = Object.keys(map);
+
+  for (index = 0, length = keys.length; index < length; index += 1) {
+    tag = keys[index];
+    style = String(map[tag]);
+
+    if (tag.slice(0, 2) === '!!') {
+      tag = 'tag:yaml.org,2002:' + tag.slice(2);
+    }
+    type = schema.compiledTypeMap['fallback'][tag];
+
+    if (type && _hasOwnProperty.call(type.styleAliases, style)) {
+      style = type.styleAliases[style];
+    }
+
+    result[tag] = style;
+  }
+
+  return result;
+}
+
+function encodeHex(character) {
+  var string, handle, length;
+
+  string = character.toString(16).toUpperCase();
+
+  if (character <= 0xFF) {
+    handle = 'x';
+    length = 2;
+  } else if (character <= 0xFFFF) {
+    handle = 'u';
+    length = 4;
+  } else if (character <= 0xFFFFFFFF) {
+    handle = 'U';
+    length = 8;
+  } else {
+    throw new YAMLException('code point within a string may not be greater than 0xFFFFFFFF');
+  }
+
+  return '\\' + handle + common.repeat('0', length - string.length) + string;
+}
+
+function State(options) {
+  this.schema        = options['schema'] || DEFAULT_FULL_SCHEMA;
+  this.indent        = Math.max(1, (options['indent'] || 2));
+  this.noArrayIndent = options['noArrayIndent'] || false;
+  this.skipInvalid   = options['skipInvalid'] || false;
+  this.flowLevel     = (common.isNothing(options['flowLevel']) ? -1 : options['flowLevel']);
+  this.styleMap      = compileStyleMap(this.schema, options['styles'] || null);
+  this.sortKeys      = options['sortKeys'] || false;
+  this.lineWidth     = options['lineWidth'] || 80;
+  this.noRefs        = options['noRefs'] || false;
+  this.noCompatMode  = options['noCompatMode'] || false;
+  this.condenseFlow  = options['condenseFlow'] || false;
+
+  this.implicitTypes = this.schema.compiledImplicit;
+  this.explicitTypes = this.schema.compiledExplicit;
+
+  this.tag = null;
+  this.result = '';
+
+  this.duplicates = [];
+  this.usedDuplicates = null;
+}
+
+// Indents every line in a string. Empty lines (\n only) are not indented.
+function indentString(string, spaces) {
+  var ind = common.repeat(' ', spaces),
+      position = 0,
+      next = -1,
+      result = '',
+      line,
+      length = string.length;
+
+  while (position < length) {
+    next = string.indexOf('\n', position);
+    if (next === -1) {
+      line = string.slice(position);
+      position = length;
+    } else {
+      line = string.slice(position, next + 1);
+      position = next + 1;
+    }
+
+    if (line.length && line !== '\n') result += ind;
+
+    result += line;
+  }
+
+  return result;
+}
+
+function generateNextLine(state, level) {
+  return '\n' + common.repeat(' ', state.indent * level);
+}
+
+function testImplicitResolving(state, str) {
+  var index, length, type;
+
+  for (index = 0, length = state.implicitTypes.length; index < length; index += 1) {
+    type = state.implicitTypes[index];
+
+    if (type.resolve(str)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// [33] s-white ::= s-space | s-tab
+function isWhitespace(c) {
+  return c === CHAR_SPACE || c === CHAR_TAB;
+}
+
+// Returns true if the character can be printed without escaping.
+// From YAML 1.2: "any allowed characters known to be non-printable
+// should also be escaped. [However,] This isn’t mandatory"
+// Derived from nb-char - \t - #x85 - #xA0 - #x2028 - #x2029.
+function isPrintable(c) {
+  return  (0x00020 <= c && c <= 0x00007E)
+      || ((0x000A1 <= c && c <= 0x00D7FF) && c !== 0x2028 && c !== 0x2029)
+      || ((0x0E000 <= c && c <= 0x00FFFD) && c !== 0xFEFF /* BOM */)
+      ||  (0x10000 <= c && c <= 0x10FFFF);
+}
+
+// Simplified test for values allowed after the first character in plain style.
+function isPlainSafe(c) {
+  // Uses a subset of nb-char - c-flow-indicator - ":" - "#"
+  // where nb-char ::= c-printable - b-char - c-byte-order-mark.
+  return isPrintable(c) && c !== 0xFEFF
+    // - c-flow-indicator
+    && c !== CHAR_COMMA
+    && c !== CHAR_LEFT_SQUARE_BRACKET
+    && c !== CHAR_RIGHT_SQUARE_BRACKET
+    && c !== CHAR_LEFT_CURLY_BRACKET
+    && c !== CHAR_RIGHT_CURLY_BRACKET
+    // - ":" - "#"
+    && c !== CHAR_COLON
+    && c !== CHAR_SHARP;
+}
+
+// Simplified test for values allowed as the first character in plain style.
+function isPlainSafeFirst(c) {
+  // Uses a subset of ns-char - c-indicator
+  // where ns-char = nb-char - s-white.
+  return isPrintable(c) && c !== 0xFEFF
+    && !isWhitespace(c) // - s-white
+    // - (c-indicator ::=
+    // “-” | “?” | “:” | “,” | “[” | “]” | “{” | “}”
+    && c !== CHAR_MINUS
+    && c !== CHAR_QUESTION
+    && c !== CHAR_COLON
+    && c !== CHAR_COMMA
+    && c !== CHAR_LEFT_SQUARE_BRACKET
+    && c !== CHAR_RIGHT_SQUARE_BRACKET
+    && c !== CHAR_LEFT_CURLY_BRACKET
+    && c !== CHAR_RIGHT_CURLY_BRACKET
+    // | “#” | “&” | “*” | “!” | “|” | “>” | “'” | “"”
+    && c !== CHAR_SHARP
+    && c !== CHAR_AMPERSAND
+    && c !== CHAR_ASTERISK
+    && c !== CHAR_EXCLAMATION
+    && c !== CHAR_VERTICAL_LINE
+    && c !== CHAR_GREATER_THAN
+    && c !== CHAR_SINGLE_QUOTE
+    && c !== CHAR_DOUBLE_QUOTE
+    // | “%” | “@” | “`”)
+    && c !== CHAR_PERCENT
+    && c !== CHAR_COMMERCIAL_AT
+    && c !== CHAR_GRAVE_ACCENT;
+}
+
+// Determines whether block indentation indicator is required.
+function needIndentIndicator(string) {
+  var leadingSpaceRe = /^\n* /;
+  return leadingSpaceRe.test(string);
+}
+
+var STYLE_PLAIN   = 1,
+    STYLE_SINGLE  = 2,
+    STYLE_LITERAL = 3,
+    STYLE_FOLDED  = 4,
+    STYLE_DOUBLE  = 5;
+
+// Determines which scalar styles are possible and returns the preferred style.
+// lineWidth = -1 => no limit.
+// Pre-conditions: str.length > 0.
+// Post-conditions:
+//    STYLE_PLAIN or STYLE_SINGLE => no \n are in the string.
+//    STYLE_LITERAL => no lines are suitable for folding (or lineWidth is -1).
+//    STYLE_FOLDED => a line > lineWidth and can be folded (and lineWidth != -1).
+function chooseScalarStyle(string, singleLineOnly, indentPerLevel, lineWidth, testAmbiguousType) {
+  var i;
+  var char;
+  var hasLineBreak = false;
+  var hasFoldableLine = false; // only checked if shouldTrackWidth
+  var shouldTrackWidth = lineWidth !== -1;
+  var previousLineBreak = -1; // count the first line correctly
+  var plain = isPlainSafeFirst(string.charCodeAt(0))
+          && !isWhitespace(string.charCodeAt(string.length - 1));
+
+  if (singleLineOnly) {
+    // Case: no block styles.
+    // Check for disallowed characters to rule out plain and single.
+    for (i = 0; i < string.length; i++) {
+      char = string.charCodeAt(i);
+      if (!isPrintable(char)) {
+        return STYLE_DOUBLE;
+      }
+      plain = plain && isPlainSafe(char);
+    }
+  } else {
+    // Case: block styles permitted.
+    for (i = 0; i < string.length; i++) {
+      char = string.charCodeAt(i);
+      if (char === CHAR_LINE_FEED) {
+        hasLineBreak = true;
+        // Check if any line can be folded.
+        if (shouldTrackWidth) {
+          hasFoldableLine = hasFoldableLine ||
+            // Foldable line = too long, and not more-indented.
+            (i - previousLineBreak - 1 > lineWidth &&
+             string[previousLineBreak + 1] !== ' ');
+          previousLineBreak = i;
+        }
+      } else if (!isPrintable(char)) {
+        return STYLE_DOUBLE;
+      }
+      plain = plain && isPlainSafe(char);
+    }
+    // in case the end is missing a \n
+    hasFoldableLine = hasFoldableLine || (shouldTrackWidth &&
+      (i - previousLineBreak - 1 > lineWidth &&
+       string[previousLineBreak + 1] !== ' '));
+  }
+  // Although every style can represent \n without escaping, prefer block styles
+  // for multiline, since they're more readable and they don't add empty lines.
+  // Also prefer folding a super-long line.
+  if (!hasLineBreak && !hasFoldableLine) {
+    // Strings interpretable as another type have to be quoted;
+    // e.g. the string 'true' vs. the boolean true.
+    return plain && !testAmbiguousType(string)
+      ? STYLE_PLAIN : STYLE_SINGLE;
+  }
+  // Edge case: block indentation indicator can only have one digit.
+  if (indentPerLevel > 9 && needIndentIndicator(string)) {
+    return STYLE_DOUBLE;
+  }
+  // At this point we know block styles are valid.
+  // Prefer literal style unless we want to fold.
+  return hasFoldableLine ? STYLE_FOLDED : STYLE_LITERAL;
+}
+
+// Note: line breaking/folding is implemented for only the folded style.
+// NB. We drop the last trailing newline (if any) of a returned block scalar
+//  since the dumper adds its own newline. This always works:
+//    • No ending newline => unaffected; already using strip "-" chomping.
+//    • Ending newline    => removed then restored.
+//  Importantly, this keeps the "+" chomp indicator from gaining an extra line.
+function writeScalar(state, string, level, iskey) {
+  state.dump = (function () {
+    if (string.length === 0) {
+      return "''";
+    }
+    if (!state.noCompatMode &&
+        DEPRECATED_BOOLEANS_SYNTAX.indexOf(string) !== -1) {
+      return "'" + string + "'";
+    }
+
+    var indent = state.indent * Math.max(1, level); // no 0-indent scalars
+    // As indentation gets deeper, let the width decrease monotonically
+    // to the lower bound min(state.lineWidth, 40).
+    // Note that this implies
+    //  state.lineWidth ≤ 40 + state.indent: width is fixed at the lower bound.
+    //  state.lineWidth > 40 + state.indent: width decreases until the lower bound.
+    // This behaves better than a constant minimum width which disallows narrower options,
+    // or an indent threshold which causes the width to suddenly increase.
+    var lineWidth = state.lineWidth === -1
+      ? -1 : Math.max(Math.min(state.lineWidth, 40), state.lineWidth - indent);
+
+    // Without knowing if keys are implicit/explicit, assume implicit for safety.
+    var singleLineOnly = iskey
+      // No block styles in flow mode.
+      || (state.flowLevel > -1 && level >= state.flowLevel);
+    function testAmbiguity(string) {
+      return testImplicitResolving(state, string);
+    }
+
+    switch (chooseScalarStyle(string, singleLineOnly, state.indent, lineWidth, testAmbiguity)) {
+      case STYLE_PLAIN:
+        return string;
+      case STYLE_SINGLE:
+        return "'" + string.replace(/'/g, "''") + "'";
+      case STYLE_LITERAL:
+        return '|' + blockHeader(string, state.indent)
+          + dropEndingNewline(indentString(string, indent));
+      case STYLE_FOLDED:
+        return '>' + blockHeader(string, state.indent)
+          + dropEndingNewline(indentString(foldString(string, lineWidth), indent));
+      case STYLE_DOUBLE:
+        return '"' + escapeString(string, lineWidth) + '"';
+      default:
+        throw new YAMLException('impossible error: invalid scalar style');
+    }
+  }());
+}
+
+// Pre-conditions: string is valid for a block scalar, 1 <= indentPerLevel <= 9.
+function blockHeader(string, indentPerLevel) {
+  var indentIndicator = needIndentIndicator(string) ? String(indentPerLevel) : '';
+
+  // note the special case: the string '\n' counts as a "trailing" empty line.
+  var clip =          string[string.length - 1] === '\n';
+  var keep = clip && (string[string.length - 2] === '\n' || string === '\n');
+  var chomp = keep ? '+' : (clip ? '' : '-');
+
+  return indentIndicator + chomp + '\n';
+}
+
+// (See the note for writeScalar.)
+function dropEndingNewline(string) {
+  return string[string.length - 1] === '\n' ? string.slice(0, -1) : string;
+}
+
+// Note: a long line without a suitable break point will exceed the width limit.
+// Pre-conditions: every char in str isPrintable, str.length > 0, width > 0.
+function foldString(string, width) {
+  // In folded style, $k$ consecutive newlines output as $k+1$ newlines—
+  // unless they're before or after a more-indented line, or at the very
+  // beginning or end, in which case $k$ maps to $k$.
+  // Therefore, parse each chunk as newline(s) followed by a content line.
+  var lineRe = /(\n+)([^\n]*)/g;
+
+  // first line (possibly an empty line)
+  var result = (function () {
+    var nextLF = string.indexOf('\n');
+    nextLF = nextLF !== -1 ? nextLF : string.length;
+    lineRe.lastIndex = nextLF;
+    return foldLine(string.slice(0, nextLF), width);
+  }());
+  // If we haven't reached the first content line yet, don't add an extra \n.
+  var prevMoreIndented = string[0] === '\n' || string[0] === ' ';
+  var moreIndented;
+
+  // rest of the lines
+  var match;
+  while ((match = lineRe.exec(string))) {
+    var prefix = match[1], line = match[2];
+    moreIndented = (line[0] === ' ');
+    result += prefix
+      + (!prevMoreIndented && !moreIndented && line !== ''
+        ? '\n' : '')
+      + foldLine(line, width);
+    prevMoreIndented = moreIndented;
+  }
+
+  return result;
+}
+
+// Greedy line breaking.
+// Picks the longest line under the limit each time,
+// otherwise settles for the shortest line over the limit.
+// NB. More-indented lines *cannot* be folded, as that would add an extra \n.
+function foldLine(line, width) {
+  if (line === '' || line[0] === ' ') return line;
+
+  // Since a more-indented line adds a \n, breaks can't be followed by a space.
+  var breakRe = / [^ ]/g; // note: the match index will always be <= length-2.
+  var match;
+  // start is an inclusive index. end, curr, and next are exclusive.
+  var start = 0, end, curr = 0, next = 0;
+  var result = '';
+
+  // Invariants: 0 <= start <= length-1.
+  //   0 <= curr <= next <= max(0, length-2). curr - start <= width.
+  // Inside the loop:
+  //   A match implies length >= 2, so curr and next are <= length-2.
+  while ((match = breakRe.exec(line))) {
+    next = match.index;
+    // maintain invariant: curr - start <= width
+    if (next - start > width) {
+      end = (curr > start) ? curr : next; // derive end <= length-2
+      result += '\n' + line.slice(start, end);
+      // skip the space that was output as \n
+      start = end + 1;                    // derive start <= length-1
+    }
+    curr = next;
+  }
+
+  // By the invariants, start <= length-1, so there is something left over.
+  // It is either the whole string or a part starting from non-whitespace.
+  result += '\n';
+  // Insert a break if the remainder is too long and there is a break available.
+  if (line.length - start > width && curr > start) {
+    result += line.slice(start, curr) + '\n' + line.slice(curr + 1);
+  } else {
+    result += line.slice(start);
+  }
+
+  return result.slice(1); // drop extra \n joiner
+}
+
+// Escapes a double-quoted string.
+function escapeString(string) {
+  var result = '';
+  var char, nextChar;
+  var escapeSeq;
+
+  for (var i = 0; i < string.length; i++) {
+    char = string.charCodeAt(i);
+    // Check for surrogate pairs (reference Unicode 3.0 section "3.7 Surrogates").
+    if (char >= 0xD800 && char <= 0xDBFF/* high surrogate */) {
+      nextChar = string.charCodeAt(i + 1);
+      if (nextChar >= 0xDC00 && nextChar <= 0xDFFF/* low surrogate */) {
+        // Combine the surrogate pair and store it escaped.
+        result += encodeHex((char - 0xD800) * 0x400 + nextChar - 0xDC00 + 0x10000);
+        // Advance index one extra since we already used that char here.
+        i++; continue;
+      }
+    }
+    escapeSeq = ESCAPE_SEQUENCES[char];
+    result += !escapeSeq && isPrintable(char)
+      ? string[i]
+      : escapeSeq || encodeHex(char);
+  }
+
+  return result;
+}
+
+function writeFlowSequence(state, level, object) {
+  var _result = '',
+      _tag    = state.tag,
+      index,
+      length;
+
+  for (index = 0, length = object.length; index < length; index += 1) {
+    // Write only valid elements.
+    if (writeNode(state, level, object[index], false, false)) {
+      if (index !== 0) _result += ',' + (!state.condenseFlow ? ' ' : '');
+      _result += state.dump;
+    }
+  }
+
+  state.tag = _tag;
+  state.dump = '[' + _result + ']';
+}
+
+function writeBlockSequence(state, level, object, compact) {
+  var _result = '',
+      _tag    = state.tag,
+      index,
+      length;
+
+  for (index = 0, length = object.length; index < length; index += 1) {
+    // Write only valid elements.
+    if (writeNode(state, level + 1, object[index], true, true)) {
+      if (!compact || index !== 0) {
+        _result += generateNextLine(state, level);
+      }
+
+      if (state.dump && CHAR_LINE_FEED === state.dump.charCodeAt(0)) {
+        _result += '-';
+      } else {
+        _result += '- ';
+      }
+
+      _result += state.dump;
+    }
+  }
+
+  state.tag = _tag;
+  state.dump = _result || '[]'; // Empty sequence if no valid values.
+}
+
+function writeFlowMapping(state, level, object) {
+  var _result       = '',
+      _tag          = state.tag,
+      objectKeyList = Object.keys(object),
+      index,
+      length,
+      objectKey,
+      objectValue,
+      pairBuffer;
+
+  for (index = 0, length = objectKeyList.length; index < length; index += 1) {
+    pairBuffer = state.condenseFlow ? '"' : '';
+
+    if (index !== 0) pairBuffer += ', ';
+
+    objectKey = objectKeyList[index];
+    objectValue = object[objectKey];
+
+    if (!writeNode(state, level, objectKey, false, false)) {
+      continue; // Skip this pair because of invalid key;
+    }
+
+    if (state.dump.length > 1024) pairBuffer += '? ';
+
+    pairBuffer += state.dump + (state.condenseFlow ? '"' : '') + ':' + (state.condenseFlow ? '' : ' ');
+
+    if (!writeNode(state, level, objectValue, false, false)) {
+      continue; // Skip this pair because of invalid value.
+    }
+
+    pairBuffer += state.dump;
+
+    // Both key and value are valid.
+    _result += pairBuffer;
+  }
+
+  state.tag = _tag;
+  state.dump = '{' + _result + '}';
+}
+
+function writeBlockMapping(state, level, object, compact) {
+  var _result       = '',
+      _tag          = state.tag,
+      objectKeyList = Object.keys(object),
+      index,
+      length,
+      objectKey,
+      objectValue,
+      explicitPair,
+      pairBuffer;
+
+  // Allow sorting keys so that the output file is deterministic
+  if (state.sortKeys === true) {
+    // Default sorting
+    objectKeyList.sort();
+  } else if (typeof state.sortKeys === 'function') {
+    // Custom sort function
+    objectKeyList.sort(state.sortKeys);
+  } else if (state.sortKeys) {
+    // Something is wrong
+    throw new YAMLException('sortKeys must be a boolean or a function');
+  }
+
+  for (index = 0, length = objectKeyList.length; index < length; index += 1) {
+    pairBuffer = '';
+
+    if (!compact || index !== 0) {
+      pairBuffer += generateNextLine(state, level);
+    }
+
+    objectKey = objectKeyList[index];
+    objectValue = object[objectKey];
+
+    if (!writeNode(state, level + 1, objectKey, true, true, true)) {
+      continue; // Skip this pair because of invalid key.
+    }
+
+    explicitPair = (state.tag !== null && state.tag !== '?') ||
+                   (state.dump && state.dump.length > 1024);
+
+    if (explicitPair) {
+      if (state.dump && CHAR_LINE_FEED === state.dump.charCodeAt(0)) {
+        pairBuffer += '?';
+      } else {
+        pairBuffer += '? ';
+      }
+    }
+
+    pairBuffer += state.dump;
+
+    if (explicitPair) {
+      pairBuffer += generateNextLine(state, level);
+    }
+
+    if (!writeNode(state, level + 1, objectValue, true, explicitPair)) {
+      continue; // Skip this pair because of invalid value.
+    }
+
+    if (state.dump && CHAR_LINE_FEED === state.dump.charCodeAt(0)) {
+      pairBuffer += ':';
+    } else {
+      pairBuffer += ': ';
+    }
+
+    pairBuffer += state.dump;
+
+    // Both key and value are valid.
+    _result += pairBuffer;
+  }
+
+  state.tag = _tag;
+  state.dump = _result || '{}'; // Empty mapping if no valid pairs.
+}
+
+function detectType(state, object, explicit) {
+  var _result, typeList, index, length, type, style;
+
+  typeList = explicit ? state.explicitTypes : state.implicitTypes;
+
+  for (index = 0, length = typeList.length; index < length; index += 1) {
+    type = typeList[index];
+
+    if ((type.instanceOf  || type.predicate) &&
+        (!type.instanceOf || ((typeof object === 'object') && (object instanceof type.instanceOf))) &&
+        (!type.predicate  || type.predicate(object))) {
+
+      state.tag = explicit ? type.tag : '?';
+
+      if (type.represent) {
+        style = state.styleMap[type.tag] || type.defaultStyle;
+
+        if (_toString.call(type.represent) === '[object Function]') {
+          _result = type.represent(object, style);
+        } else if (_hasOwnProperty.call(type.represent, style)) {
+          _result = type.represent[style](object, style);
+        } else {
+          throw new YAMLException('!<' + type.tag + '> tag resolver accepts not "' + style + '" style');
+        }
+
+        state.dump = _result;
+      }
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// Serializes `object` and writes it to global `result`.
+// Returns true on success, or false on invalid object.
+//
+function writeNode(state, level, object, block, compact, iskey) {
+  state.tag = null;
+  state.dump = object;
+
+  if (!detectType(state, object, false)) {
+    detectType(state, object, true);
+  }
+
+  var type = _toString.call(state.dump);
+
+  if (block) {
+    block = (state.flowLevel < 0 || state.flowLevel > level);
+  }
+
+  var objectOrArray = type === '[object Object]' || type === '[object Array]',
+      duplicateIndex,
+      duplicate;
+
+  if (objectOrArray) {
+    duplicateIndex = state.duplicates.indexOf(object);
+    duplicate = duplicateIndex !== -1;
+  }
+
+  if ((state.tag !== null && state.tag !== '?') || duplicate || (state.indent !== 2 && level > 0)) {
+    compact = false;
+  }
+
+  if (duplicate && state.usedDuplicates[duplicateIndex]) {
+    state.dump = '*ref_' + duplicateIndex;
+  } else {
+    if (objectOrArray && duplicate && !state.usedDuplicates[duplicateIndex]) {
+      state.usedDuplicates[duplicateIndex] = true;
+    }
+    if (type === '[object Object]') {
+      if (block && (Object.keys(state.dump).length !== 0)) {
+        writeBlockMapping(state, level, state.dump, compact);
+        if (duplicate) {
+          state.dump = '&ref_' + duplicateIndex + state.dump;
+        }
+      } else {
+        writeFlowMapping(state, level, state.dump);
+        if (duplicate) {
+          state.dump = '&ref_' + duplicateIndex + ' ' + state.dump;
+        }
+      }
+    } else if (type === '[object Array]') {
+      var arrayLevel = (state.noArrayIndent && (level > 0)) ? level - 1 : level;
+      if (block && (state.dump.length !== 0)) {
+        writeBlockSequence(state, arrayLevel, state.dump, compact);
+        if (duplicate) {
+          state.dump = '&ref_' + duplicateIndex + state.dump;
+        }
+      } else {
+        writeFlowSequence(state, arrayLevel, state.dump);
+        if (duplicate) {
+          state.dump = '&ref_' + duplicateIndex + ' ' + state.dump;
+        }
+      }
+    } else if (type === '[object String]') {
+      if (state.tag !== '?') {
+        writeScalar(state, state.dump, level, iskey);
+      }
+    } else {
+      if (state.skipInvalid) return false;
+      throw new YAMLException('unacceptable kind of an object to dump ' + type);
+    }
+
+    if (state.tag !== null && state.tag !== '?') {
+      state.dump = '!<' + state.tag + '> ' + state.dump;
+    }
+  }
+
+  return true;
+}
+
+function getDuplicateReferences(object, state) {
+  var objects = [],
+      duplicatesIndexes = [],
+      index,
+      length;
+
+  inspectNode(object, objects, duplicatesIndexes);
+
+  for (index = 0, length = duplicatesIndexes.length; index < length; index += 1) {
+    state.duplicates.push(objects[duplicatesIndexes[index]]);
+  }
+  state.usedDuplicates = new Array(length);
+}
+
+function inspectNode(object, objects, duplicatesIndexes) {
+  var objectKeyList,
+      index,
+      length;
+
+  if (object !== null && typeof object === 'object') {
+    index = objects.indexOf(object);
+    if (index !== -1) {
+      if (duplicatesIndexes.indexOf(index) === -1) {
+        duplicatesIndexes.push(index);
+      }
+    } else {
+      objects.push(object);
+
+      if (Array.isArray(object)) {
+        for (index = 0, length = object.length; index < length; index += 1) {
+          inspectNode(object[index], objects, duplicatesIndexes);
+        }
+      } else {
+        objectKeyList = Object.keys(object);
+
+        for (index = 0, length = objectKeyList.length; index < length; index += 1) {
+          inspectNode(object[objectKeyList[index]], objects, duplicatesIndexes);
+        }
+      }
+    }
+  }
+}
+
+function dump(input, options) {
+  options = options || {};
+
+  var state = new State(options);
+
+  if (!state.noRefs) getDuplicateReferences(input, state);
+
+  if (writeNode(state, 0, input, true, true)) return state.dump + '\n';
+
+  return '';
+}
+
+function safeDump(input, options) {
+  return dump(input, common.extend({ schema: DEFAULT_SAFE_SCHEMA }, options));
+}
+
+module.exports.dump     = dump;
+module.exports.safeDump = safeDump;
+
+},{"./common":"../node_modules/js-yaml/lib/js-yaml/common.js","./exception":"../node_modules/js-yaml/lib/js-yaml/exception.js","./schema/default_full":"../node_modules/js-yaml/lib/js-yaml/schema/default_full.js","./schema/default_safe":"../node_modules/js-yaml/lib/js-yaml/schema/default_safe.js"}],"../node_modules/js-yaml/lib/js-yaml.js":[function(require,module,exports) {
+'use strict';
+
+
+var loader = require('./js-yaml/loader');
+var dumper = require('./js-yaml/dumper');
+
+
+function deprecated(name) {
+  return function () {
+    throw new Error('Function ' + name + ' is deprecated and cannot be used.');
+  };
+}
+
+
+module.exports.Type                = require('./js-yaml/type');
+module.exports.Schema              = require('./js-yaml/schema');
+module.exports.FAILSAFE_SCHEMA     = require('./js-yaml/schema/failsafe');
+module.exports.JSON_SCHEMA         = require('./js-yaml/schema/json');
+module.exports.CORE_SCHEMA         = require('./js-yaml/schema/core');
+module.exports.DEFAULT_SAFE_SCHEMA = require('./js-yaml/schema/default_safe');
+module.exports.DEFAULT_FULL_SCHEMA = require('./js-yaml/schema/default_full');
+module.exports.load                = loader.load;
+module.exports.loadAll             = loader.loadAll;
+module.exports.safeLoad            = loader.safeLoad;
+module.exports.safeLoadAll         = loader.safeLoadAll;
+module.exports.dump                = dumper.dump;
+module.exports.safeDump            = dumper.safeDump;
+module.exports.YAMLException       = require('./js-yaml/exception');
+
+// Deprecated schema names from JS-YAML 2.0.x
+module.exports.MINIMAL_SCHEMA = require('./js-yaml/schema/failsafe');
+module.exports.SAFE_SCHEMA    = require('./js-yaml/schema/default_safe');
+module.exports.DEFAULT_SCHEMA = require('./js-yaml/schema/default_full');
+
+// Deprecated functions from JS-YAML 1.x.x
+module.exports.scan           = deprecated('scan');
+module.exports.parse          = deprecated('parse');
+module.exports.compose        = deprecated('compose');
+module.exports.addConstructor = deprecated('addConstructor');
+
+},{"./js-yaml/loader":"../node_modules/js-yaml/lib/js-yaml/loader.js","./js-yaml/dumper":"../node_modules/js-yaml/lib/js-yaml/dumper.js","./js-yaml/type":"../node_modules/js-yaml/lib/js-yaml/type.js","./js-yaml/schema":"../node_modules/js-yaml/lib/js-yaml/schema.js","./js-yaml/schema/failsafe":"../node_modules/js-yaml/lib/js-yaml/schema/failsafe.js","./js-yaml/schema/json":"../node_modules/js-yaml/lib/js-yaml/schema/json.js","./js-yaml/schema/core":"../node_modules/js-yaml/lib/js-yaml/schema/core.js","./js-yaml/schema/default_safe":"../node_modules/js-yaml/lib/js-yaml/schema/default_safe.js","./js-yaml/schema/default_full":"../node_modules/js-yaml/lib/js-yaml/schema/default_full.js","./js-yaml/exception":"../node_modules/js-yaml/lib/js-yaml/exception.js"}],"../node_modules/js-yaml/index.js":[function(require,module,exports) {
+'use strict';
+
+
+var yaml = require('./lib/js-yaml.js');
+
+
+module.exports = yaml;
+
+},{"./lib/js-yaml.js":"../node_modules/js-yaml/lib/js-yaml.js"}],"../node_modules/prism-react-renderer/prism/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -48393,7 +52819,7 @@ var SynHi = function SynHi(_ref) {
 var _default = SynHi;
 exports.default = _default;
 },{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","prism-react-renderer":"../node_modules/prism-react-renderer/dist/index.js","prism-react-renderer/themes/nightOwl":"../node_modules/prism-react-renderer/themes/nightOwl/index.js"}],"example.md":[function(require,module,exports) {
-module.exports = "# title here\n\nSome regular text\n\n* a\n* list\n* of\n* things\n\n### a pie chart:\n\n```jsx\n<MyChart size={300} type='pie' />\n```\n\n\n### regular code:\n\n```\nREGULAR CODE\n```\n\n\n### synhi:\n\n```js\n// javascript example\nalert('it works')\n```"
+module.exports = "# title here\n\nSome regular text\n\n* a\n* list\n* of\n* things\n\n### a pie chart made with JSX:\n\n```jsx\n<PieChart\n  data={[\n    { title: 'One', value: 10, color: '#E38627' },\n    { title: 'Two', value: 15, color: '#C13C37' },\n    { title: 'Three', value: 20, color: '#6A2135' },\n  ]}\n/>\n```\n\n### a pie chart made as custom-code-type, using yaml:\n```pie\n- title: One\n  value: 10\n  color: \"#E38627\"\n- title: Two\n  value: 15\n  color: \"#C13C37\"\n- title: Three\n  value: 20\n  color: \"#6A2135\"\n```\n\n### regular code:\n\n```\nREGULAR CODE\n```\n\n\n### synhi:\n\n```js\n// javascript example\nalert('it works')\n```\n\nYou can see the source code for this [here](https://github.com/konsumer/react-markdown-example/blob/master/src/example.md)."
 },{}],"index.js":[function(require,module,exports) {
 "use strict";
 
@@ -48405,36 +52831,57 @@ var _reactMarkdown = _interopRequireDefault(require("react-markdown"));
 
 var _reactJsxParser = _interopRequireDefault(require("react-jsx-parser"));
 
+var _reactMinimalPieChart = _interopRequireDefault(require("react-minimal-pie-chart"));
+
+var _styledComponents = _interopRequireDefault(require("styled-components"));
+
+var _jsYaml = _interopRequireDefault(require("js-yaml"));
+
 var _SynHi = _interopRequireDefault(require("./SynHi"));
 
 var _example = _interopRequireDefault(require("./example.md"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// this is just plain text
-// demo component
-var MyChart = function MyChart(_ref) {
-  var _ref$size = _ref.size,
-      size = _ref$size === void 0 ? 100 : _ref$size,
-      _ref$type = _ref.type,
-      type = _ref$type === void 0 ? 'line' : _ref$type;
-  return _react.default.createElement("div", null, "PIE GOES HERE, you asked for ", type, ": ", size);
-}; // these are the components you want to expose to your markdown:
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  width: 100px;\n  height: 100px;\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+
+function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+// constrain pie, so it doesn't fill page
+var PieWrapper = _styledComponents.default.div(_templateObject()); // these are the components you want to expose to your jsx-in-markdown:
 
 
 var components = {
-  MyChart: MyChart
+  PieChart: function PieChart(props) {
+    return _react.default.createElement(PieWrapper, null, _react.default.createElement(_reactMinimalPieChart.default, props));
+  }
 };
 var renderers = {
-  code: function code(_ref2) {
-    var language = _ref2.language,
-        value = _ref2.value;
+  code: function code(_ref) {
+    var language = _ref.language,
+        value = _ref.value;
 
+    // render "jsx" type as self-contained JSX (with only above components exposed)
     if (language === 'jsx') {
       return _react.default.createElement(_reactJsxParser.default, {
         jsx: value,
         components: components
       });
+    } // render "pie" type as YAML and hand it to a pie
+
+
+    if (language === 'pie') {
+      return _react.default.createElement(PieWrapper, null, _react.default.createElement(_reactMinimalPieChart.default, {
+        data: _jsYaml.default.safeLoad(value)
+      }));
     }
 
     return _react.default.createElement(_SynHi.default, {
@@ -48451,7 +52898,7 @@ var App = function App() {
 };
 
 (0, _reactDom.render)(_react.default.createElement(App, null), document.getElementById('root'));
-},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","react-markdown":"../node_modules/react-markdown/lib/react-markdown.js","react-jsx-parser":"../node_modules/react-jsx-parser/lib/react-jsx-parser.min.js","./SynHi":"SynHi.js","./example.md":"example.md"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","react-markdown":"../node_modules/react-markdown/lib/react-markdown.js","react-jsx-parser":"../node_modules/react-jsx-parser/lib/react-jsx-parser.min.js","react-minimal-pie-chart":"../node_modules/react-minimal-pie-chart/dist/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","js-yaml":"../node_modules/js-yaml/index.js","./SynHi":"SynHi.js","./example.md":"example.md"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -48479,7 +52926,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38079" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41595" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
