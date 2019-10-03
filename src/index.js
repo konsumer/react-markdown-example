@@ -20,7 +20,7 @@ const renderers = {
       return <JsxParser jsx={value} components={components} />
     }
     const className = language && `language-${language}`
-    const code = createElement('code', className ? { className: className } : null, value)
+    const code = createElement('code', className ? { className } : null, value)
     return createElement('pre', {}, code)
   }
 }
