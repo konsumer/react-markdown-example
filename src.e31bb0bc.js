@@ -52856,13 +52856,10 @@ function _templateObject() {
 function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
 // constrain pie, so it doesn't fill page
-var PieWrapper = _styledComponents.default.div(_templateObject()); // these are the components you want to expose to your jsx-in-markdown:
-
+var PieChart = (0, _styledComponents.default)(_reactMinimalPieChart.default)(_templateObject()); // these are the components you want to expose to your jsx-in-markdown:
 
 var components = {
-  PieChart: function PieChart(props) {
-    return _react.default.createElement(PieWrapper, null, _react.default.createElement(_reactMinimalPieChart.default, props));
-  }
+  PieChart: PieChart
 };
 var renderers = {
   code: function code(_ref) {
@@ -52879,10 +52876,11 @@ var renderers = {
 
 
     if (language === 'pie') {
-      return _react.default.createElement(PieWrapper, null, _react.default.createElement(_reactMinimalPieChart.default, {
+      return _react.default.createElement(PieChart, {
         data: _jsYaml.default.safeLoad(value)
-      }));
-    }
+      });
+    } // try to syntax-highlight, using my custom style
+
 
     return _react.default.createElement(_SynHi.default, {
       language: language
@@ -52926,7 +52924,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41595" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33539" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
