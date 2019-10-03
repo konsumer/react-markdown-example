@@ -1,7 +1,8 @@
-import React, { createElement } from 'react'
+import React from 'react'
 import { render } from 'react-dom'
 import ReactMarkdown from 'react-markdown'
 import JsxParser from 'react-jsx-parser'
+import SynHi from './SynHi'
 
 // this is just plain text
 import text from './example.md'
@@ -19,9 +20,7 @@ const renderers = {
     if (language === 'jsx') {
       return <JsxParser jsx={value} components={components} />
     }
-    const className = language && `language-${language}`
-    const code = createElement('code', className ? { className } : null, value)
-    return createElement('pre', {}, code)
+    return <SynHi language={language}>{value}</SynHi>
   }
 }
 

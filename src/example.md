@@ -10,3 +10,12 @@ Some regular text
 ```jsx
 <MyChart size={300} type='pie' />
 ```
+
+```
+REGULAR CODE
+```
+
+```js
+// javascript example
+alert('it works')
+```
