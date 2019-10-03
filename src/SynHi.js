@@ -4,12 +4,7 @@ import styled from 'styled-components'
 import Highlight, { defaultProps } from 'prism-react-renderer'
 import theme from 'prism-react-renderer/themes/nightOwl'
 
-export const Wrapper = styled.div`
-  font-family: sans-serif;
-  text-align: center;
-`
-
-export const Pre = styled.pre`
+const Pre = styled.pre`
   text-align: left;
   margin: 1em 0;
   padding: 0.5em;
@@ -20,11 +15,11 @@ export const Pre = styled.pre`
   }
 `
 
-export const LineNo = styled.span`
+const LineNo = styled.span`
   display: inline-block;
   width: 2em;
   user-select: none;
-  opacity: 0.3;
+  opacity: 0.8;
 `
 
 const SynHi = ({ children, language }) => (
