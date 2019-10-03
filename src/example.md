@@ -7,6 +7,6 @@ Some regular text
 * of
 * things
 
-```react
+```jsx
 <MyChart size={300} type='pie' />
 ```

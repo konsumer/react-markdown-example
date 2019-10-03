@@ -16,13 +16,12 @@ const components = {
 
 const renderers = {
   code: ({ language, value }) => {
-    if (language !== 'react') {
-      const className = language && `language-${language}`
-      const code = createElement('code', className ? { className: className } : null, value)
-      return createElement('pre', {}, code)
-    } else {
+    if (language === 'jsx') {
       return <JsxParser jsx={value} components={components} />
     }
+    const className = language && `language-${language}`
+    const code = createElement('code', className ? { className: className } : null, value)
+    return createElement('pre', {}, code)
   }
 }
 
