@@ -1,0 +1,25 @@
+{
+  "name": "react-markdown-example",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html",
+    "deploy": "ghpages konsumer/react-markdown-example --path=dist",
+    "predeploy": "npm run build"
+  },
+  "keywords": [],
+  "author": "David Konsumer <konsumer@jetboystudio.com> (http://konsumer.js.org)",
+  "license": "MIT",
+  "devDependencies": {
+    "ghpages": "0.0.10",
+    "parcel": "^1.12.3",
+    "parcel-bundler": "^1.12.3",
+    "parcel-plugin-markdown-string": "^1.4.0"
+  },
+  "dependencies": {
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1",
+    "react-jsx-parser": "^1.19.1",
+    "react-markdown": "^4.2.2"
+  }
+}
