@@ -48316,7 +48316,7 @@ exports.default = _default;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = exports.LineNo = exports.Pre = exports.Wrapper = void 0;
+exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
@@ -48334,18 +48334,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _templateObject3() {
-  var data = _taggedTemplateLiteral(["\n  display: inline-block;\n  width: 2em;\n  user-select: none;\n  opacity: 0.3;\n"]);
-
-  _templateObject3 = function _templateObject3() {
-    return data;
-  };
-
-  return data;
-}
-
 function _templateObject2() {
-  var data = _taggedTemplateLiteral(["\n  text-align: left;\n  margin: 1em 0;\n  padding: 0.5em;\n\n  & .token-line {\n    line-height: 1.3em;\n    height: 1.3em;\n  }\n"]);
+  var data = _taggedTemplateLiteral(["\n  display: inline-block;\n  width: 2em;\n  user-select: none;\n  opacity: 0.8;\n"]);
 
   _templateObject2 = function _templateObject2() {
     return data;
@@ -48355,7 +48345,7 @@ function _templateObject2() {
 }
 
 function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  font-family: sans-serif;\n  text-align: center;\n"]);
+  var data = _taggedTemplateLiteral(["\n  text-align: left;\n  margin: 1em 0;\n  padding: 0.5em;\n\n  & .token-line {\n    line-height: 1.3em;\n    height: 1.3em;\n  }\n"]);
 
   _templateObject = function _templateObject() {
     return data;
@@ -48366,17 +48356,9 @@ function _templateObject() {
 
 function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
-var Wrapper = _styledComponents.default.div(_templateObject());
+var Pre = _styledComponents.default.pre(_templateObject());
 
-exports.Wrapper = Wrapper;
-
-var Pre = _styledComponents.default.pre(_templateObject2());
-
-exports.Pre = Pre;
-
-var LineNo = _styledComponents.default.span(_templateObject3());
-
-exports.LineNo = LineNo;
+var LineNo = _styledComponents.default.span(_templateObject2());
 
 var SynHi = function SynHi(_ref) {
   var children = _ref.children,
@@ -48411,7 +48393,7 @@ var SynHi = function SynHi(_ref) {
 var _default = SynHi;
 exports.default = _default;
 },{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","prism-react-renderer":"../node_modules/prism-react-renderer/dist/index.js","prism-react-renderer/themes/nightOwl":"../node_modules/prism-react-renderer/themes/nightOwl/index.js"}],"example.md":[function(require,module,exports) {
-module.exports = "# title here\n\nSome regular text\n\n* a\n* list\n* of\n* things\n\n```jsx\n<MyChart size={300} type='pie' />\n```\n\n```\nREGULAR CODE\n```\n\n```js\n// javascript example\nalert('it works')\n```"
+module.exports = "# title here\n\nSome regular text\n\n* a\n* list\n* of\n* things\n\n### a pie chart:\n\n```jsx\n<MyChart size={300} type='pie' />\n```\n\n\n### regular code:\n\n```\nREGULAR CODE\n```\n\n\n### synhi:\n\n```js\n// javascript example\nalert('it works')\n```"
 },{}],"index.js":[function(require,module,exports) {
 "use strict";
 
@@ -48497,7 +48479,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "43297" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38079" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
